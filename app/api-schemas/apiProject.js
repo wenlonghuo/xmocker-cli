@@ -1,11 +1,7 @@
 
 
 module.exports.getAppProject = {
-  name: {
-    type: 'string',
-    required: true,
-    noEmpty: true
-  },
+  
 }
 
 module.exports.addAppProject = {
@@ -15,7 +11,16 @@ module.exports.addAppProject = {
     noEmpty: true
   },
   member: {
-    type: 'object',
+    type: 'string',
+  },
+  path: {
+    type: 'string',
+  },
+  port: {
+    type: 'number',
+  },
+  state: {
+    type: 'string',
   },
   gulp: {
     type: 'object',
@@ -37,7 +42,13 @@ module.exports.editAppProject = {
     noEmpty: true
   },
   member: {
-    type: 'object',
+    type: 'string',
+  },
+  path: {
+    type: 'string',
+  },
+  port: {
+    type: 'number',
   },
   gulp: {
     type: 'object',

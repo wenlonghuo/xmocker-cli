@@ -17,7 +17,10 @@ module.exports.editMockLib = {
   managePort: {
     type: 'string',
   },
-  mockPort: {
+  currentProject: {
+    type: 'string',
+  },
+  currentMode: {
     type: 'string',
   },
 }

@@ -28,7 +28,11 @@ module.exports.addApiBase = {
     type: 'string',
   },
   method: {
-    type: 'number',
+    type: 'string',
+    required: true,
+  },
+  functionInfo: {
+    type: 'object',
     required: true,
   },
   keywords: {
@@ -65,7 +69,10 @@ module.exports.editApiBase = {
     type: 'string',
   },
   method: {
-    type: 'number',
+    type: 'string',
+  },
+  functionInfo: {
+    type: 'object',
   },
   keywords: {
     type: 'string',

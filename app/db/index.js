@@ -12,10 +12,10 @@ const mockLib = new Datastore({filename: 'db/mock/lib', autoload: true});
 const mockHis = new Datastore({filename: 'db/mock/his', autoload: true});
 
 // 基础配置
-const appBase = new Datastore({mockDb: 'db/app/base', mockDb: true});
+const appBase = new Datastore({filename: 'db/app/base', autoload: true});
 
 // 项目信息
-const appProject = new Datastore({mockDb: 'db/app/project', mockDb: true});
+const appProject = new Datastore({filename: 'db/app/project', autoload: true});
 
 
 module.exports = {

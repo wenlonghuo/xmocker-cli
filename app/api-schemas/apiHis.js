@@ -1,6 +1,6 @@
 
 
-module.exports.getMockLib = {
+module.exports.getMockHis = {
   name: {
     type: 'string',
     required: true,
