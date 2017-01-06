@@ -1,5 +1,5 @@
 const router = require('./index.js');
-const controller = require('../controller/apiManage');
+const controller = require('../controller/apiBase');
 // const checkLogin = require('../auth').checkLogin
 // 查询书签
 

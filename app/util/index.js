@@ -72,7 +72,7 @@ let levelBox = {
   "DEBUG": 15,
 }
 
-let currentLogLevel = require('../index').logLevel
+let currentLogLevel = require('../index').logLevel || 15
 
 function log(level, err, ctx) {
   if (err == null) {
@@ -196,14 +196,23 @@ function formatArr(arr, option) {
  * schema中default值设置后，不管该参数是否是required，返回的obj均放入返回对象中
  *
  * */
+let specialList = ['null', 'undefined', 'NaN', 'Infinity', '-Infinity'];
 function checkParam(ctx, params, schema, option) {
   if (!ctx) throw new Error('ctx is needed when use checkParam function');
 
+  option = option || {};
   // 返回数据类型，默认是编辑状态，仅处理存在数据的部分
+  let oriParam = formatEntranceParam(params, schema, option);
+  if(oriParam._err){
+      return setError(ctx, oriParam._err,  oriParam._e)
+  }
+  return oriParam;
+}
 
+// 格式化代码
+function formatEntranceParam(params, schema, option){
   let keys = Object.keys(schema),
-    key, param, oriParam = {},
-    defaultValue;
+    key, param, oriParam = {}, cname;
   let keyObj;
 
   for (let i = 0; i < keys.length; i++) {
@@ -212,12 +221,14 @@ function checkParam(ctx, params, schema, option) {
 
     // 客户端传输进来的参数
     param = params[key];
+    cname = keyObj.cname || key;
+
 
     if (param === undefined) {
 
       // 参数未上传
       if (keyObj.required) {
-        return setError(ctx, '请填写参数：' + (keyObj.name || key))
+        return {_err: '请填写参数：' + cname};
       }
       // 未传参数，但模板存在默认值，设定该值
       if (keyObj.default !== undefined) {
@@ -226,6 +237,11 @@ function checkParam(ctx, params, schema, option) {
 
     } else {
 
+      // 特殊值提醒
+      if(option.warn && keyObj.specialValue && specialList.indexOf(String(param)) >=0 && keyObj.specialValue.indexOf(String(param))<0){
+        console.error('传入参数可能存在错误' + cname + ', 值为：' +param);
+      }
+
       // 参数已经上传
       let paramType = typeof param;
 
@@ -233,9 +249,14 @@ function checkParam(ctx, params, schema, option) {
 
         // 字符串型
         param = String(param);
+        
         // 非空判断
         if (keyObj.noEmpty && param === '') {
-          return setError(ctx, '参数值不能为空: ' + (keyObj.name || key))
+          return {_err: '参数值不能为空: ' + cname};
+        }
+
+        if(keyObj.max != null && (keyObj.max < param.length || keyObj.min > param.length)) {
+          return {_err: '参数值长度范围不正常: ' + cname};
         }
 
       } else if (keyObj.type === 'number') {
@@ -243,7 +264,11 @@ function checkParam(ctx, params, schema, option) {
         // 数字类型
         param = parseFloat(param);
         if (isNaN(param)) {
-          return setError(ctx, (keyObj.name || key) + ' 必须是数字或数字样式的字符串')
+          return {_err: cname + ' 必须是数字或数字样式的字符串'};
+        }
+
+        if(keyObj.max != null && (keyObj.max < param || keyObj.min > param)) {
+          return {_err: '参数数值超出范围: ' + cname};
         }
 
       } else if (keyObj.type === 'boolean') {
@@ -257,7 +282,7 @@ function checkParam(ctx, params, schema, option) {
               param = keyObj.default;
             }
           } catch (e) {
-            return setError(ctx, '转换布尔类型失败', e)
+            return {_err: '转换布尔类型失败' + cname, _e: e};
           }
         }
 
@@ -268,10 +293,42 @@ function checkParam(ctx, params, schema, option) {
           try {
             param = JSON.parse(param);
           } catch (e) {
-            return setError(ctx, key + ' 必须是对象格式的字符串');
+            return {_err: cname + ' 必须是对象格式的字符串'};
           }
         }
+        // 存在子对象校验
+        if(keyObj.child) {
+          param = formatEntranceParam(param, keyObj.child, option);
+          if(param._err){
+            return param;
+          }
+        }
+      } else if(keyObj.type === 'array') {
 
+        // 数组类型
+        if (typeof param !== 'object') {
+          try {
+            param = JSON.parse(param);
+          } catch (e) {
+            return {_err: cname + ' 必须是数组格式的字符串'};
+          }
+        }
+        // 存在子对象校验
+        if(keyObj.child && Array.isArray(param)) {
+          let tmpArr = [], item, resultItem;
+          for(let i=0; i<param.length; i++){
+            item = param[i];
+            resultItem = formatEntranceParam(item, keyObj.child, option);
+            if(resultItem._err){
+              return resultItem;
+            }
+            tmpArr.push(resultItem);
+          }
+          param = tmpArr;
+          
+        } else if(!Array.isArray(param)){
+          return {_err: cname + ' 传入的不是数组'};
+        }
       }
 
       oriParam[key] = param;
@@ -280,7 +337,6 @@ function checkParam(ctx, params, schema, option) {
   }
   return oriParam;
 }
-
 
 let apiSchema = require('../api-schemas');
 /**
@@ -293,12 +349,15 @@ let apiSchema = require('../api-schemas');
 function formatParam(ctx, next) {
   let method = ctx.method;
   let params = ctx.request.body;
-  if (method.toLowerCase() == 'get') params = ctx.query;
+  if (method.toLowerCase() == 'get' || method.toLowerCase() == 'delete') params = ctx.query;
 
   let p = ctx.request.path;
   p = p.split('/').pop();
   let schema = apiSchema[p];
-  if (!schema) throw new Error('接口' + p + '不存在schema');
+  if (!schema) return ctx.body = {
+    code: -1,
+    err: '接口' + p + '不存在schema'
+  };
 
   let finalParams = checkParam(ctx, params, schema);
   if (finalParams) {

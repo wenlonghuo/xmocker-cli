@@ -19,6 +19,7 @@
     "koa-generic-session": "^1.11.4",
     "koa-passport": "^1.3.0",
     "koa-router": "^7.0.1",
+    "minimist": "^1.2.0",
     "nedb": "^1.8.0",
     "resolve-path": "^1.3.3",
     "thenify": "^3.2.1",

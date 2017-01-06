@@ -7,7 +7,7 @@ const Datastore = require('./promiseNeDb')
 const apiBase = new Datastore({filename: 'db/api/base', autoload: true});
 
 // mock用于显示数据
-const mockLib = new Datastore({filename: 'db/mock/lib', autoload: true});
+const apiModel = new Datastore({filename: 'db/api/model', autoload: true});
 // mock数据历史记录
 const mockHis = new Datastore({filename: 'db/mock/his', autoload: true});
 
@@ -20,7 +20,7 @@ const appProject = new Datastore({filename: 'db/app/project', autoload: true});
 
 module.exports = {
 	apiBase: apiBase,
-  mockLib: mockLib,
+  apiModel: apiModel,
   mockHis: mockHis,
   appBase: appBase,
   appProject: appProject,

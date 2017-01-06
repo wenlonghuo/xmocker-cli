@@ -1,6 +1,5 @@
 <template>
   <div>
-    <md-table-card v-show="!showProj" class="m-project-card">
       <md-toolbar class="md-medium">
         <h1 class="md-title app-toolbar-title">项目列表</h1>
 
@@ -24,51 +23,8 @@
           <md-icon>search</md-icon>
         </md-button>
       </md-toolbar>
-
-      <md-table @select="selectTable" id="mytable">
-        <md-table-header>
-          <md-table-row>
-            <md-table-head>名称</md-table-head>
-            <md-table-head md-tooltip="项目路径，请根据计算机上实际路径修改">项目路径</md-table-head>
-            <md-table-head md-tooltip="请求的API端口">端口</md-table-head>
-            <md-table-head>&nbsp;管理</md-table-head>
-          </md-table-row>
-        </md-table-header>
-
-        <md-table-body>
-          <md-table-row v-for="(row, rowIndex) in list" :key="rowIndex" :md-item="row" :data-item="row._id" md-auto-select md-selection>
-            <md-table-cell>{{ row.name }}</md-table-cell>
-            <md-table-cell>{{ row.path }}</md-table-cell>
-            <md-table-cell>{{ row.port }}</md-table-cell>
-            <md-table-cell>
-              <md-button class="md-icon-button">
-                <md-icon @click.native="buttonEdit" :data-id="row._id">edit</md-icon>
-              </md-button>
-            </md-table-cell>
-          </md-table-row>
-        </md-table-body>
-      </md-table>
-
-
-      <tb-pagination
-        :md-size="pageInfo.pageSize"
-        :md-total="pageInfo.total"
-        :md-page="pageInfo.pageNo"
-        md-label="每页条数"
-        md-separator="of"
-        :md-page-options="[5, 10, 25, 50]"
-        @pagination="getProject"
-      ></tb-pagination>
-    </md-table-card>
-
     <md-whiteframe md-elevation="10" v-if="showProj" class="app-project-show">
-      <md-toolbar class="md-dense" md-theme="md-menu">
-        <h1 class="md-title app-toolbar-title" style="flex:1;text-align: left;" v-html="proj.title"></h1>
-
-        <md-button class="md-icon-button" @click="cancelVal('showProj')">
-          取消
-        </md-button>
-      </md-toolbar>
+      
 
       <div class="app-project-show-form">
          <md-input-container>
@@ -108,14 +64,6 @@
        
         <md-button class="md-primary" @click="submitProject">提交</md-button>     
     </md-whiteframe>
-
-
-    <div class="app-input-search" v-show="showSearch">
-      <md-input-container >
-        <label>可输入项目名称或项目成员</label>
-        <md-input placeholder="搜索" type="search" ></md-input>
-      </md-input-container>
-    </div>
 
 
     <md-dialog-alert

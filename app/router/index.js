@@ -2,9 +2,9 @@ let router = require('koa-router')();
 
 module.exports = router
 
-require('./apiManage');
+require('./apiBase');
 
-require('./apiLib');
+require('./apiModel');
 
 require('./apiProject');
 

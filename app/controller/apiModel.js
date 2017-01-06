@@ -1,26 +1,26 @@
 const db = require('../db');
-const MockLib = db.mockLib;
+const ApiModel = db.apiModel;
 
 const util = require('../util');
 
 const checkParam = util.checkParam;
 
 module.exports = {
-  getMockLib: getMockLib,
-  addMockLib: addMockLib,
-  editMockLib: editMockLib,
-  deleteMockLib: deleteMockLib,
+  getApiModel: getApiModel,
+  addApiModel: addApiModel,
+  editApiModel: editApiModel,
+  deleteApiModel: deleteApiModel,
 
 }
 
 
-async function getMockLib(ctx, next){
+async function getApiModel(ctx, next){
 
   let finalParams = ctx.finalParams;
 
   let data;
   try{
-    data = await MockLib.cfind(finalParams).exec()
+    data = await ApiModel.cfind(finalParams).exec()
   }catch(e){
 
   }
@@ -36,12 +36,12 @@ async function getMockLib(ctx, next){
 
 
 
-async function addMockLib(ctx, next){
+async function addApiModel(ctx, next){
   let finalParams = ctx.finalParams;
 
   let data;
   try{
-    data = await MockLib.insert(finalParams);
+    data = await ApiModel.insert(finalParams);
   }catch(e){
     
   }
@@ -56,7 +56,7 @@ async function addMockLib(ctx, next){
 
 
 
-async function editMockLib(ctx, next){
+async function editApiModel(ctx, next){
   let finalParams = ctx.finalParams;
 
   let id = finalParams.id;
@@ -64,7 +64,7 @@ async function editMockLib(ctx, next){
 
   let data;
   try{
-    data = await MockLib.update({_id: id}, {$set:finalParams});
+    data = await ApiModel.update({_id: id}, {$set:finalParams});
   }catch(e){
     
   }
@@ -76,12 +76,12 @@ async function editMockLib(ctx, next){
   next();
 }
 
-async function deleteMockLib(ctx, next){
+async function deleteApiModel(ctx, next){
   let finalParams = ctx.finalParams;
 
   let data;
   try{
-    data = await MockLib.remove({_id: finalParams.id});
+    data = await ApiModel.remove({_id: finalParams.id});
   }catch(e){
     
   }

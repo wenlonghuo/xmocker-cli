@@ -1,5 +1,5 @@
 const db = require('../db');
-const mockLib = db.mockLib;
+const apiModel = db.apiModel;
 const mockHis = db.mockHis;
 
 const apiBase = db.apiBase;
@@ -97,7 +97,7 @@ async function sendApiData(ctx, next){
 
   } else {// 展示模式
     try{
-      let apis = await mockLib.cfind({id: config.api._id}).exec();
+      let apis = await apiModel.cfind({id: config.api._id}).exec();
       let result, defaultApi, i;
       for(i=0; i<apis.length; i++){
         let api = apis[i]
