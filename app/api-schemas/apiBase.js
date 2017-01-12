@@ -1,4 +1,11 @@
 
+module.exports.getApiDetail = {
+  id: {
+    type: 'string',
+    required: true,
+    noEmpty: true
+  },
+}
 
 module.exports.getApiBase = {
   name: {
@@ -7,7 +14,6 @@ module.exports.getApiBase = {
   },
   project: {
     type: 'string',
-    required: true,
     noEmpty: true
   },
   pageSize: {

@@ -130,5 +130,20 @@ module.exports.deleteAppProject = {
   },
 }
 
+module.exports.startAppProject = {
+  id: {
+    type: 'string',
+    required: true,
+    noEmpty: true
+  },
+}
+
+module.exports.stopAppProject = {
+  id: {
+    type: 'string',
+    required: true,
+    noEmpty: true
+  },
+}
 
 

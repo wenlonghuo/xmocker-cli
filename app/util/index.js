@@ -72,7 +72,7 @@ let levelBox = {
   "DEBUG": 15,
 }
 
-let currentLogLevel = require('../index').logLevel || 15
+let currentLogLevel = 15
 
 function log(level, err, ctx) {
   if (err == null) {

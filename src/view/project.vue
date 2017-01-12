@@ -12,11 +12,11 @@
           <md-icon>clear</md-icon>
         </md-button>
 
-        <md-button class="md-icon-button" @click="">
+        <md-button class="md-icon-button" @click="controlProjectStatus($event, 1)">
           <md-icon>play_arrow</md-icon>
         </md-button>
 
-        <md-button class="md-icon-button md-warn" @click="">
+        <md-button class="md-icon-button md-warn" @click="controlProjectStatus($event, 0)">
           <md-icon>stop_arrow</md-icon>
         </md-button>
 
@@ -28,22 +28,31 @@
       <md-table @select="selectTable" id="mytable">
         <md-table-header>
           <md-table-row>
+            <md-table-head class="m-min-width">状态</md-table-head>
             <md-table-head>名称</md-table-head>
             <md-table-head md-tooltip="项目路径，请根据计算机上实际路径修改">项目路径</md-table-head>
-            <md-table-head md-tooltip="请求的API端口">端口</md-table-head>
-            <md-table-head>&nbsp;管理</md-table-head>
+            <md-table-head class="m-min-width" md-tooltip="请求的API端口">端口</md-table-head>
+            <md-table-head class="m-min-width">&nbsp;管理</md-table-head>
           </md-table-row>
         </md-table-header>
 
         <md-table-body>
           <md-table-row v-for="(row, rowIndex) in list" :key="rowIndex" :md-item="row" :data-item="row._id" md-auto-select md-selection>
-            <md-table-cell>{{ row.name }}</md-table-cell>
-            <md-table-cell>{{ row.path }}</md-table-cell>
-            <md-table-cell>{{ row.port }}</md-table-cell>
+            <md-table-cell>
+              <md-icon class="md-primary m-inline" v-if="row.status">lightbulb_outline</md-icon>
+              <md-icon class="m-inline" v-else>lightbulb_outline</md-icon>
+            </md-table-cell>
+            <md-table-cell>
+              <span>{{ row.name }}</span>
+            </md-table-cell>
+            <md-table-cell><span>{{ row.path }}</span></md-table-cell>
+            <md-table-cell><span>{{ row.port }}</span>
+            </md-table-cell>
             <md-table-cell>
               <md-button class="md-icon-button">
                 <md-icon @click.native="buttonEdit" :data-id="row._id">edit</md-icon>
               </md-button>
+
             </md-table-cell>
           </md-table-row>
         </md-table-body>
@@ -200,6 +209,14 @@
           method: 'DELETE',
           url: '/mock/deleteAppProject'
         },
+        start: {
+          method: 'PUT',
+          url: '/mock/startAppProject'
+        },
+        stop: {
+          method: 'PUT',
+          url: '/mock/stopAppProject'
+        },
       });
     },
     mounted: function() {
@@ -277,6 +294,19 @@
         };
         return this.app.delete(param);
       },
+      startProject: function(ids) {
+        var param = {
+          id: ids
+        };
+        return this.app.start(param);
+      },
+      stopProject: function(ids) {
+        var param = {
+          id: ids
+        };
+        return this.app.stop(param);
+      },
+
       // 提示
       alert: function(msg) {
         this.$set(this.alertInfo, 'content', msg);
@@ -296,25 +326,12 @@
       },
       // 删除弹窗
       openDiag: function(ref) {
-        var query = document.querySelectorAll('#mytable table tbody tr.md-selected');
-        var inlineItems = [], itemArr = [];
-        var list = this.list;
-        query.forEach(function(item) {
-          var _id = item.getAttribute('data-item') || '';
-          var p = list.find(function(l) {
-              return l._id === _id
-            });
-          if (p) {
-            inlineItems.push(p)
-          }
-        });
+        var inlineItems = this.getSelected();
 
         if (!inlineItems.length) {
           this.alert('请至少选择一个项目');
           return;
         }
-
-        this.selectedItem = inlineItems;
 
         for (var i = 0; i < inlineItems.length; i++) {
           itemArr.push('&nbsp;' + (i + 1) + '. ' + inlineItems[i].name);
@@ -335,6 +352,24 @@
             this.alert(data.err || data.data.tip);
           }).catch(this.catchError);
         }
+      },
+      controlProjectStatus: function(e, type) {
+        var inlineItems = this.getSelected();
+        var ids = inlineItems.map(function(item) {
+            return item._id
+          });
+        var req;
+        if(type){
+          req = this.startProject(ids.join(','))
+        } else {
+          req = this.stopProject(ids.join(','));
+        }
+        req.then(function(data) {
+          data = data.data;
+          this.getProject();
+          this.alert(data.err || data.data.tip);
+        }).catch(this.catchError);
+        
       },
       // 编辑或新增操作
       dealProject: function(e, type) {
@@ -394,6 +429,23 @@
       },
       catchError: function(data) {
         this.alert('网络错误，请稍后重试');
+      },
+      getSelected: function(){
+        var query = document.querySelectorAll('#mytable table tbody tr.md-selected');
+        var inlineItems = [];
+        var list = this.list;
+        query.forEach(function(item) {
+          var _id = item.getAttribute('data-item') || '';
+          var p = list.find(function(l) {
+              return l._id === _id
+            });
+          if (p) {
+            inlineItems.push(p)
+          }
+        });
+
+        this.selectedItem = inlineItems;
+        return inlineItems;
       }
     }
   }
@@ -427,5 +479,14 @@
   .m-project-card {
     max-width: 1200px;
     margin: 0 auto;
+  }
+  .m-inline {
+    margin: 0;
+  }
+  .md-table .md-table-cell.md-has-action .md-table-cell-container {
+    justify-content: flex-start;
+  }
+  .m-min-width {
+    width: 60px;
   }
 </style>

@@ -4,7 +4,7 @@ Object.assign(schemas, require('./apiBase'));
 
 Object.assign(schemas, require('./apiModel'));
 
-Object.assign(schemas, require('./apiProject'));
+Object.assign(schemas, require('./appProject'));
 
 Object.assign(schemas, require('./appBase'));
 

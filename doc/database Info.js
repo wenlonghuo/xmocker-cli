@@ -16,6 +16,10 @@ appBase = {
     type: 'string',
     cname: '系统管理端口',
   },
+  defaultProject: {
+    type: 'string',
+    cname: '默认项目id',
+  },
   repeatTime: {
     type: 'number',
     cname: '重复次数',
@@ -176,3 +180,4 @@ MockHis = {
     cname: 'mock历史数据'
   }
 }
+

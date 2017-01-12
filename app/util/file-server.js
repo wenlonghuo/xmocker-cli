@@ -15,7 +15,7 @@ var extname = path.extname;
 var resolve = path.resolve;
 var parse = path.parse;
 var sep = path.sep;
-var fs = require('fs');
+var fs = require('mz/fs');
 
 /**
  * Expose `send()`.

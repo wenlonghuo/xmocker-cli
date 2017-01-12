@@ -2,15 +2,15 @@ let router = require('koa-router')();
 const controller = require('./controller');
 let util = require('../util');
 let formatParam = util.formatParam;
-let getAppConfig = controller.getAppConfig;
+let getProjectApiList = controller.getProjectApiList;
 
-router.get('*', getAppConfig, controller.getApi)
+router.get('*', getProjectApiList, controller.getApi)
 
-router.post('*', getAppConfig, controller.addApi)
+router.post('*', getProjectApiList, controller.addApi)
 
-router.put('*', getAppConfig, controller.editApi)
+router.put('*', getProjectApiList, controller.editApi)
 
-router.delete('*', getAppConfig, controller.deleteApi)
+router.delete('*', getProjectApiList, controller.deleteApi)
 
 
 module.exports = router

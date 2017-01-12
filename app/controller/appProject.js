@@ -2,6 +2,8 @@ const db = require('../db');
 const AppProject = db.appProject;
 
 const util = require('../util');
+const processControl = require('../processControl')
+const processList = processControl.processList
 
 const checkParam = util.checkParam;
 
@@ -10,7 +12,8 @@ module.exports = {
   addAppProject: addAppProject,
   editAppProject: editAppProject,
   deleteAppProject: deleteAppProject,
-
+  startAppProject: startAppProject,
+  stopAppProject: stopAppProject,
 }
 
 
@@ -27,10 +30,18 @@ async function getAppProject(ctx, next) {
   let data, total;
   try {
     total = await AppProject.count(finalParams);
-    data = await AppProject.cfind(finalParams).skip(skip).limit(size).exec();
+    data = await AppProject.cfind(finalParams).sort({name: 1}).skip(skip).limit(size).exec();
   } catch (e) {
 
   }
+
+  data.forEach(function(d){
+    let id = d._id;
+    let proc = processList.find(function(proc){return proc.id === id});
+    if(proc){
+      d.status = proc.status;
+    }
+  });
 
   ctx.body = {
     code: 0,
@@ -109,6 +120,75 @@ async function deleteAppProject(ctx, next) {
     code: 0,
     data: {
       tip: '删除成功'
+    }
+  }
+  return next();
+}
+
+async function startAppProject(ctx, next) {
+  let finalParams = ctx.finalParams;
+
+  let data;
+  let ids = finalParams.id.split(',');
+  try {
+    data = await AppProject.cfind({ _id:{$in: ids}}).exec();
+  } catch (e) {
+
+  }
+
+  if(!data || !data.length){
+    return ctx.body = {
+      code: 0,
+      data: {
+        tip: '成功启动0个应用'
+      }
+    }
+  }
+  let procNum = 0;
+  for(let i=0; i<data.length; i++) {
+    let procInfo = await processControl.restartProcess(data[i]);
+    if(procInfo)procNum++;
+  }
+
+  ctx.body = {
+    code: 0,
+    data: {
+      tip: '成功启动' + procNum + '个应用'
+    }
+  }
+  return next();
+}
+
+async function stopAppProject(ctx, next) {
+  let finalParams = ctx.finalParams;
+
+  let data;
+  let ids = finalParams.id.split(',');
+  try {
+    data = await AppProject.cfind({ _id:{$in: ids}}).exec();
+  } catch (e) {
+
+  }
+
+  if(!data || !data.length){
+    return ctx.body = {
+      code: 0,
+      data: {
+        tip: '成功停止0个应用'
+      }
+    }
+  }
+  let procNum = 0;
+  for(let i=0; i<data.length; i++) {
+    let procInfo = await processControl.killProcess(data[i]);
+    if(procInfo)procNum++;
+  }
+  
+
+  ctx.body = {
+    code: 0,
+    data: {
+      tip: '成功停止'+procNum+ '个应用'
     }
   }
   return next();

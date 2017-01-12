@@ -8,16 +8,14 @@
         <md-button md-menu-trigger>api管理</md-button>
 
         <md-menu-content>
-          <md-menu-item href="/#/api/">api列表</md-menu-item>
-          <md-menu-item>管理api基础信息</md-menu-item>
-          <md-menu-item>编辑api输入参数</md-menu-item>
-          <md-menu-item>编辑api输出参数</md-menu-item>
+          <md-menu-item @click.native="navTo($event,'api-list')">api列表</md-menu-item>
+          <md-menu-item @click.native="navTo($event,'api-add')">添加api</md-menu-item>
         </md-menu-content>
       </md-menu>
 
       <md-button md-menu-trigger href="/#/projectList/">项目管理</md-button>
 
-      <md-button md-menu-trigger>基础信息配置</md-button>
+      <md-button md-menu-trigger href="/#/app/base">基础信息配置</md-button>
 
 
       <md-menu md-align-trigger  style="flex: 1">
@@ -42,5 +40,19 @@
 </template>
 
 <script>
+
+  export default {
+    name: 'nav-bar',
+    data: function(){
+      return {
+
+      }
+    },
+    methods: {
+      navTo: function(e, href){
+        this.$router.push({name: href, params: {}});
+      }
+    }
+  }
 
 </script>

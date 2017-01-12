@@ -6,7 +6,7 @@ require('./apiBase');
 
 require('./apiModel');
 
-require('./apiProject');
+require('./appProject');
 
 require('./appBase');
 

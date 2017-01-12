@@ -6,6 +6,8 @@ const controller = require('../controller/apiBase');
 let util = require('../util');
 let formatParam = util.formatParam;
 
+router.get('/mock/getApiDetail', formatParam, controller.getApiDetail)
+
 router.get('/mock/getApiBase', formatParam, controller.getApiBase)
 
 router.post('/mock/addApiBase', formatParam, controller.addApiBase)

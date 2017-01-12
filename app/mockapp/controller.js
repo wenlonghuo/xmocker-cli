@@ -1,3 +1,6 @@
+'use strict'
+const minimist = require('minimist');
+
 const db = require('../db');
 const apiModel = db.apiModel;
 const mockHis = db.mockHis;
@@ -15,159 +18,235 @@ module.exports = {
   addApi: sendApiData,
   editApi: sendApiData,
   deleteApi: sendApiData,
-  getAppConfig: getAppConfig,
+  getProjectApiList: getProjectApiList,
 }
 
 let appConfig, projectConfig;
 
-async function getAppConfig(ctx, next){
-  
-  try{
-    appConfig = await appBase.cfind({}).exec();
-    appConfig = appConfig || {};
+let projectId = minimist(process.argv.slice(2)).projectId || 'ddd';
 
-    let queryObj = {
-      project: appConfig.currentProject || 'root',
-    };
-
-    projectConfig = await apiBase.cfind(queryObj).exec();
-  }catch(e){
+// 获取当前项目所有的api列表，存储到内存中
+async function getProjectApiList(ctx, next) {
+  let apiList, api;
+  try {
+    apiList = await apiBase.cfind({ project: projectId }).exec();
+  } catch (e) {
     return ctx.body = {
       code: -1,
       err: '后台错误'
     }
   }
-// 获取当前url所属的config
+  let url = ctx.path;
   let method = ctx.method;
-  let body = ctx.request.body || {};
-  let url = ctx.url;
-  let targetConfig;
-  for(let i=0; i<projectConfig.length; i++){
-    let p = projectConfig[i];
-
-    let md = String(p.method) || '';
-    if(md.toUpperCase() !== method) return;
-    
-    let name = p.name || '/';
-    if(p.name.indexOf('/') !== 0)name = '/' + name;
-    
-    let functionInfo = p.functionInfo || {};
-    let type = functionInfo.type || 0;
-    if(type === 0){// url 方式
-      if(name === url){
-        targetConfig = p;
-        break;
+  let apiItem;
+  let params = Object.assign({}, ctx.query || {}, ctx.request.body);
+  if (apiList.length) {
+    for (let i = 0; i < apiList.length; i++) {
+      api = apiList[i];
+      if (api.url !== url || api.method.toUpperCase() !== method) continue;
+      if (!api.path) {
+        if (api.name === url) {
+          apiItem = api;
+          break;
+        }
+      } else {
+        let paramArr = api.path.split('.');
+        let name, urlName, i;
+        urlName = params;
+        for (i = 0; i < paramArr.length; i++) {
+          let n = paramArr[i];
+          if (!urlName[n]) break;
+          urlName = urlName[n];
+        }
+        if (i >= paramArr.length && urlName === api.name) {
+          apiItem = api;
+          break;
+        }
       }
-    } else if(type === 1){ // body方式
-      let key = functionInfo.key || '';
-      if(key && body[key] && body[key] === name){
-        targetConfig = p;
-        break;
-      }
-    }
-  };
-
-  if(!targetConfig){
-    return ctx.body = {
-      code: -1,
-      err: '接口不存在，请手动添加接口'
     }
   }
-  ctx.apiInfo = {
-    api: targetConfig,
-    app: appConfig,
-    params: Object.assign({}, ctx.query || {}, body)
-  };
+  if (apiItem) {
+    let conditionList;
+    try {
+      conditionList = await apiModel.cfind({ baseid: apiItem._id }).exec();
+    } catch (e) {
+      return ctx.body = {
+        code: -1,
+        err: '后台错误'
+      }
+    }
+    ctx.apiInfo = {
+      apiBase: apiItem,
+      apiModel: conditionList,
+      params: params
+    };
+  } else {
+    return ctx.body = {
+      code: -1,
+      err: '不存在api信息，请添加相关信息'
+    };
+  }
+
   return next();
 }
 
 // 通用函数
-async function sendApiData(ctx, next){
-  let config = ctx.apiInfo || {app: {}, api:{}};
-
-  let currentMode = config.app.currentMode;
-
+async function sendApiData(ctx, next) {
+  let currentMode = 1;
+  let reqApiModel = ctx.apiInfo.apiModel;
+  let reqApiBase = ctx.apiInfo.apiBase;
+  let params = ctx.apiInfo.params;
   let data = {
     code: -1,
     err: '无数据'
   };
 
-  if(currentMode === 1){// 随机模式
-     data = setKeys(api.outputParam);
+  let defaultApi, i, api;
 
-  } else {// 展示模式
-    try{
-      let apis = await apiModel.cfind({id: config.api._id}).exec();
-      let result, defaultApi, i;
-      for(i=0; i<apis.length; i++){
-        let api = apis[i]
-        let condition = api.condition;
-        if(condition === ''){
-          defaultApi = api.data;
-          continue;
-        }
-        let param = config.param;
-        let fc;
-
-        try{
-          fc = Function(condition);
-        }catch(e){
-          console.error('function is not legal'+ api.condition + "," + config.api.name + config.api.project);
-          throw new Error(e);
-        }
-        result = fc.call(ctx, param);
-        if(result){
-          data = api.data;
-          break;
-        }
-      }
-
-      if(i >= apis.length && defaultApi){
-        data = defaultApi;
-      }
-
-    }catch(e){
-
+  // 获取不同条件的api
+  for (i = 0; i < reqApiModel.length; i++) {
+    api = reqApiModel[i]
+    let condition = api.condition || '';
+    // 条件为空时设置为默认值
+    if (condition === '') {
+      defaultApi = api.data;
+      continue;
     }
+
+    let conditionFunction, result;
+
+    try {
+      if (condition.indexOf('return') < 0) condition = 'return ' + condition;
+
+      conditionFunction = new Function('params', condition);
+
+    } catch (e) {
+      console.error('function is not legal' + condition + "," + reqApiBase.name + reqApiBase.project);
+      throw new Error(e);
+    }
+
+    // 调用函数
+    result = conditionFunction.call(ctx, params);
+
+    if (result) {
+      data = api.data[0];
+      break;
+    }
+  }
+
+  if (i >= reqApiModel.length && defaultApi) {
+    api = defaultApi;
+    let apiData = api.data || [];
+    data = apiData[0] || {};
+  }
+
+
+  if (currentMode === 1) { // 随机模式
+    data = setKeys(api.outputParam);
+
   }
 
   ctx.body = data;
   return next();
-
 }
 
 
-function setKeys(obj){
-  if(typeof obj !== 'object')return obj;
-  if(Array.isArray(obj)){
-    let cnt = Math.random() * 100;
-    let result = [];
-    for(let i=0; i<cnt; i++){
-      result.push(setKeys(obj[0]));
+// 设置模板值
+function setKeys(obj) {
+  if (typeof obj !== 'object') return obj || {};
+  let topResult = {};
+  let keys = Object.keys(obj);
+
+  keys.forEach(function(key) {
+    let param = obj[key]
+
+    if (param.type === 'array') {
+      // 数组型
+      let cnt = Math.random() * 100;
+      let result = [];
+      for (let i = 0; i < cnt; i++) {
+        result.push(setKeys(param.child));
+      }
+      topResult[key] = result;
+    } else {
+      if (param.type === 'object') {
+        // 对象型
+        let result = setKeys(param.child);
+        topResult[key] = result;
+      } else {
+        // 普通
+        topResult[key] = generateData(param);
+      }
     }
-    return result;
-  }else{
-    if(!obj._type){
-      let result = {};
-      Object.keys(obj).forEach(function(key){
-        result[key] = setKeys(obj[key]);
-      });
-      return result;
-    }else{
-      return generateData(obj);
-    }
-  }
+  })
+
+  return topResult
 }
 
-function generateData(option){
+function generateData(option) {
   let type = option._type || 'string';
-  if(type === 'string'){
-    return 'ssass';
-  } else if(type === 'number'){
+  if (type === 'string') {
+    let len = Math.round(Math.random() * 200);
+    return randomCode(len);
+  } else if (type === 'number') {
     return Math.random() * 10000;
-  } else if(type === 'boolean'){
+  } else if (type === 'boolean') {
     return true;
   } else {
     return null;
   }
+}
+
+
+// 生成随机字符串
+
+let codeDirecory = {
+  punctuation: [
+    [32, 15],
+    [58, 6],
+    [91, 5],
+    [123, 3],
+    [160, 31],
+    [215, 0],
+    [247, 0],
+  ],
+  number: [
+    [48, 0]
+  ],
+  letter: [
+    [65, 25],
+    [97, 25]
+  ],
+  chinese: [
+    [19968, 20941]
+  ],
+}
+
+function randomCode(len = 10, type = ['letter', 'chinese', 'number', 'punctuation']) {
+  let i = 0;
+  let str = "";
+  let base, range, order, arr, randomInfo, randomLen, lower;
+  let typeLen = type.length - 1;
+  if (typeLen < 0) {
+    return '';
+  }
+
+  while (i < len) {
+    i++;
+    order = Math.round(Math.random() * typeLen);
+    arr = codeDirecory[type[order]] || codeDirecory.letter;
+
+    randomInfo, randomLen = arr.length - 1;
+
+    if (randomLen > 0) {
+      randomInfo = arr[Math.round(Math.random() * randomLen)];
+    } else {
+      randomInfo = arr[0];
+    }
+    base = randomInfo[0]
+    range = randomInfo[1]
+    lower = parseInt(Math.random() * range);
+    str += String.fromCharCode(base + lower);
+  }
+  return str;
 }

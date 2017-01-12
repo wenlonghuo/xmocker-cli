@@ -4,12 +4,8 @@ const app = new Koa()
 const fs = require('fs');
 const http = require('http');
 const path = require('path')
-
+const processControl = require('./processControl')
 const sendFile = require('./util/file-server.js');
-
-// 全局变量定义区，待后续可改为配置
-const apiPORT = 6000;
-const appPORT = 6001;
 
 // passport认证
 
@@ -22,15 +18,9 @@ app.use(bodyParser())
 
 
 // 静态服务器 添加默认为Index.html
-// app.use(async function(ctx, next){
-
-//   return next().then(function(){
-//     sendFile(ctx, ctx.path, {root: './dist/',index: 'index.html'})
-//   });
-// })
-
-
-
+app.use(async function(ctx, next){
+  return next().then(sendFile(ctx, ctx.path, {root: './dist/',index: 'index.html'}));
+})
 
 // 调用路由
 
@@ -40,8 +30,26 @@ app.use(require('./router').routes())
 // 建立是的监听及server
 const httpServer = http.createServer(app.callback());
 
-httpServer.listen(appPORT, function() {
-    console.log('HTTP background Server is running on: http://localhost:%s', appPORT);
+const db = require('./db')
+
+
+db.appBase.cfindOne({}).exec().then(function(doc){
+    doc = doc || {};
+    let appPORT = doc.managePort || 6001;
+    httpServer.listen(appPORT, function() {
+        console.log('HTTP background Server is running on: http://localhost:%s', appPORT);
+    });
+
+    let queryObj = doc.defaultProject? {_id: doc.defaultProject}: {};
+    db.appProject.cfindOne(queryObj).exec().then(function(doc){
+        if(!doc){
+            console.warn('no default project, you can add one to start');
+            return;
+        }
+        
+        processControl.addNewProcess(doc);
+    })
 });
 
-let server = require('./mockapp');
+
+

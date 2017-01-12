@@ -1,10 +1,10 @@
 
 
-module.exports.getMockLib = {
+module.exports.getAppBase = {
 
 }
 
-module.exports.editMockLib = {
+module.exports.editAppBase = {
   remoteAddress: {
     type: 'string',
     cname: '远程访问地址',
@@ -20,6 +20,10 @@ module.exports.editMockLib = {
   managePort: {
     type: 'string',
     cname: '系统管理端口',
+  },
+  defaultProject:{
+    type: 'string',
+    cname: '默认project的id',
   },
   repeatTime: {
     type: 'number',

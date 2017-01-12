@@ -18,7 +18,7 @@ async function getAppBase(ctx, next){
 
   let data;
   try{
-    data = await AppBase.cfind(finalParams).exec()
+    data = await AppBase.cfindOne(finalParams).exec()
   }catch(e){
 
   }
@@ -26,7 +26,7 @@ async function getAppBase(ctx, next){
   ctx.body = {
     code: 0,
     data: {
-      list: data
+      result: data
     }
   };
   return next();
@@ -36,19 +36,20 @@ async function getAppBase(ctx, next){
 async function editAppBase(ctx, next){
   let finalParams = ctx.finalParams;
 
-  let id = finalParams.id;
-  delete finalParams.id;
-
   let data;
   try{
-    data = await AppBase.update({_id: id}, {$set:finalParams});
+    data = await AppBase.update({}, {$set:finalParams}, {returnUpdatedDocs: true, upsert: true});
+    data = data[1]
   }catch(e){
     
   }
 
   ctx.body = {
     code: 0,
-    data: data
+    data:  {
+      result:data,
+      tip: '更新基础信息成功'
+    }
   }
   next();
 }

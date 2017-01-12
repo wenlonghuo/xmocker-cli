@@ -48,7 +48,10 @@ async function addApiModel(ctx, next){
   
   ctx.body = {
     code: 0,
-    data: data
+    data: {
+      result:data,
+      tip: '添加api分支成功'
+    }
   }
   next();
 }
@@ -64,14 +67,18 @@ async function editApiModel(ctx, next){
 
   let data;
   try{
-    data = await ApiModel.update({_id: id}, {$set:finalParams});
+    data = await ApiModel.update({_id: id}, {$set:finalParams}, {returnUpdatedDocs: true});
+    data = data[1]
   }catch(e){
     
   }
 
   ctx.body = {
     code: 0,
-    data: data
+    data: {
+      result:data,
+      tip: '添加api分支成功'
+    }
   }
   next();
 }

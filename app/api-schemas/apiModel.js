@@ -20,6 +20,10 @@ module.exports.addApiModel = {
     noEmpty: true,
     cname: 'api的id'
   },
+  name: {
+    type: 'string',
+    cname: '名称'
+  },
   condition: {
     type: 'string',
     cname: '识别条件'
