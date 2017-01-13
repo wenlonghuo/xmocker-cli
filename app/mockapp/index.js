@@ -2,15 +2,16 @@
 const Koa = require('koa');
 const app = new Koa()
 const fs = require('fs');
-const http = require('http');
 const path = require('path')
+const http = require('http')
 const minimist = require('minimist');
 const sendFile = require('../util/file-server.js');
+const spawn = require('child_process').spawn;
 // 全局变量定义区，待后续可改为配置
 var args = minimist(process.argv.slice(2));
 
 const apiPORT = args.port || 6000;
-const projectDir = args.path;
+const projectDir = args.fileServerPath;
 
 // passport认证
 
@@ -40,8 +41,32 @@ httpServer.listen(apiPORT, function() {
 
 module.exports = httpServer;
 
+
 process.stdin.on('data', function(data){
-    var signal = data.toString();
+    let  signal = data.toString();
     if(signal === 'kill')
-        process.exit(1)
+        process.exit(1);
+    if(signal.indexOf('data:') === 0){
+        let gulpOption = JSON.parse(signal.slice(5));
+        startGulp(gulpOption)
+    }
 });
+
+function startGulp(gulpOption){
+    if(!gulpOption.path)return;
+    let option = gulpOption.gulp;
+    let params = [];
+    for(let key in option){
+        params.push('--'+ key + '="' + option[key] + '"');
+    }
+
+    params.push('--root=' + gulpOption.path)
+
+    let gulpPath = path.join(__dirname, '../../tools/gulp');
+    const server = spawn('gulp', [gulpOption.task || 'dev', ...params], {
+        stdio: 'inherit',
+        shell: true,
+        cwd: option.path || gulpPath,
+    });
+    
+}

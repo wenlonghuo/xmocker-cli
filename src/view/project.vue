@@ -104,14 +104,14 @@
 
 
         <md-input-container>
-          <label>gulp路径</label>
-          <md-input v-model="proj.model.gulp.path"></md-input>
+          <label>gulp配置</label>
+          <md-textarea v-model="proj.model.gulp"></md-textarea>
         </md-input-container>
 
 
         <md-input-container>
-          <label>webpack路径</label>
-          <md-input v-model="proj.model.webpack.path"></md-input>
+          <label>webpack配置</label>
+          <md-textarea v-model="proj.model.webpack"></md-textarea>
         </md-input-container>
       </div>
        
@@ -169,12 +169,8 @@
             member: '',
             path: '',
             port: '',
-            gulp: {
-              path: ''
-            },
-            webpack: {
-              path: ''
-            },
+            gulp:'',
+            webpack: '',
           }
         },
         deleteInfo: {
@@ -243,6 +239,7 @@
             return;
           }
           // 设置到数据中
+          this.dealModelResult(data.data.list)
           this.list = data.data.list;
           this.pageInfo = {
             total: data.data.pagination.total,
@@ -253,38 +250,43 @@
       },
       // 添加项目
       addProject: function() {
-        var model = this.proj.model;
-        var param = {
-          name: model.name,
-          member: model.member.split(','),
-          path: model.path,
-          port: model.port,
-          gulp: {
-            path: model.gulp.path
-          },
-          webpack: {
-            path: model.webpack.path
-          }
-        };
+        var param = this.copyObj({}, this.proj.model);
+
+        var gulp = this.formatJSONString(model.gulp);
+        var webpack = this.formatJSONString(model.webpack);
+
+        if(!gulp){
+          this.alert('gulp配置格式不正确');
+          return;
+        }else if(!webpack){
+          this.alert('webpack配置格式不正确');
+          return;
+        }
+
+        param.gulp = gulp;
+        param.webpack = webpack;
+        
 
         return this.app.add(param);
       },
       // 编辑项目
       editProject: function() {
-        var model = this.proj.model;
-        var param = {
-          id: model._id,
-          name: model.name,
-          member: model.member.split(','),
-          path: model.path,
-          port: model.port,
-          gulp: {
-            path: model.gulp.path
-          },
-          webpack: {
-            path: model.webpack.path
-          }
-        };
+        var param = this.copyObj({}, this.proj.model);
+
+        var gulp = this.formatJSONString(this.proj.model.gulp);
+        var webpack = this.formatJSONString(this.proj.model.webpack);
+
+        if(!gulp){
+          this.alert('gulp配置格式不正确');
+          return;
+        }else if(!webpack){
+          this.alert('webpack配置格式不正确');
+          return;
+        }
+
+        param.gulp = gulp;
+        param.webpack = webpack;
+        param.id = param._id;
         return this.app.edit(param);
       },
       // 删除项目
@@ -326,7 +328,7 @@
       },
       // 删除弹窗
       openDiag: function(ref) {
-        var inlineItems = this.getSelected();
+        var inlineItems = this.getSelected(), itemArr = [];
 
         if (!inlineItems.length) {
           this.alert('请至少选择一个项目');
@@ -407,7 +409,7 @@
         } else if (this.proj.type === 'edit') {
           result = this.editProject();
         }
-        result.then(function(data) {
+        if(result)result.then(function(data) {
           data = data.data;
           if (!data.code) {
             this.showProj = false;
@@ -446,6 +448,36 @@
 
         this.selectedItem = inlineItems;
         return inlineItems;
+      },
+
+      copyObj: function(to, from){
+        for(var f in from){
+          to[f] = typeof f === 'object'?
+            this.copyObj(to[f] || {}, from[f]): from[f]
+        }
+        return to;
+      },
+      formatJSONString: function(str){
+        str = str || '{}'
+        var obj;
+        try{
+          obj = new Function('return ' + str + '')();
+        }catch(e){
+          return;
+        }
+        return JSON.stringify(obj)
+      },
+      prettyJSON: function(obj){
+        return JSON.stringify(obj, null, 4)
+      },
+      dealModelResult: function(models){
+        if(Object.prototype.toString.call(models) !== '[object Array]'){
+          models = [models]
+        }
+        models.forEach((model)=>{
+          model.gulp = this.prettyJSON(model.gulp)
+          model.webpack = this.prettyJSON(model.webpack)
+        });
       }
     }
   }

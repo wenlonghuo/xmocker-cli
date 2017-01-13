@@ -40,12 +40,36 @@ module.exports.addAppProject = {
     child: {
       path: {
         type: 'string',
-        cname: 'gulp路径'
+        cname: 'gulp文件路径'
+      },
+      buildPath: {
+        type: 'string',
+        cname: 'gulp目标路径'
       },
       cmd: {
         type: 'string',
-        cname: 'gulp命令'
-      }
+        cname: 'gulp任务'
+      },
+      params: {
+        type: 'string',
+        cname: '其他参数'
+      },
+      js: {
+        type: 'string',
+        cname: 'js文件夹路径'
+      },
+      css: {
+        type: 'string',
+        cname: 'js文件夹路径'
+      },
+      html: {
+        type: 'string',
+        cname: 'js文件夹路径'
+      },
+      image: {
+        type: 'string',
+        cname: 'js文件夹路径'
+      },
     }
   },
   webpack: {
@@ -98,12 +122,36 @@ module.exports.editAppProject = {
     child: {
       path: {
         type: 'string',
-        cname: 'gulp路径'
+        cname: 'gulp文件路径'
+      },
+      buildPath: {
+        type: 'string',
+        cname: 'gulp目标路径'
       },
       cmd: {
         type: 'string',
-        cname: 'gulp命令'
-      }
+        cname: 'gulp任务'
+      },
+      params: {
+        type: 'string',
+        cname: '其他参数'
+      },
+      js: {
+        type: 'string',
+        cname: 'js文件夹路径'
+      },
+      css: {
+        type: 'string',
+        cname: 'js文件夹路径'
+      },
+      html: {
+        type: 'string',
+        cname: 'js文件夹路径'
+      },
+      image: {
+        type: 'string',
+        cname: 'js文件夹路径'
+      },
     }
   },
   webpack: {

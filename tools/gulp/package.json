@@ -1,0 +1,34 @@
+{
+  "name": "mockServer",
+  "version": "1.2.0",
+  "description": "provide server for html debugging",
+  "main": "app.js",
+  "scripts": {
+    "start": "npm run server",
+    "all": "node index.js --c",
+    "fast": "node index.js --devgulpname dev --c",
+    "gulp": "node_modules/.bin/gulp devb --c ",
+    "gulpf": "node_modules/.bin/gulp dev --c ",
+    "server": "node ./lib/nodemon.js --c ",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "yaowenlong@91taogu.com",
+  "license": "MIT",
+  "dependencies": {
+    "browserify": "^13.1.0",
+    "gulp": "^3.9.1",
+    "gulp-buffer": "0.0.2",
+    "gulp-clean": "^0.3.2",
+    "gulp-clean-css": "^2.0.13",
+    "gulp-rename": "^1.2.2",
+    "gulp-rev": "^7.1.2",
+    "gulp-rev-collector": "^1.0.5",
+    "gulp-sequence": "^0.4.6",
+    "gulp-tap": "^0.1.3",
+    "gulp-util": "^3.0.7",
+    "minimist": "^1.2.0",
+    "stream-combiner2": "^1.1.1",
+    "vinyl-buffer": "^1.0.0",
+    "vinyl-source-stream": "^1.1.0"
+  }
+}

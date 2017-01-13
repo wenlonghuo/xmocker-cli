@@ -1,5 +1,6 @@
 'use strict'
 const spawn = require('child_process').spawn;
+const path = require('path')
 let processList = [];
 
 function addNewProcess(option){
@@ -14,7 +15,11 @@ function addNewProcess(option){
 
     let param = [];
     param.push(' --port=' + (option.port || 6000));
-    param.push(' --path=' + (option.path || ''));
+    let fPath = option.path;
+    if(option.gulp && option.gulp.buildPath){
+      fPath = path.join(fPath, option.gulp.buildPath)
+    }
+    param.push(' --fileServerPath=' + (fPath || ''));
     // 服务器
     const server = spawn('node', ['--harmony-async-await', __dirname + '/mockapp', ...param], {
         stdio: 'pipe',
@@ -36,6 +41,8 @@ function addNewProcess(option){
        server.stdout.on('data', function(msg){
         if(msg.toString() === 'cmd:finished'){
           console.log('Project '+ option.name + ' started sucess, pid:' + server.pid + ", port: " + option.port);
+          let optionData = 'data:' + JSON.stringify(option);
+          server.stdin.write(optionData);
           if(!hasResolved){
             resolve(processInfo);
             hasResolved = true;
