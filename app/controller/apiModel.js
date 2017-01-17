@@ -4,6 +4,7 @@ const ApiModel = db.apiModel;
 const util = require('../util');
 
 const checkParam = util.checkParam;
+const restartProcess = require('./restartProcess').pushRestartList;
 
 module.exports = {
   getApiModel: getApiModel,
@@ -45,7 +46,8 @@ async function addApiModel(ctx, next){
   }catch(e){
     
   }
-  
+  restartProcess({apiModel: data._id});
+
   ctx.body = {
     code: 0,
     data: {
@@ -73,11 +75,13 @@ async function editApiModel(ctx, next){
     
   }
 
+  restartProcess({apiBase: id});
+
   ctx.body = {
     code: 0,
     data: {
       result:data,
-      tip: '添加api分支成功'
+      tip: '编辑api分支成功'
     }
   }
   next();

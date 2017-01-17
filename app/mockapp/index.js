@@ -12,7 +12,7 @@ var args = minimist(process.argv.slice(2));
 
 const apiPORT = args.port || 6000;
 const projectDir = args.fileServerPath;
-
+let gulpServer;
 // passport认证
 
 app.proxy = true
@@ -45,28 +45,12 @@ module.exports = httpServer;
 process.stdin.on('data', function(data){
     let  signal = data.toString();
     if(signal === 'kill')
-        process.exit(1);
-    if(signal.indexOf('data:') === 0){
-        let gulpOption = JSON.parse(signal.slice(5));
-        startGulp(gulpOption)
-    }
+        
+        if(gulpServer){
+            gulpServer.kill();
+            process.exit(1);
+        }else {
+            process.exit(1);
+        }
 });
 
-function startGulp(gulpOption){
-    if(!gulpOption.path)return;
-    let option = gulpOption.gulp;
-    let params = [];
-    for(let key in option){
-        params.push('--'+ key + '="' + option[key] + '"');
-    }
-
-    params.push('--root=' + gulpOption.path)
-
-    let gulpPath = path.join(__dirname, '../../tools/gulp');
-    const server = spawn('gulp', [gulpOption.task || 'dev', ...params], {
-        stdio: 'inherit',
-        shell: true,
-        cwd: option.path || gulpPath,
-    });
-    
-}

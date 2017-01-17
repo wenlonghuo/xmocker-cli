@@ -5,13 +5,11 @@ var gutil = require('gulp-util');
 var tap = require('gulp-tap');
 var buffer = require('gulp-buffer');
 var rename = require("gulp-rename");
-var gulpSequence = require('gulp-sequence')
-var clean = require('gulp-clean');
+var del = require('del')
 var minify = require('gulp-clean-css');
 var rev = require('gulp-rev');
 var revCollector = require('gulp-rev-collector');
 var minimist = require('minimist');
-var combiner = require('stream-combiner2');
 var path = require('path');
 const colors = require('colors');
 
@@ -33,126 +31,112 @@ for(var key in option){
 option = dealOption(option)
 option.buildPath =option.buildPath[0]
 option.root =option.root[0]
-console.log(option);
+// console.log(option);
 
 // 清除打包目录
-gulp.task('clean-code', function (cb) {
-  var combined = combiner.obj([
-    gulp.src(option.buildPath, {
-      "read": false
-    }),
-    clean({
-      "force": true
-    })
-  ]);
-  return combined;
+gulp.task('clean-code', function () {
+  return del([option.buildPath + '/**/*'], {force: true})
 });
 
 // push image
 gulp.task('image-copy', function () {
-  var combined = combiner.obj([
-    gulp.src([...option.img, option.root + '/favicon.ico'], {base: option.root}),
-    gulp.dest(option.buildPath)
-  ]);
-  return combined;
+  
+  return gulp.src([...option.img], {base: option.root})
+    .pipe(gulp.dest(option.buildPath));
 });
 
 // CSS
 // 压缩代码
 // 合并import
 gulp.task('css', function () {
-  var combined = combiner.obj([
-    gulp.src(option.css, {base: option.root}),
-    minify({
+  return gulp.src(option.css, {base: option.root})
+    .pipe(minify({
       "advanced": false, // set as 'clean-css' configuration API
       "keepBreaks": true,
       "root": option.root,
       "target": option.root,// 必加，否则会出现路径错误
       // "relativeTo":  path.join(process.cwd(), '../style/common'),
-    }),
-    rev(),
-    gulp.dest(option.buildPath),
-    rev.manifest(),
-    gulp.dest(option.buildPath + '/rev/css'),
-  ]);
-  return combined;
+    }))
+    .pipe(rev())
+    .pipe(gulp.dest(option.buildPath))
+    .pipe(rev.manifest())
+    .pipe(gulp.dest(option.buildPath + '/rev/css'))
+    
 });
 
 // html 引用变更
 // 压缩html
 gulp.task('rev-html', function (cb) {
-  var combined = combiner.obj([
-    gulp.src([option.buildPath + '/rev/**/*.json',...option.html], {base: option.root}),
-    revCollector({
+  
+  return  gulp.src([option.buildPath + '/rev/**/*.json',...option.html], {base: option.root})
+    .pipe(revCollector({
     	replaceReved: true
-  	}),
-    gulp.dest(option.buildPath),
-  ]);
-  return combined;
+    }))
+    .pipe(gulp.dest(option.buildPath))
+    
 });
 
 // js压缩任务
 gulp.task('scripts', function () {
-  var combined = combiner.obj([
+  
     // gulp.src(option.js, {read: false,base: option.root}), // 不需要读取文件内容，browserify 会处理这个问题
-    gulp.src((cacheFiles.inited ? cacheFiles.js : option.js), {read: false, base: option.root}), // 不需要读取文件内容，browserify 会处理这个问题
+   return gulp.src((cacheFiles.inited ? cacheFiles.js : option.js), {read: false, base: option.root}) // 不需要读取文件内容，browserify 会处理这个问题
 
     // 使用 gulp-tap 转换文件内容
-    tap(function (file) {
+    .pipe(tap(function (file) {
       if (!cacheFiles.inited)readRelation(file.path);
       file.contents = browserify(file.path, {debug: true}).bundle();
-    }),
+    }))
 
     // 转换 stram 内容为 buff 内容（因为 gulp-sourcemaps 不支持 stream 形式的内容）
-    buffer(),
-    rev(),
-    gulp.dest(option.buildPath),
+    .pipe(buffer())
+    .pipe(rev())
+    .pipe(gulp.dest(option.buildPath))
 
-    rev.manifest({
+    .pipe(rev.manifest({
       path: option.buildPath + '/rev/js/rev-manifest.json',
       merge: true // merge with the existing manifest if one exists
-    }),
-    rename('rev-manifest.json'),// 必须有，不然生成的文件名带有路，无法复制到文件中
-    gulp.dest(option.buildPath + 'rev/js'),
-  ]);
-  combined.on('error', console.error.bind(console));
-  return combined;
+    }))
+    .pipe(rename('rev-manifest.json'))// 必须有，不然生成的文件名带有路，无法复制到文件中
+    .pipe(gulp.dest(option.buildPath + 'rev/js'))
 });
 
 // 建立自动处理的任务
-gulp.task('script-change', function (cb) {
-  return gulpSequence('scripts', 'rev-html')(cb);
-});
+gulp.task('script-change', gulp.series('scripts', 'rev-html', function (cb) {
+  cb();
+}));
 
-gulp.task('style-change', function (cb) {
-  return gulpSequence('css', 'rev-html')(cb);
-});
+gulp.task('style-change', gulp.series('css', 'rev-html', function (cb) {
+  cb();
+}));
 
-gulp.task('html-change', function (cb) {
-  return gulpSequence('rev-html')(cb);
-});
+gulp.task('html-change', gulp.series('rev-html', function (cb) {
+  cb();
+}));
 
-gulp.task('image-change', function (cb) {
-  return gulpSequence('image-copy')(cb);
-});
+gulp.task('image-change', gulp.series('image-copy', function (cb) {
+  cb();
+})); 
 
-gulp.task('scriptAndStyle-change', function (cb) {
-  return gulpSequence(['scripts', 'css'], 'rev-html')(cb);
-});
+gulp.task('scriptAndStyle-change', gulp.series('scripts', 'css', 'rev-html', function (cb) {
+  cb();
+}));
 
-gulp.task('init', function (cb) {
-  return gulpSequence('clean-code', ['image-copy', 'css', 'scripts'], 'rev-html')(cb);
-});
+gulp.task('init', gulp.series('clean-code', 'image-copy', 'css', 'scripts', 'rev-html', function (cb) {
+  cb();
+}));
 
 // 监听文件变化任务，自定义
-gulp.task('dev', ['init'], function () {
+gulp.task('dev', gulp.series('init', function watchingTask(re) {
   var fileList = [], tmpFileList = [], timeHd, isRunning, runningHd;
   // 初始化缓存文档
   cacheFiles.inited = true;
   cacheFiles.js = [];
 
   var fileHash = {};
-  var watcherjs = gulp.watch([...option.js,...option.css, ...option.html, ...option.img],['']); 
+  var watcherjs = gulp.watch([...option.js,...option.css, ...option.html, ...option.img], function(re){
+    
+  }); 
   // 监视与 scripts 任务中同样的文件
   watcherjs.on('change', function (event) {
     if (isRunning) {
@@ -162,6 +146,7 @@ gulp.task('dev', ['init'], function () {
       tmpFileList = [];
       fileList.push(event);
     }
+    console.log('文件平生了变动' + fileList);
     doTask();
   });
   gutil.log((' 启动监听，目录为: \njs:\n	' +
@@ -175,7 +160,7 @@ gulp.task('dev', ['init'], function () {
     var ctype = {}, task = '', rchanged = false;
     gutil.log((' ———— 监听到文件变动，检测md5中....').yellow);
     fileList.forEach(function (f) {
-      var file = f.path;
+      var file = f;
       try {
         var str = fs.readFileSync(file);
       } catch (e) {
@@ -251,8 +236,9 @@ gulp.task('dev', ['init'], function () {
         isRunning = false;
         return;
       }
-      var task = gulp.tasks[taskname];
-      task.fn.call(null, function () {
+      var task = gulp.series(taskname, function(cb){cb()});
+
+      task.call(null, function () {
         fileList = [];
         isRunning = false;
         gutil.log((' ———— 任务执行完毕，继续监听...').yellow);
@@ -261,7 +247,7 @@ gulp.task('dev', ['init'], function () {
     }, 1000);
   }
 
-});
+}));
 
 // 设置要更新的js文件
 function setFileList(filearr) {
@@ -269,9 +255,7 @@ function setFileList(filearr) {
   var nosame = {},
     filename,
     tmpList = [],
-    fileList = filearr.map(function (a) {
-      return a.path
-    });
+    fileList = filearr;
 
   fileList.forEach(function (item) { // todo: 复杂层次引用会导致数组过大
     var arr = findParentFile(item, cacheFiles.relation),
@@ -298,7 +282,7 @@ function setFileList(filearr) {
 
   function findParentFile(filename, obj) {
     var arr = [];
-    for (file in obj) {
+    for (var file in obj) {
       if (obj[file] && obj[file][filename]) {
         arr.push(file);
       }

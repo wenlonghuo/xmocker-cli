@@ -26,6 +26,10 @@
     <md-whiteframe v-for="(model, mIndex) in formModel.apiModel" md-elevation="10" class="app-project-show" :key="mIndex">
       <md-toolbar class="">
         <h1 class="md-title app-toolbar-title">api数据定义分支 —— {{model.name}}</h1>
+        <span style="flex: 1"></span>
+         <md-button class="md-icon-button md-accent">
+            <md-icon :data-mIndex="mIndex" @click.native="deleteApiModel">clear</md-icon>
+         </md-button>
       </md-toolbar>
 
       <div class="app-project-show-form">
@@ -253,6 +257,7 @@
 
         param.inputParam = this.formatJSONString(param.inputParam);
         param.outputParam = this.formatJSONString(param.outputParam);
+        param.data = this.formatJSONString(param.data);
         let req;
         if(!param._id){
           req = this.app.addModel(param)
@@ -273,16 +278,38 @@
         return req;
       },
       // 删除项目
-      deleteModel: function(ids) {
+      deleteModel: function() {
+        var deleteItem = this.formModel.apiModel[this.formModel.currentIndex];
+        
         var param = {
-          id: ids
+          id: deleteItem._id
         };
-        return this.app.deleteModel(param);
+        return this.app.deleteModel(param).then(function(data){
+          data = data.data;
+          this.alert(data.err || data.data.tip);
+          if(!data.code)this.formModel.apiModel.splice(this.formModel.currentIndex, 1);
+        });
       },
 
+      deleteApiModel: function(e){
+        var mIndex = e.target.getAttribute('data-mIndex');
+        if(mIndex == null)return;
+        this.formModel.currentIndex = mIndex;
+        if(!this.formModel.apiModel[mIndex]._id){
+          this.alert('该条目尚未录入系统');
+          return;
+        }
+        this.formModel.type = 'delete'
+        this.confirm.contentHtml = "是否删除api分支？" 
+        this.confirm.title = "删除api分支"
+        this.confirm.type = 'delete'
+
+        this.$refs['confirmDiag'].open();
+      },
       //
       buttonSubmit: function(e, mIndex){
         this.confirm.type = 'operation';
+        this.confirm.type = 'modify';
         if(mIndex != null){
           this.formModel.type = 'model'
           this.formModel.currentIndex = mIndex;
@@ -346,6 +373,7 @@
         try{
           obj = new Function('return ' + str + '')();
         }catch(e){
+          console.log(e)
           return;
         }
         return JSON.stringify(obj)

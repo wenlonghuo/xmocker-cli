@@ -6,6 +6,7 @@ const processControl = require('../processControl')
 const processList = processControl.processList
 
 const checkParam = util.checkParam;
+const restartProcess = require('./restartProcess').pushRestartList;
 
 module.exports = {
   getAppProject: getAppProject,
@@ -68,6 +69,7 @@ async function addAppProject(ctx, next) {
   } catch (e) {
 
   }
+  restartProcess({project: data._id});
 
   ctx.body = {
     code: 0,
@@ -94,7 +96,7 @@ async function editAppProject(ctx, next) {
   } catch (e) {
 
   }
-
+  restartProcess({project: id});
   ctx.body = {
     code: 0,
     data: {
@@ -115,6 +117,8 @@ async function deleteAppProject(ctx, next) {
   } catch (e) {
 
   }
+
+  
 
   ctx.body = {
     code: 0,

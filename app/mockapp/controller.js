@@ -9,6 +9,7 @@ const apiBase = db.apiBase;
 const appBase = db.appBase;
 const appProject = db.appProject;
 
+
 const util = require('../util');
 
 const checkParam = util.checkParam;
@@ -29,7 +30,7 @@ let projectId = minimist(process.argv.slice(2)).projectId || 'ddd';
 async function getProjectApiList(ctx, next) {
   let apiList, api;
   try {
-    apiList = await apiBase.cfind({ project: projectId }).exec();
+    apiList = await apiBase.cfind({ project: projectId }).sort({name: 1}).exec();
   } catch (e) {
     return ctx.body = {
       code: -1,
@@ -92,7 +93,7 @@ async function getProjectApiList(ctx, next) {
 
 // 通用函数
 async function sendApiData(ctx, next) {
-  let currentMode = 1;
+  let currentMode = 0;
   let reqApiModel = ctx.apiInfo.apiModel;
   let reqApiBase = ctx.apiInfo.apiBase;
   let params = ctx.apiInfo.params;
@@ -135,8 +136,7 @@ async function sendApiData(ctx, next) {
   }
 
   if (i >= reqApiModel.length && defaultApi) {
-    api = defaultApi;
-    let apiData = api.data || [];
+    let apiData = defaultApi || [];
     data = apiData[0] || {};
   }
 

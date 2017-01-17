@@ -129,5 +129,17 @@ module.exports.deleteApiBase = {
   },
 }
 
+module.exports.copyApi = {
+  from: {
+    type: 'string',
+    required: true,
+    noEmpty: true
+  },
+  to: {
+    type: 'string',
+    required: true,
+    noEmpty: true
+  },
+}
 
 

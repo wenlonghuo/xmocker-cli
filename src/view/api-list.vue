@@ -19,7 +19,7 @@
         <md-card-header>
           <md-card-header-text>
             <div class="md-title">{{item.name}}</div>
-            <div class="md-subhead">{{item.method.toUpperCase()}} -- {{item.url}}</div>
+            <div class="md-subhead">{{item.method.toUpperCase()}} --> {{item.url}}</div>
           </md-card-header-text>
         </md-card-header>
           
@@ -28,10 +28,67 @@
         </md-card-content>
 
         <md-card-actions>
-          <md-button @click="buttondeleteApi($event, item)">删除</md-button>
-          <md-button @click="buttonEditApi($event, item._id)">编辑</md-button>
+          <md-button class="md-icon-button" @click="buttonCopyApi($event, item._id)">
+            <md-icon>content_copy</md-icon>
+          </md-button>
+          <md-button class="md-icon-button" @click="buttondeleteApi($event, item)">
+            <md-icon>delete</md-icon>
+          </md-button>
+          <md-button class="md-icon-button" @click="buttonEditApi($event, item._id)">
+            <md-icon>mode_edit</md-icon>
+          </md-button>
         </md-card-actions>
       </md-card>
+    </div>
+    <div class="m-api-move-module" v-if="show.copy">
+      <md-whiteframe md-elevation="5" class="m-api-move-module-box">
+        <h2>复制api到项目</h2>
+        <div class="m-api-move-module-choose">
+
+            <div class="m-api-move-api">
+              <md-table-card>
+                <md-table @select="selectApi">
+                  <md-table-header>
+                    <md-table-row>
+                      <md-table-head>选择api</md-table-head>
+                    </md-table-row>
+                  </md-table-header>
+
+                  <md-table-body>
+                    <md-table-row v-for="(row, rowIndex) in apiList" :key="rowIndex" :md-item="row" md-auto-select md-selection>
+                      <md-table-cell>
+                        {{ row.name }}
+                      </md-table-cell>
+                    </md-table-row>
+                  </md-table-body>
+                </md-table>
+              </md-table-card>
+            </div>
+
+            <div class="m-api-move-project">
+              <md-table-card>
+                <md-table @select="selectProj">
+                  <md-table-header>
+                    <md-table-row>
+                      <md-table-head>选择项目</md-table-head>
+                    </md-table-row>
+                  </md-table-header>
+
+                  <md-table-body>
+                    <md-table-row v-for="(row, rowIndex) in projList" :key="rowIndex" :md-item="row" md-auto-select md-selection>
+                      <md-table-cell>
+                        {{ row.name }}
+                      </md-table-cell>
+                    </md-table-row>
+                  </md-table-body>
+                </md-table>
+              </md-table-card>
+            </div>
+        </div>
+        
+      <md-button class="md-primary" @click="buttonCloseCopy">关闭</md-button>
+      <md-button class="md-primary" @click="buttonSubmitCopy">提交</md-button>
+      </md-whiteframe>
     </div>
       
     <md-bottom-bar class="m-api-change-page">
@@ -64,7 +121,12 @@
       return {
         selection: {
           proj:'',
-          deleteId: ''
+          deleteId: '',
+          copyApi: [],
+          copyProj: []
+        },
+        show: {
+          copy: false,
         },
         projList: [
 
@@ -97,6 +159,10 @@
         delete: {
           method: 'DELETE',
           url: '/mock/deleteApiBase'
+        },
+        copyApi: {
+          method: 'PUT',
+          url: '/mock/copyApi'
         },
         getProj: {
           method: 'GET',
@@ -154,6 +220,27 @@
         });
       },
 
+      // 删除项目
+      copyApi: function() {
+        var from = [];
+        for(var key in this.selection.copyApi){
+          from.push(this.selection.copyApi[key]._id)
+        }
+        var to = [];
+        for(var key in this.selection.copyProj){
+          to.push(this.selection.copyProj[key]._id)
+        }
+        var param = {
+          from: from.join(','),
+          to: to.join(','),
+        };
+        return this.app.copyApi(param).then(function(data){
+          data = data.data;
+          this.alert(data.err || data.data.tip);
+          this.getApiList()
+        });
+      },
+
       buttonNav: function(e, type){
         var pageInfo = this.pageInfo;
         pageInfo.pageNo += ~~type;
@@ -174,11 +261,29 @@
 
       buttondeleteApi: function(e, item){
         this.selection.deleteId = item._id;
+        this.confirm.title = '删除api'
+        this.confirm.type = 'delete'
         this.confirm.contentHtml = '是否删除api ' + item.name + ', id:' + item._id;
         this.$refs['confirmDiag'].open();
       },
       buttonEditApi: function(e, id){
         this.$router.push({name: 'api-add', params: {id: id}})
+      },
+
+      buttonCopyApi: function(e, id){
+        this.show.copy = true;
+        console.log(id)
+      },
+
+      buttonSubmitCopy: function(e){
+        this.confirm.title = '复制api'
+        this.confirm.type = 'copy'
+        this.confirm.contentHtml = '是否复制api到项目中';
+        this.$refs['confirmDiag'].open();
+      },
+
+      buttonCloseCopy: function(){
+        this.show.copy = false;
       },
 
        // 提示
@@ -190,12 +295,23 @@
      
       confirmClose: function(e){
         if(e == 'ok'){
-          if(this.selection.deleteId)this.deleteModel(this.selection.deleteId);
+          if(this.confirm.type === 'delete'){
+            if(this.selection.deleteId)this.deleteModel(this.selection.deleteId);
+          }else {
+            this.copyApi();
+          }
         }
       },
       catchError: function(data) {
         this.alert('网络错误，请稍后重试');
       },
+
+      selectApi: function(e){
+        this.selection.copyApi = e;
+      },
+      selectProj: function(e){
+        this.selection.copyProj = e;
+      }
     },
   }
 </script>
@@ -228,7 +344,8 @@
 }
 .m-api-list {
   display: inline-block;
-  width: 300px;
+  min-width: 300px;
+  max-width: 500px;
   max-height: 300px; 
   margin: 20px;
   text-align: justify;
@@ -237,5 +354,30 @@
   width: 100%;
   display: block;
   text-align: center;
+}
+.m-api-move-module {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background: rgba(255, 255, 255, 1);
+  display: flex;
+  text-align: center;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+}
+
+.m-api-move-module-box {
+  display: inline-block;
+}
+.m-api-move-api, .m-api-move-project {
+  width: 300px;
+  height: 400px;
+  overflow: auto;
+  display: inline-block;
+  margin: 20px 30px;
+  /*border: 1px solid #fefefe;*/
 }
 </style>

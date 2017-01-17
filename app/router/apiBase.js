@@ -16,4 +16,5 @@ router.put('/mock/editApiBase', formatParam, controller.editApiBase)
 
 router.delete('/mock/deleteApiBase', formatParam, controller.deleteApiBase)
 
+router.put('/mock/copyApi', formatParam, controller.copyApi)
 
