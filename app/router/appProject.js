@@ -1,7 +1,6 @@
+'use strict'
 const router = require('./index.js');
 const controller = require('../controller/appProject');
-// const checkLogin = require('../auth').checkLogin
-// 查询书签
 
 let util = require('../util');
 let formatParam = util.formatParam;
@@ -17,3 +16,5 @@ router.delete('/mock/deleteAppProject', formatParam, controller.deleteAppProject
 router.put('/mock/startAppProject', formatParam, controller.startAppProject)
 
 router.put('/mock/stopAppProject', formatParam, controller.stopAppProject)
+
+router.put('/mock/setDefaultApiParam', formatParam, controller.setDefaultApiParam)

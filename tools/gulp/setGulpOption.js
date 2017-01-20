@@ -4,14 +4,14 @@ var defaultOption = {
   js: '/{script,general}/',
   css: '/{general,style}/',
   html: '/{general,html}/',
-  img: '/{general,image}/',
+  image: '/{general,image}/',
 }
 
 var aft = {
   js: '/*.js',
   css: '/*.css',
   html: '/*.html',
-  img: '/*.{jpg,png,gif,webp}',
+  image: '/*.{jpg,png,gif,webp}',
 }
 
 function fixPath(option, aft) {
@@ -52,7 +52,7 @@ module.exports = function (buildOption) {
   // 为路径自动添加根路径
   buildOption.withRoot = buildOption.withRoot || [];
   if (typeof buildOption.withRoot === 'string') {
-    buildOption.withRoot = ['build', 'js', 'css', 'html', 'img'];
+    buildOption.withRoot = ['build', 'js', 'css', 'html', 'image'];
   }
   if (isArr(buildOption.withRoot)) {
     buildOption = fixPath(buildOption, aft);

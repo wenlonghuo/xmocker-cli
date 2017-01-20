@@ -2,35 +2,7 @@
 
 const crypto = require('crypto');
 
-
 let nodeUtil = require('util')
-
-
-
-// 校验用户是否登录
-function* hasLogin(next) {
-  let _s = this.session;
-
-  // 用户未登录时错误提示
-  let _r = {
-    "hasLogin": false,
-    "response": {
-      "code": 403,
-      "err": "Need login"
-    }
-  };
-
-  // 登录状态校验
-  if (!_s || !Object.keys(_s).length) {
-    log('INFO', "check session: false");
-  } else if (!_s.id || !_s.name || !_s.title || !_s.mobile) {
-    log('INFO', "check session: Not enough params");
-  } else {
-    return yield next;
-  }
-  // 返回错误码
-  this.body = _r.response;
-}
 
 /*
  * 设置错误
@@ -210,7 +182,7 @@ function checkParam(ctx, params, schema, option) {
 }
 
 // 格式化代码
-function formatEntranceParam(params, schema, option){
+function formatEntranceParam(params, schema, option = {}){
   let keys = Object.keys(schema),
     key, param, oriParam = {}, cname;
   let keyObj;
@@ -366,88 +338,11 @@ function formatParam(ctx, next) {
   }
 }
 
-/**
- * 查询是否修改
- * @param  {} ctx
- * @param  {} type
- */
-let reCheckTime = 1000 * 60 * 60;
-
-function* setNotModify(ctx, type) {
-  let info;
-
-  try {
-    info = yield ChangeInfo.findOne({ name: type });
-  } catch (e) {
-    log('ERROR', e)
-    return;
-  }
-
-  if (!info) return;
-
-  let lastDate = info.time || 0;
-  let label = info.tag;
-  if (lastDate && (+new Date() - lastDate) < reCheckTime) {
-    // 时间尚未生成
-    ctx.status = 200;
-    ctx.set('ETag', label);
-
-    if (ctx.fresh) {
-      ctx.status = 304;
-      return true;
-    }
-  } else {
-    yield saveChangeInfo(type)
-  }
-
-  ctx.set('ETag', label);
-  return;
-}
-
-
-// 保存版本信息
-
-let cnt = 0;
-
-function saveChangeInfo(type) {
-  cnt++;
-  if (cnt > 100000) cnt = 0;
-  let tagStr = '' + (+new Date()) + cnt;
-  let label = crypto.createHash('md5').update(tagStr).digest("hex");
-
-  return new Promise(function(resolve) {
-    ChangeInfo.find({ name: { $in: type } })
-      .update({ time: new Date(), tag: label })
-      .exec(function(err, result) {
-        if (err) {
-          log('ERROR', { type: 'saveChangeInfo ERROR', e: err })
-        }
-        resolve();
-      });
-  });
-}
-// // 初始化
-// (function() {
-//   let tagStr = '' + (+new Date()) + cnt;
-//   let label = crypto.createHash('md5').update(tagStr).digest("hex");
-
-//   ['homeCell', 'process', 'version'].forEach(function(name) {
-//     ChangeInfo.findOneAndUpdate({ name: name }, { time: new Date(), tag: label }, { upsert: true }, function(err, result) {
-//       if (err) {
-//         log('ERROR', { type: 'saveChangeInfo ERROR', e: err })
-//       }
-//     });
-//   });
-
-// })();
-
 module.exports = {
-  hasLogin: hasLogin,
   checkParam: checkParam,
   formatParam: formatParam,
+  formatEntranceParam: formatEntranceParam,
   setError: setError,
   log: log,
   formatArr: formatArr,
-  setNotModify: setNotModify,
-  saveChangeInfo: saveChangeInfo,
 }

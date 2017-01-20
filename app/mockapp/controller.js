@@ -9,10 +9,10 @@ const apiBase = db.apiBase;
 const appBase = db.appBase;
 const appProject = db.appProject;
 
-
+const funcToString = Function.prototype.toString;
 const util = require('../util');
-
-const checkParam = util.checkParam;
+const argv = minimist(process.argv.slice(2))
+const formatEntranceParam = util.formatEntranceParam;
 
 module.exports = {
   getApi: sendApiData,
@@ -24,7 +24,7 @@ module.exports = {
 
 let appConfig, projectConfig;
 
-let projectId = minimist(process.argv.slice(2)).projectId || 'ddd';
+let projectId = minimist(process.argv.slice(2)).projectId || '';
 
 // 获取当前项目所有的api列表，存储到内存中
 async function getProjectApiList(ctx, next) {
@@ -41,6 +41,7 @@ async function getProjectApiList(ctx, next) {
   let method = ctx.method;
   let apiItem;
   let params = Object.assign({}, ctx.query || {}, ctx.request.body);
+  
   if (apiList.length) {
     for (let i = 0; i < apiList.length; i++) {
       api = apiList[i];
@@ -114,20 +115,70 @@ async function sendApiData(ctx, next) {
       continue;
     }
 
-    let conditionFunction, result;
+    let conditionFunction, result, dealedParams, paramsArr = [];
 
     try {
       if (condition.indexOf('return') < 0) condition = 'return ' + condition;
 
-      conditionFunction = new Function('params', condition);
+      dealedParams = formatEntranceParam(params, api.inputParam);
+      let keys = Object.keys(dealedParams);
+      keys.forEach(function(key){
+        paramsArr.push(dealedParams[key]);
+      })
 
+      keys.push(condition);
+      
+      conditionFunction = new Function(...keys);
     } catch (e) {
-      console.error('function is not legal' + condition + "," + reqApiBase.name + reqApiBase.project);
-      throw new Error(e);
+      sendErrorMsg(ctx, {
+        data: 'api分支判断条件函数不合法：'+ condition,
+        level: 6,
+        apiId: reqApiBase._id,
+        api: reqApiBase.name,
+        apiModelId: api._id,
+        apiModel: api.name,
+        req: {
+          params: params,
+          url: ctx.url,
+          method: ctx.method,
+        },
+        reqParsed: dealedParams,
+        res: null,
+        err: {
+          msg: String(e),
+          stack: String(e.stack)
+        },
+        additional: null,
+      });
+      continue;
     }
 
     // 调用函数
-    result = conditionFunction.call(ctx, params);
+    try{
+      result = conditionFunction.apply(ctx, paramsArr);
+    }catch(e){
+      sendErrorMsg(ctx, {
+        data: 'api分支执行判断条件的函数时出现错误：'+ condition,
+        level: 6,
+        apiId: reqApiBase._id,
+        api: reqApiBase.name,
+        apiModelId: api._id,
+        apiModel: api.name,
+        req: {
+          params: params,
+          url: ctx.url,
+          method: ctx.method,
+        },
+        reqParsed: dealedParams,
+        res: null,
+        err: {
+          msg: String(e),
+          path: 'app/mockapp/controller/sendApiData'
+        },
+        additional: null,
+      });
+      continue;
+    }
 
     if (result) {
       data = api.data[0];
@@ -250,3 +301,53 @@ function randomCode(len = 10, type = ['letter', 'chinese', 'number', 'punctuatio
   }
   return str;
 }
+
+
+function sendErrorMsg(ctx, data){
+  let msg = {
+    _type: 'error', 
+    time: +new Date(), 
+    args: {
+      port: argv.port,
+      fsPath: argv.fileServerPath
+    }, 
+    projectId: argv.projectId, 
+    project: argv.projectName
+  };
+  msg = Object.assign(msg, data);
+  process.send(msg);
+}
+/**
+ * 日志记录。包含内容
+ * _type: 'out'
+ * level: 10 日志等级
+ * time: 时间戳
+ * data: 内容
+ * project: project名称
+ * api： api名称
+ * apiModel： 分支名称
+ * projectId: 项目id
+ * apiId: 接口Id
+ * apiModelId: 分支id
+ * req: 请求入参
+ * reqParse: 转换后入参
+ * res: 输出参数
+ * args: process的启动参数
+ * err: 错误详细信息
+ * additional: 其他参数
+ */
+function sendHisData(data){
+  let msg = {
+    _type: 'his', 
+    time: +new Date(), 
+    args: {
+      port: argv.port,
+      fsPath: argv.fileServerPath
+    }, 
+    projectId: argv.projectId, 
+    project: argv.projectName
+  };
+  msg = Object.assign(msg, data);
+  process.send(msg);
+}
+

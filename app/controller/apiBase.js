@@ -1,12 +1,10 @@
+'use strict'
 const db = require('../db');
 const apiBase = db.apiBase;
 const apiModel = db.apiModel;
 
 const util = require('../util');
-const nodeUtil = require('util');
-
-const checkParam = util.checkParam;
-const restartProcess = require('./restartProcess').pushRestartList;
+const pushRestartList = require('./restartProcess').pushRestartList;
 
 
 module.exports = {
@@ -88,7 +86,7 @@ async function addApiBase(ctx, next){
   }catch(e){
     
   }
-  restartProcess({apiBase: data._id});
+  pushRestartList({apiBase: data._id});
   ctx.body = {
     code: 0,
     data: {
@@ -116,7 +114,7 @@ async function editApiBase(ctx, next){
     
   }
 
-  restartProcess({apiBase: id});
+  pushRestartList({apiBase: id});
 
   ctx.body = {
     code: 0,
@@ -190,7 +188,7 @@ async function copyApi(ctx, next){
 
       }
       
-      restartProcess({project: proj});
+      pushRestartList({project: proj});
     }
 
   }catch(e){

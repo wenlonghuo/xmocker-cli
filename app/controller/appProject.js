@@ -1,11 +1,13 @@
+'use strict'
 const db = require('../db');
 const AppProject = db.appProject;
+const ApiModel = db.apiModel;
+const ApiBase = db.apiBase;
 
 const util = require('../util');
-const processControl = require('../processControl')
+const processControl = require('./processControl')
 const processList = processControl.processList
 
-const checkParam = util.checkParam;
 const restartProcess = require('./restartProcess').pushRestartList;
 
 module.exports = {
@@ -15,6 +17,7 @@ module.exports = {
   deleteAppProject: deleteAppProject,
   startAppProject: startAppProject,
   stopAppProject: stopAppProject,
+  setDefaultApiParam: setDefaultApiParam,
 }
 
 
@@ -107,6 +110,8 @@ async function editAppProject(ctx, next) {
   return next();
 }
 
+
+
 async function deleteAppProject(ctx, next) {
   let finalParams = ctx.finalParams;
 
@@ -150,7 +155,7 @@ async function startAppProject(ctx, next) {
   }
   let procNum = 0;
   for(let i=0; i<data.length; i++) {
-    let procInfo = await processControl.restartProcess(data[i]);
+    let procInfo = await processControl.restartProcess(data[i], {force: finalParams.force});
     if(procInfo)procNum++;
   }
 
@@ -193,6 +198,42 @@ async function stopAppProject(ctx, next) {
     code: 0,
     data: {
       tip: '成功停止'+procNum+ '个应用'
+    }
+  }
+  return next();
+}
+
+async function setDefaultApiParam(ctx, next) {
+  let finalParams = ctx.finalParams;
+
+  let project = finalParams.project;
+  delete finalParams.project;
+
+  let keys = Object.keys(finalParams);
+
+  let data = 0;
+  try {
+    let apis = await ApiBase.cfind({ project: project}).exec();
+    for(let i=0;i<apis.length; i++){
+      let apiId = apis[i]._id;
+      for(let j=0; j<keys.length; j++){
+        let key = keys[j];
+        let query = { baseid: apiId};
+        query[key] = {$exists: false}
+        let sets = {}
+        sets[key] = finalParams[key];
+        data += await ApiModel.update(query, { $set: sets }, { multi: true} );
+      }
+    }
+  } catch (e) {
+
+  }
+  restartProcess({project: project});
+  ctx.body = {
+    code: 0,
+    data: {
+      result: data,
+      tip: '设定成功'
     }
   }
   return next();

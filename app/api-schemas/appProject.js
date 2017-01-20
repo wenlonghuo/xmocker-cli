@@ -184,6 +184,9 @@ module.exports.startAppProject = {
     required: true,
     noEmpty: true
   },
+  force: {
+    type: 'boolean',
+  },
 }
 
 module.exports.stopAppProject = {
@@ -191,6 +194,23 @@ module.exports.stopAppProject = {
     type: 'string',
     required: true,
     noEmpty: true
+  },
+}
+
+module.exports.setDefaultApiParam = {
+  project: {
+    type: 'string',
+    required: true,
+    noEmpty: true
+  },
+  inputParam: {
+    type: 'object',
+  },
+  outputParam: {
+    type: 'object',
+  },
+  name: {
+    type: 'string',
   },
 }
 

@@ -92,8 +92,8 @@
     </div>
       
     <md-bottom-bar class="m-api-change-page">
-      <md-bottom-bar-item md-icon="navigate_before"  @click="buttonNav($event, -1)">上一页</md-bottom-bar-item>
-      <md-bottom-bar-item md-icon="navigate_next" md-active @click="buttonNav($event, 1)">下一页</md-bottom-bar-item>
+      <md-bottom-bar-item md-icon="navigate_before"  @click.native="buttonNav($event, -1)">上一页</md-bottom-bar-item>
+      <md-bottom-bar-item md-icon="navigate_next" md-active @click.native="buttonNav($event, 1)">下一页</md-bottom-bar-item>
     </md-bottom-bar>
 
     <md-dialog-alert
@@ -185,7 +185,7 @@
           }
           // 设置到数据中
           this.projList = data.data.list;
-          this.selection.proj = this.projList[0]._id;
+          this.selection.proj = this.$route.params.id || this.projList[0]._id;
           if(this.selection.proj)this.getApiList();
         });
       },
@@ -255,6 +255,7 @@
         }
       },
       buttonSelectProj: function(){
+        this.$router.replace({name: 'api-list', params: {id: this.selection.proj}})
         this.pageInfo.pageNo = 0;
         this.getApiList();
       },
@@ -344,9 +345,10 @@
 }
 .m-api-list {
   display: inline-block;
-  min-width: 300px;
+  min-width: 350px;
   max-width: 500px;
-  max-height: 300px; 
+  max-height: 400px; 
+  overflow: hidden;
   margin: 20px;
   text-align: justify;
 }
@@ -354,6 +356,7 @@
   width: 100%;
   display: block;
   text-align: center;
+  padding-bottom: 60px;
 }
 .m-api-move-module {
   position: fixed;
@@ -378,6 +381,7 @@
   overflow: auto;
   display: inline-block;
   margin: 20px 30px;
+  text-align: justify;
   /*border: 1px solid #fefefe;*/
 }
 </style>

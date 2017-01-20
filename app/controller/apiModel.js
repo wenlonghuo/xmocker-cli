@@ -1,9 +1,9 @@
+'use strict'
 const db = require('../db');
 const ApiModel = db.apiModel;
 
 const util = require('../util');
 
-const checkParam = util.checkParam;
 const restartProcess = require('./restartProcess').pushRestartList;
 
 module.exports = {
@@ -70,12 +70,13 @@ async function editApiModel(ctx, next){
   let data;
   try{
     data = await ApiModel.update({_id: id}, {$set:finalParams}, {returnUpdatedDocs: true});
+    
     data = data[1]
   }catch(e){
     
   }
 
-  restartProcess({apiBase: id});
+  restartProcess({apiModel: id});
 
   ctx.body = {
     code: 0,

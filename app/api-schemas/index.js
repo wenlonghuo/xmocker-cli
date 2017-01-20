@@ -1,3 +1,4 @@
+'use strict'
 let schemas = {}
 
 Object.assign(schemas, require('./apiBase'));

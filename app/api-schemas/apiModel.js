@@ -49,6 +49,10 @@ module.exports.editApiModel = {
     required: true,
     noEmpty: true
   },
+  name: {
+    type: 'string',
+    cname: '名称'
+  },
   baseid: {
     type: 'string',
     required: true,

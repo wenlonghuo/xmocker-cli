@@ -1,9 +1,9 @@
+'use strict'
 const db = require('../db');
 const MockHis = db.mockHis;
 
 const util = require('../util');
 
-const checkParam = util.checkParam;
 
 module.exports = {
   getMockHis: getMockHis,

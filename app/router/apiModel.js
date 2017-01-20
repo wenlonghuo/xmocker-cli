@@ -1,3 +1,4 @@
+'use strict'
 const router = require('./index.js');
 const controller = require('../controller/apiModel');
 // const checkLogin = require('../auth').checkLogin

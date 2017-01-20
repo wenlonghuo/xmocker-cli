@@ -36,21 +36,20 @@ app.use(require('./router.js').routes())
 const httpServer = http.createServer(app.callback());
 
 httpServer.listen(apiPORT, function() {
-    process.stdout.write('cmd:finished');
+    process.send({_type: 'cmd', data: 'finished'});
 });
 
 module.exports = httpServer;
 
-
-process.stdin.on('data', function(data){
-    let  signal = data.toString();
-    if(signal === 'kill')
-        
-        if(gulpServer){
-            gulpServer.kill();
-            process.exit(1);
-        }else {
-            process.exit(1);
+process.on('message', function(msg){
+    if(typeof msg === 'object' && msg._type === 'cmd'){
+        if(msg.data === 'kill'){
+            if(gulpServer){
+                gulpServer.kill();
+                process.exit(1);
+            }else {
+                process.exit(1);
+            }
         }
-});
-
+    }
+})

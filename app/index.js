@@ -4,9 +4,10 @@ const app = new Koa()
 const fs = require('fs');
 const http = require('http');
 const path = require('path')
-const processControl = require('./processControl')
+const processControl = require('./controller/processControl')
 const sendFile = require('./util/file-server.js');
-
+const db = require('./db');
+const log = require('./util/log')
 // passport认证
 
 app.proxy = true
@@ -30,26 +31,23 @@ app.use(require('./router').routes())
 // 建立是的监听及server
 const httpServer = http.createServer(app.callback());
 
-const db = require('./db')
 
-
+// 查询appbase
 db.appBase.cfindOne({}).exec().then(function(doc){
     doc = doc || {};
     let appPORT = doc.managePort || 6001;
     httpServer.listen(appPORT, function() {
-        console.log('HTTP background Server is running on: http://localhost:%s', appPORT);
+        console.log('后台管理界面运行于: http://localhost:%s', appPORT);
     });
 
     let queryObj = doc.defaultProject? {_id: doc.defaultProject}: {};
     db.appProject.cfindOne(queryObj).exec().then(function(doc){
         if(!doc){
-            console.warn('no default project, you can add one to start');
+            console.log('没有默认项目，添加后可自动启动');
             return;
         }
-        
-        processControl.addNewProcess(doc);
+        processControl.restartProcess(doc);
     })
 });
-
 
 

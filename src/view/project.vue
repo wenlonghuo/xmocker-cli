@@ -436,7 +436,8 @@
         var query = document.querySelectorAll('#mytable table tbody tr.md-selected');
         var inlineItems = [];
         var list = this.list;
-        query.forEach(function(item) {
+        for(var i=0;i<query.length; i++){
+          var item = query[i];
           var _id = item.getAttribute('data-item') || '';
           var p = list.find(function(l) {
               return l._id === _id
@@ -444,7 +445,7 @@
           if (p) {
             inlineItems.push(p)
           }
-        });
+        }
 
         this.selectedItem = inlineItems;
         return inlineItems;

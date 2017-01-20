@@ -2,7 +2,7 @@
   <md-toolbar>
       <h2 class="md-title">后台管理</h2>
 
-      <md-button md-menu-trigger>首页</md-button>
+      <md-button href="/#/">首页</md-button>
 
       <md-menu md-align-trigger>
         <md-button md-menu-trigger>api管理</md-button>
@@ -13,9 +13,9 @@
         </md-menu-content>
       </md-menu>
 
-      <md-button md-menu-trigger href="/#/projectList/">项目管理</md-button>
+      <md-button href="/#/projectList/">项目管理</md-button>
 
-      <md-button md-menu-trigger href="/#/app/base">基础信息配置</md-button>
+      <md-button href="/#/app/base">基础信息配置</md-button>
 
 
       <md-menu md-align-trigger  style="flex: 1">
@@ -30,7 +30,7 @@
 
       
 
-      <md-button md-menu-trigger>关于</md-button>
+      <md-button href="/#/about">关于</md-button>
 
       <md-button class="md-icon-button">
         <md-icon>account_circle</md-icon>

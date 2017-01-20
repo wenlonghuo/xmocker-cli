@@ -4,6 +4,10 @@ module.exports.getAppBase = {
 
 }
 
+module.exports.getAppStatus = {
+
+}
+
 module.exports.editAppBase = {
   remoteAddress: {
     type: 'string',

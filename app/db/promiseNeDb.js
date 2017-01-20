@@ -1,3 +1,4 @@
+'use strict'
 // 以下代码取自 https://github.com/jrop/nedb-promise
 var NedbDatastore = require('nedb')
 var thenify = require('thenify')

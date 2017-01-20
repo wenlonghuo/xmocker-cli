@@ -116,20 +116,20 @@
           apiBase: {
             _id: '',
             name: '',
-            url: '',
+            url: '/api',
             project: '',
-            method: '',
-            path: '',
+            method: 'post',
+            path: 'func',
             keywords: '',
             description: '',
           },
           apiModel: [{
             _id: '',
-            name: '',
+            name: '主干',
             condition: '',
             inputParam: '',
             outputParam: '',
-            data: '',
+            data: '[]',
           }],
           currentIndex: 0,
           type: 'base'
@@ -253,7 +253,8 @@
       submitApiModel: function(index){
         var param = this.formModel.apiModel[index];
         if(!param)return;
-        param.baseid = param.id = this.formModel.apiBase._id;
+        param.baseid = this.formModel.apiBase._id;
+        param.id = param._id
 
         param.inputParam = this.formatJSONString(param.inputParam);
         param.outputParam = this.formatJSONString(param.outputParam);

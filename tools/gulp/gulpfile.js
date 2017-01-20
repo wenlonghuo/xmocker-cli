@@ -32,7 +32,6 @@ option = dealOption(option)
 option.buildPath =option.buildPath[0]
 option.root =option.root[0]
 // console.log(option);
-
 // 清除打包目录
 gulp.task('clean-code', function () {
   return del([option.buildPath + '/**/*'], {force: true})
@@ -41,7 +40,7 @@ gulp.task('clean-code', function () {
 // push image
 gulp.task('image-copy', function () {
   
-  return gulp.src([...option.img], {base: option.root})
+  return gulp.src([...option.image], {base: option.root})
     .pipe(gulp.dest(option.buildPath));
 });
 
@@ -134,7 +133,7 @@ gulp.task('dev', gulp.series('init', function watchingTask(re) {
   cacheFiles.js = [];
 
   var fileHash = {};
-  var watcherjs = gulp.watch([...option.js,...option.css, ...option.html, ...option.img], function(re){
+  var watcherjs = gulp.watch([...option.js,...option.css, ...option.html, ...option.image], function(re){
     
   }); 
   // 监视与 scripts 任务中同样的文件
@@ -146,14 +145,13 @@ gulp.task('dev', gulp.series('init', function watchingTask(re) {
       tmpFileList = [];
       fileList.push(event);
     }
-    console.log('文件平生了变动' + fileList);
     doTask();
   });
   gutil.log((' 启动监听，目录为: \njs:\n	' +
     option.js.join('\n	') + '\ncss:\n	' +
     option.css.join('\n	') + '\nhtml:\n	' +
     option.html.join('\n	') +'\nimage:\n  '+
-    option.img.join('\n   ')).yellow
+    option.image.join('\n   ')).yellow
   );
 
   function setTask() {
