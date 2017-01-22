@@ -4,6 +4,8 @@ const app = new Koa()
 const fs = require('fs');
 const http = require('http');
 const path = require('path')
+const WebSocket = require('ws')
+
 const processControl = require('./controller/processControl')
 const sendFile = require('./util/file-server.js');
 const db = require('./db');
@@ -30,7 +32,10 @@ app.use(require('./router').routes())
 
 // 建立是的监听及server
 const httpServer = http.createServer(app.callback());
+const wss = new WebSocket.Server({server: httpServer})
 
+log.broad(wss);
+wss.on('connection', log.ws)
 
 // 查询appbase
 db.appBase.cfindOne({}).exec().then(function(doc){

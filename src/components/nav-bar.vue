@@ -29,6 +29,7 @@
       </md-menu>
 
       
+      <md-button href="/#/log">日志</md-button>
 
       <md-button href="/#/about">关于</md-button>
 

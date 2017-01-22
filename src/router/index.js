@@ -14,6 +14,8 @@ import appBase from '../view/app-base.vue'
 
 import about from '../view/about.vue'
 
+import log from '../view/log.vue'
+
 var router = new VueRouter({
   routes: [
     {name: 'index', path: '/', component: main},
@@ -21,6 +23,7 @@ var router = new VueRouter({
     {name: 'api-list', path: '/api/:id?', component: apiList},
     {name: 'app-base', path: '/app/base', component: appBase},
     {name: 'api-add', path: '/apiAdd/:id?', component: apiAdd},
+    {name: 'log', path: '/log/', component: log},
     {name: 'about', path: '/about', component: about}
   ]
 })

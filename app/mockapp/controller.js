@@ -30,7 +30,7 @@ let projectId = minimist(process.argv.slice(2)).projectId || '';
 async function getProjectApiList(ctx, next) {
   let apiList, api;
   try {
-    apiList = await apiBase.cfind({ project: projectId }).sort({name: 1}).exec();
+    apiList = await apiBase.cfind({ project: projectId }).sort({ name: 1 }).exec();
   } catch (e) {
     return ctx.body = {
       code: -1,
@@ -41,7 +41,7 @@ async function getProjectApiList(ctx, next) {
   let method = ctx.method;
   let apiItem;
   let params = Object.assign({}, ctx.query || {}, ctx.request.body);
-  
+
   if (apiList.length) {
     for (let i = 0; i < apiList.length; i++) {
       api = apiList[i];
@@ -103,7 +103,8 @@ async function sendApiData(ctx, next) {
     err: '无数据'
   };
 
-  let defaultApi, i, api;
+  let defaultApi, i, api, noData;
+  let conditionFunction, result, dealedParams, paramsArr = [];
 
   // 获取不同条件的api
   for (i = 0; i < reqApiModel.length; i++) {
@@ -111,27 +112,25 @@ async function sendApiData(ctx, next) {
     let condition = api.condition || '';
     // 条件为空时设置为默认值
     if (condition === '') {
-      defaultApi = api.data;
+      defaultApi = api;
       continue;
     }
-
-    let conditionFunction, result, dealedParams, paramsArr = [];
 
     try {
       if (condition.indexOf('return') < 0) condition = 'return ' + condition;
 
       dealedParams = formatEntranceParam(params, api.inputParam);
       let keys = Object.keys(dealedParams);
-      keys.forEach(function(key){
+      keys.forEach(function(key) {
         paramsArr.push(dealedParams[key]);
       })
 
       keys.push(condition);
-      
+
       conditionFunction = new Function(...keys);
     } catch (e) {
       sendErrorMsg(ctx, {
-        data: 'api分支判断条件函数不合法：'+ condition,
+        data: 'api分支判断条件函数不合法：' + condition,
         level: 6,
         apiId: reqApiBase._id,
         api: reqApiBase.name,
@@ -154,11 +153,11 @@ async function sendApiData(ctx, next) {
     }
 
     // 调用函数
-    try{
+    try {
       result = conditionFunction.apply(ctx, paramsArr);
-    }catch(e){
+    } catch (e) {
       sendErrorMsg(ctx, {
-        data: 'api分支执行判断条件的函数时出现错误：'+ condition,
+        data: 'api分支执行判断条件的函数时出现错误：' + condition,
         level: 6,
         apiId: reqApiBase._id,
         api: reqApiBase.name,
@@ -187,14 +186,49 @@ async function sendApiData(ctx, next) {
   }
 
   if (i >= reqApiModel.length && defaultApi) {
-    let apiData = defaultApi || [];
+    api = defaultApi || {};
+    let apiData = api.data || [];
     data = apiData[0] || {};
+  } else if(i >= reqApiModel.length && !defaultApi){
+    noData = true;
   }
 
 
   if (currentMode === 1) { // 随机模式
     data = setKeys(api.outputParam);
 
+  }
+
+  if (!noData) {
+    sendHisData(ctx, {
+      data: '获取api数据成功：' + reqApiBase.name,
+      level: 8,
+      apiId: reqApiBase._id,
+      api: reqApiBase.name,
+      apiModelId: api._id,
+      apiModel: api.name,
+      req: {
+        params: params,
+        url: ctx.url,
+        method: ctx.method,
+      },
+      reqParsed: dealedParams,
+      res: data,
+    });
+  } else {
+    sendHisData(ctx, {
+      data: '获取api数据失败：' + reqApiBase.name,
+      level: 8,
+      apiId: reqApiBase._id,
+      api: reqApiBase.name,
+      req: {
+        params: params,
+        url: ctx.url,
+        method: ctx.method,
+      },
+      reqParsed: dealedParams,
+      res: data,
+    });
   }
 
   ctx.body = data;
@@ -303,15 +337,15 @@ function randomCode(len = 10, type = ['letter', 'chinese', 'number', 'punctuatio
 }
 
 
-function sendErrorMsg(ctx, data){
+function sendErrorMsg(ctx, data) {
   let msg = {
-    _type: 'error', 
-    time: +new Date(), 
+    _type: 'error',
+    time: +new Date(),
     args: {
       port: argv.port,
       fsPath: argv.fileServerPath
-    }, 
-    projectId: argv.projectId, 
+    },
+    projectId: argv.projectId,
     project: argv.projectName
   };
   msg = Object.assign(msg, data);
@@ -336,18 +370,17 @@ function sendErrorMsg(ctx, data){
  * err: 错误详细信息
  * additional: 其他参数
  */
-function sendHisData(data){
+function sendHisData(ctx, data) {
   let msg = {
-    _type: 'his', 
-    time: +new Date(), 
+    _type: 'his',
+    time: +new Date(),
     args: {
       port: argv.port,
       fsPath: argv.fileServerPath
-    }, 
-    projectId: argv.projectId, 
+    },
+    projectId: argv.projectId,
     project: argv.projectName
   };
   msg = Object.assign(msg, data);
   process.send(msg);
 }
-

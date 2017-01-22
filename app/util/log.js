@@ -12,7 +12,8 @@ const HisStore = new Datastore({filename: 'db/log/his', autoload: true, onload: 
 }});
 
 
-let through2 = require('through2')
+let through2 = require('through2');
+let ws, wss;
 
 let errStream =  through2(function(chunk, enc, cb){
   process.stdout.write(chunk)
@@ -30,27 +31,24 @@ let logGulp =  through2( function(chunk, enc, cb){
   cb(null, chunk)
 })
 
-let errLog = LogFunc(ErrStore);
-let errTeam = errLog.team;
+let errLog = LogFunc(ErrStore)
 
 let hisLog = LogFunc(HisStore)
-let hisTeam = hisLog.team;
 
 let logLevel = 10;
 let childLog =  function(data){
   if(typeof data === 'object'){
+    wss.broadcast(JSON.stringify({_cmd: 'pushLogs', data: [data]}))
     if(data.level < logLevel){
 
       if(data._type === 'error'){
-        errTeam.push(data);
         console.log('[%s] %s',new Date(data.time).toLocaleTimeString(),data.data)
         console.log(' %s',data.err.msg)
         console.log(' 项目：[%s], api：[%s], 分支：[%s]', data.project, data.api, data.apiModel)
         console.log(' 传入参数:', data.req)
-        if(!errLog.state)errLog();
+        errLog(data);
       } else if(data._type === 'his'){
-        hisTeam.push(data);
-        if(!hisLog.state)hisLog();
+        hisLog(data);
       } else if(data._type === 'console'){
         console.log(data);
       }
@@ -60,11 +58,12 @@ let childLog =  function(data){
   }
 }
 
-let maxLen = 100;
+// 生成日志函数，传入数据库句柄
 function LogFunc(db){
   let running;
   let team = [];
-  let func =  function(){
+  let maxLen = 100;
+  let clearTeam =  function(){
     let msg = team.splice(0, maxLen);
     if(!msg.length){
       running = false;
@@ -72,20 +71,56 @@ function LogFunc(db){
     }
     running = true;
     db.insert(msg).then(function(){
-      setTimeout(func, 0)
+      setTimeout(clearTeam, 0)
     }, function(e){
       console.log(e)
-      setTimeout(func, 0)
+      setTimeout(clearTeam, 0)
     });
   }
-  func.team = team;
-  Object.defineProperty(func, 'state', {
-    get: function(){
-      return running;
-    }
-  })
+
+  let func = function(data){
+    team.push(data);
+    if(!running)clearTeam();
+  }
+
   return func
 }
+
+
+
+function incoming(msg){
+  try{
+    msg = JSON.parse(msg)
+  }catch(e){
+    return;
+  }
+  let cmd = msg._cmd;
+  if(cmd === 'getAllLogs'){
+    getAllLogs(function(data){
+      let str = JSON.stringify({_cmd: 'setLogs', data: data})
+      ws.send(str, function(err){
+        if(err){
+          console.log(err);
+        }
+      })
+    })
+  }
+}
+
+function getAllLogs(cb){
+  let lists = [], maxLen = 5000;
+  ErrStore.cfind({}).limit(maxLen).exec().then(function(docs){
+    lists.push(...docs);
+
+    HisStore.cfind({}).limit(maxLen).exec().then(function(docs){
+      lists.push(...docs);
+      lists.sort(function(a, b){return a.time > b.time})
+      cb(lists);
+    })
+
+  })
+}
+
 
 module.exports = function(msg){
   process.stdout.write(msg)
@@ -98,3 +133,21 @@ module.exports.childLog = childLog;
 module.exports.errGulp = errGulp;
 
 module.exports.logGulp = logGulp;
+
+module.exports.ws = function(wsClient){
+  ws = wsClient;
+  wsClient.on('message', incoming);
+}
+
+module.exports.broad = function(hd){
+  wss = hd;
+
+  // Broadcast to all.
+  wss.broadcast = function broadcast(data) {
+    wss.clients.forEach(function each(client) {
+      if (client.readyState == 1) {
+        client.send(data);
+      }
+    });
+  };
+}
