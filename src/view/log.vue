@@ -2,8 +2,32 @@
   <div class="m-log-main" :style="{height:dHeight}">
     <div class="m-log-leftBox">
       
-      <md-whiteframe md-elevation="1" class="">
-          <h1 class="md-title">日志记录</h1>  
+      <md-whiteframe md-elevation="1" class="m-log-leftBox-tool">
+          <h1 class="md-title">日志记录</h1>
+          <md-chip v-for="chip in selection.chips" md-deletable>
+            {{chip.name}}
+          </md-chip>
+          <md-button-toggle class="m-log-type">
+            <md-button class="md-toggle md-accent">
+              <md-icon>error</md-icon>
+              错误
+            </md-button>
+
+            <md-button class="md-toggle">
+              <md-icon>battery_full</md-icon>
+              数据
+            </md-button>
+          </md-button-toggle>
+
+          <div class="m-log-tool-choose">
+
+            <div class="m-log-proj">
+              <md-select name="proj" id="proj" v-model="selection.proj" multiple  @change="buttonSelectProj">
+                <md-option v-for="proj in projList" :value="proj._id">{{proj.name}}</md-option>
+              </md-select>
+            </div>
+          </div>
+
       </md-whiteframe>
       <md-whiteframe md-elevation="1" class="m-log-leftBox-main" @click.native="showDetail($event)">
             <div v-for="(log, gIndex) in logs" :data-id="gIndex" class="m-log-item">
@@ -15,7 +39,7 @@
       </md-whiteframe>
     </div>
 
-    <md-card md-elevation="1" class="m-log-rightBox">
+    <md-card md-elevation="10" class="m-log-rightBox">
         <md-card-header>
           <h2 class="md-title">log详情</h2>
         </md-card-header>
@@ -40,7 +64,8 @@
             <h2 class="md-subheading">请求参数</h2>
           </md-card-header>
 
-          <md-card-content v-html="formatStr(detail.req)">
+          <md-card-content>
+            <pre><code lang="json">{{formatStr(detail.req)}}</code></pre>
           </md-card-content>
         </md-card-area>
 
@@ -48,7 +73,8 @@
           <md-card-header>
             <h3 class="md-subheading">转换后参数</h3>
           </md-card-header>
-          <md-card-content v-html="formatStr(detail.reqParsed)">
+          <md-card-content>
+            <pre><code lang="json">{{formatStr(detail.reqParsed)}}</code></pre>
           </md-card-content>
           
         </md-card-area>
@@ -58,7 +84,8 @@
             <h3 class="md-subheading">输出结果</h3>
           </md-card-header>
           
-          <md-card-content v-html="formatStr(detail.res)">
+          <md-card-content>
+            <pre><code lang="json">{{formatStr(detail.res)}}</code></pre>
           </md-card-content>
         </md-card-area>
 
@@ -67,7 +94,8 @@
             <h3 class="md-subheading">错误详情</h3>
           </md-card-header>
           
-          <md-card-content v-html="formatStr(detail.err)">
+          <md-card-content>
+            <pre><code lang="json">{{formatStr(detail.err)}}</code></pre>
           </md-card-content>
         </md-card-area>
 
@@ -76,7 +104,8 @@
             <h3 class="md-subheading">应用启动参数</h3>
           </md-card-header>
           
-          <md-card-content v-html="formatStr(detail.argv)">
+          <md-card-content>
+            <pre><code lang="json">{{formatStr(detail.argv)}}</code></pre>
           </md-card-content>
         </md-card-area>
 
@@ -85,7 +114,8 @@
             <h3 class="md-subheading">其他参数</h3>
           </md-card-header>
           
-          <md-card-content v-html="formatStr(detail.additional)">
+          <md-card-content>
+            <pre><code lang="json">{{formatStr(detail.additional)}}</code></pre>
           </md-card-content>
         </md-card-area>
 
@@ -94,11 +124,26 @@
 </template>
 
 <script>
+
+  // import '../lib/highlight/highlight.pack.js'
+  // import '../lib/highlight/styles/default.css'
+
   export default {
     name: 'log',
     data: function(){
       return {
-        detail: {}
+        detail: {},
+        projList: [
+
+        ],
+        selection: {
+          proj:[],
+          api: [],
+          apiModel: [],
+          chips: [
+            {name: "getHospitalWeiXinGuid"}
+          ]
+        },
       }
     },
     watch: {
@@ -126,17 +171,50 @@
           method: 'GET',
           url: '/mock/getAppStatus'
         },
+        getProj: {
+          method: 'GET',
+          url: '/mock/getAppProject'
+        }
       });
       if(!this.logs.length)this.getLogs();
       this.ele = document.querySelector('.m-log-leftBox-main');
+      this.getProjectList();
     },
     methods: {
       getAppStatus: function(){
       },
       getLogs: function(){
-        this.$store.commit('pushCmd', {_cmd: 'getAllLogs'});
+        this.$store.commit('pushCmd', {
+          _cmd: 'getAllLogs', 
+          projectId: this.selection.proj,
+          apiId: this.selection.api.map(function(a){return a.id}),
+          apiModel: this.selection.apiModel.map(function(a){return a.id}),
+        });
       },
 
+      getProjectList: function(){
+        var param = {
+          pageSize: 2000,
+          pageNo: 0
+        };
+        return this.app.getProj(param).then(function(data){
+          data = data.data;
+          if (data.code) {
+            this.alert(data.err);
+            return;
+          }
+          // 设置到数据中
+          this.projList = data.data.list;
+          // this.selection.proj = this.$route.params.id || this.projList[0]._id;
+        });
+      },
+
+      buttonSelectProj: function(){
+        // this.$router.replace({name: 'api-list', params: {id: this.selection.proj}})
+        // this.pageInfo.pageNo = 0;
+        // this.getApiList();
+        this.getLogs();
+      },
 
       showDetail: function(e, id){
         var el = this.getTarget(e.target, 'm-log-item');
@@ -149,10 +227,21 @@
       formatStr: function(obj){
         var str = '';
         if(typeof obj !== 'object')return obj;
-        for(var key in obj) {
-          str += key + ": "+ JSON.stringify(obj[key]) + "<br/>";
-        }
+        str = JSON.stringify(obj, null, 2);
         return str
+        // String.prototype.replaceAll = function(s1,s2){ 
+        //   return this.replace(new RegExp(s1,"gm"),s2); 
+        // }
+        // return str.replaceAll("&", "&amp;")
+        //   .replaceAll("<", "&lt;")
+        //   .replaceAll(">", "&gt;")
+        //   .replaceAll(String.fromCharCode(32), "&nbsp;")
+        //   .replaceAll(String.fromCharCode(9), "&nbsp;")
+        //   .replaceAll(String.fromCharCode(9), "&#160;&#160;&#160;&#160;")
+        //   .replaceAll(String.fromCharCode(34),  "&quot;")
+        //   .replaceAll(String.fromCharCode(39),  "&#39;")
+        //   .replaceAll(String.fromCharCode(13),  "")
+        //   .replaceAll(String.fromCharCode(10),  "<br/>")
       },
       formatTime: function(d){
         if(!d)return
@@ -187,20 +276,27 @@
   position: absolute;
   right: 20px;
   top: 100px;
-  width: 350px;
+  width: 35%;
   height: calc( 100% - 150px );
   overflow-y: auto;
   overflow-x: hidden; 
 }
 .m-log-leftBox {
-  padding-right: 400px;
+  /*padding-right: 400px;*/
+  width: 60%;
   padding-left: 30px;
   height: calc( 100% - 30px );
   overflow-y: auto;
   overflow-x: hidden; 
 }
+
+.m-log-leftBox-tool{
+  height: 150px;
+  position: relative;
+}
+
 .m-log-leftBox-main {
-  max-height: calc( 100% - 80px );
+  max-height: calc( 100% - 180px );
   overflow-y: auto;
   padding: 10px 20px;
 }
@@ -219,4 +315,26 @@
 .m-log-item {
   cursor: pointer;
 }
+
+.m-log-tool-choose {
+  display: block;
+  padding: 20px 10px;
+}
+.m-log-proj {
+  width: 200px;
+  display: inline-block;
+}
+
+.m-log-type {
+  display: block;
+  position: absolute;
+  right: 30px;
+  top: 40px;
+}
+
+pre {
+  width: 100%;
+  overflow-x: auto;
+}
+
 </style>

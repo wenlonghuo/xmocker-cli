@@ -82,7 +82,7 @@ function killProcess(proc, option={force: false}) {
   let hasResolved;
   let gulpServer = processInfo.gulpServer;
   
-  if(option.force){
+  if(option.force && gulpServer){
     try{
       gulpServer.kill(0);
     }catch(e){

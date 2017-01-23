@@ -72,7 +72,6 @@
         socket.onopen = function(event){
           // socket.send('open now');
           _this.socket = socket;
-          
           socket.onmessage = function(msg){
             try{
               var data = JSON.parse(msg.data);
@@ -93,7 +92,11 @@
         }
 
         socket.onclose = function(event){
-          console.log('Client notified socket has closed',event);
+          setTimeout(_this.initSocket, 5000);
+        }
+
+        socket.onerror = function(event){
+          // setTimeout(_this.initSocket, 5000);
         }
       },
       getBaseInfo: function(){
@@ -108,8 +111,10 @@
         var cmd = this.$store.state.ws.cmd[0];
         if(cmd){
           if(this.socket){
-            this.$store.commit('shiftCmd');
-            this.socket.send(JSON.stringify(cmd));
+            if(this.socket.readyState == 1){
+              this.$store.commit('shiftCmd');
+              this.socket.send(JSON.stringify(cmd));
+            }
           }
         }
       }

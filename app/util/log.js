@@ -1,7 +1,7 @@
 'use strict'
 
 const Datastore = require('../db/promiseNeDb')
-let td = +new Date() - 1000 * 60 * 60 * 24 * 3;
+let td = +new Date() - 1000 * 60 * 60 * 24 * 5;
 // api 基础数据
 const ErrStore = new Datastore({filename: 'db/log/err', autoload: true, onload: function(){
   ErrStore.remove({time: {$lte:td}}, {multi: true}).catch(function(e){console.log(e)})
@@ -96,7 +96,7 @@ function incoming(msg){
   }
   let cmd = msg._cmd;
   if(cmd === 'getAllLogs'){
-    getAllLogs(function(data){
+    getAllLogs(msg, function(data){
       let str = JSON.stringify({_cmd: 'setLogs', data: data})
       ws.send(str, function(err){
         if(err){
@@ -107,12 +107,20 @@ function incoming(msg){
   }
 }
 
-function getAllLogs(cb){
-  let lists = [], maxLen = 5000;
-  ErrStore.cfind({}).limit(maxLen).exec().then(function(docs){
+function getAllLogs(msg, cb){
+  let lists = [], maxLen = 1000;
+  let queryList = ['projectId', 'apiId', 'apiModelId']
+  let query = {};
+  queryList.forEach(function(q){
+    if(msg[q] && msg[q].length){
+      query[q] = {$in: msg[q]}
+    }
+  })
+
+  ErrStore.cfind(query).sort({time: -1}).limit(maxLen).exec().then(function(docs){
     lists.push(...docs);
 
-    HisStore.cfind({}).limit(maxLen).exec().then(function(docs){
+    HisStore.cfind(query).sort({time: -1}).limit(maxLen).exec().then(function(docs){
       lists.push(...docs);
       lists.sort(function(a, b){return a.time > b.time})
       cb(lists);
