@@ -27,7 +27,7 @@ app.use(bodyParser())
 app.use(async function(ctx, next){
   return next().then(sendFile(ctx, ctx.path, {root: projectDir,index: 'index.html'}));
 })
-
+// log(projectDir)
 app.use(require('./router.js').routes())
 
 
@@ -53,3 +53,12 @@ process.on('message', function(msg){
         }
     }
 })
+
+function log(data) {
+  let msg = {
+    _type: 'console',
+    time: +new Date(),
+    data: data
+  };
+  process.send(msg);
+}

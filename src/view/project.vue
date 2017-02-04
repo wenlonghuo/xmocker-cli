@@ -82,7 +82,7 @@
       <div class="app-project-show-form">
          <md-input-container>
           <label>项目名称</label>
-          <md-input v-model="proj.model.name"></md-input>
+          <md-input type="text" v-model="proj.model.name"></md-input>
         </md-input-container>
 
         <md-input-container>
@@ -251,7 +251,7 @@
       // 添加项目
       addProject: function() {
         var param = this.copyObj({}, this.proj.model);
-
+        var model = this.proj.model;
         var gulp = this.formatJSONString(model.gulp);
         var webpack = this.formatJSONString(model.webpack);
 

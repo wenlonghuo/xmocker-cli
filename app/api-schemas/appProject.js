@@ -34,6 +34,10 @@ module.exports.addAppProject = {
     type: 'string',
     cname: '项目状态',
   },
+  error: {
+    type: 'object',
+    cname: '错误提示信息格式',
+  },
   gulp: {
     type: 'object',
     cname: 'gulp信息',
@@ -115,6 +119,10 @@ module.exports.editAppProject = {
   state: {
     type: 'string',
     cname: '项目状态',
+  },
+  error: {
+    type: 'object',
+    cname: '错误提示信息格式',
   },
   gulp: {
     type: 'object',

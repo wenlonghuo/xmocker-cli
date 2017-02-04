@@ -250,6 +250,8 @@ function startGulp(proc, option = { force: false }) {
   }
 
   let gOption = proc.gulp;
+
+  if(!gOption.html)return;
   let params = [];
   for (let key in gOption) {
     params.push('--' + key + '="' + gOption[key] + '"');
