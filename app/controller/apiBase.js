@@ -5,7 +5,7 @@ const apiModel = db.apiModel;
 
 const util = require('../util');
 const pushRestartList = require('./restartProcess').pushRestartList;
-
+const uid = util.uid();
 
 module.exports = {
   getApiBase: getApiBase,
@@ -82,6 +82,8 @@ async function addApiBase(ctx, next){
 
   let data;
   try{
+    finalParams._uid = uid();
+    finalParams._mt = + new Date();
     data = await apiBase.insert(finalParams);
   }catch(e){
     
@@ -108,6 +110,7 @@ async function editApiBase(ctx, next){
 
   let data;
   try{
+    finalParams._mt = + new Date();
     data = await apiBase.update({_id: id}, {$set:finalParams}, {returnUpdatedDocs: true});
     data = data[1]
   }catch(e){
@@ -167,6 +170,8 @@ async function copyApi(ctx, next){
         delete api._id;
         let oProject = api.project;
         api.project = proj;
+        if(!api._uid)api._uid = uid();
+        api._mt = +new Date();
         let query = {name: api.name, url: api.url, method: api.method, project: proj,};
 
         apiId = await apiBase.update(query, {$set:api}, {returnUpdatedDocs: true, upsert: true,});
@@ -181,6 +186,8 @@ async function copyApi(ctx, next){
           let model = apiModelList[k];
           delete model._id;
           model.baseid = apiId._id;
+          if(!model._uid)model._uid = uid();
+          model._mt = +new Date();
           let query = {baseid: model.baseid, name: model.name, condition: model.condition};
           await apiModel.update(query, {$set:model}, {returnUpdatedDocs: true, upsert: true,})
         }

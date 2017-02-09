@@ -102,6 +102,10 @@
           <md-input v-model="proj.model.port"></md-input>
         </md-input-container>
 
+        <md-input-container>
+          <label>错误消息配置</label>
+          <md-textarea v-model="proj.model.error"></md-textarea>
+        </md-input-container>
 
         <md-input-container>
           <label>gulp配置</label>
@@ -147,6 +151,8 @@
 <script>
   import tbPagination from '../components/tab-pagination.vue'
 
+  var errorMsg = JSON.stringify({code: -1, codeDesc:"${msg}", codeDescUser:"${msg}"}, null, 2)
+
   export default {
     name: 'projectList',
     components: {
@@ -169,6 +175,7 @@
             member: '',
             path: '',
             port: '',
+            error: errorMsg,
             gulp:'',
             webpack: '',
           }
@@ -254,6 +261,7 @@
         var model = this.proj.model;
         var gulp = this.formatJSONString(model.gulp);
         var webpack = this.formatJSONString(model.webpack);
+        var error = this.formatJSONString(model.error);
 
         if(!gulp){
           this.alert('gulp配置格式不正确');
@@ -261,6 +269,8 @@
         }else if(!webpack){
           this.alert('webpack配置格式不正确');
           return;
+        } else if(!error){
+          error = undefined;
         }
 
         param.gulp = gulp;
@@ -272,9 +282,10 @@
       // 编辑项目
       editProject: function() {
         var param = this.copyObj({}, this.proj.model);
-
-        var gulp = this.formatJSONString(this.proj.model.gulp);
-        var webpack = this.formatJSONString(this.proj.model.webpack);
+        var model = this.proj.model;
+        var gulp = this.formatJSONString(model.gulp);
+        var webpack = this.formatJSONString(model.webpack);
+        var error = this.formatJSONString(model.error);
 
         if(!gulp){
           this.alert('gulp配置格式不正确');
@@ -282,10 +293,13 @@
         }else if(!webpack){
           this.alert('webpack配置格式不正确');
           return;
+        } else if(!error){
+          error = undefined;
         }
 
         param.gulp = gulp;
         param.webpack = webpack;
+        param.error = error;
         param.id = param._id;
         return this.app.edit(param);
       },
@@ -384,6 +398,7 @@
             member: '',
             path: '',
             port: '',
+            error: errorMsg,
             gulp: {
               path: '',
             },
@@ -478,6 +493,7 @@
         models.forEach((model)=>{
           model.gulp = this.prettyJSON(model.gulp)
           model.webpack = this.prettyJSON(model.webpack)
+          model.error = this.prettyJSON(model.error) || errorMsg
         });
       }
     }

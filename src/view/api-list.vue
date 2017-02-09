@@ -325,8 +325,8 @@
 }
 .m-choose-project {
   display: inline-block;
-  width: 150px;
   position: absolute;
+  width: 150px;
   right: 20px;
   bottom:0;
 }

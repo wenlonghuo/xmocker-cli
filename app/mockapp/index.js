@@ -54,7 +54,7 @@ process.on('message', function(msg){
     }
 })
 
-function log(data) {
+console.log = function log(data) {
   let msg = {
     _type: 'console',
     time: +new Date(),

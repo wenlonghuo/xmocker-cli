@@ -3,7 +3,7 @@ const db = require('../db');
 const ApiModel = db.apiModel;
 
 const util = require('../util');
-
+const uid = util.uid();
 const restartProcess = require('./restartProcess').pushRestartList;
 
 module.exports = {
@@ -42,6 +42,8 @@ async function addApiModel(ctx, next){
 
   let data;
   try{
+    finalParams._uid = uid();
+    finalParams._mt = + new Date();
     data = await ApiModel.insert(finalParams);
   }catch(e){
     
@@ -69,6 +71,7 @@ async function editApiModel(ctx, next){
 
   let data;
   try{
+    finalParams._mt = + new Date();
     data = await ApiModel.update({_id: id}, {$set:finalParams}, {returnUpdatedDocs: true});
     
     data = data[1]

@@ -49,7 +49,9 @@ let childLog =  function(data){
         errLog(data);
       } else if(data._type === 'his'){
         hisLog(data);
-      } else if(data._type === 'console'){
+      }
+    }else {
+      if(data._type === 'console'){
         console.log(data);
       }
     }
@@ -122,7 +124,7 @@ function getAllLogs(msg, cb){
 
     HisStore.cfind(query).sort({time: -1}).limit(maxLen).exec().then(function(docs){
       lists.push(...docs);
-      lists.sort(function(a, b){return a.time > b.time})
+      lists.sort(function(a, b){return a.time - b.time});
       cb(lists);
     })
 

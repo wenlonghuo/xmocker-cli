@@ -5,6 +5,7 @@ const ApiModel = db.apiModel;
 const ApiBase = db.apiBase;
 
 const util = require('../util');
+const uid = util.uid();
 const processControl = require('./processControl')
 const processList = processControl.processList
 
@@ -68,6 +69,8 @@ async function addAppProject(ctx, next) {
 
   let data;
   try {
+    finalParams._uid = uid();
+    finalParams._mt = + new Date();
     data = await AppProject.insert(finalParams);
   } catch (e) {
 
@@ -95,6 +98,7 @@ async function editAppProject(ctx, next) {
 
   let data;
   try {
+    finalParams._mt = + new Date();
     data = await AppProject.update({ _id: id }, { $set: finalParams });
   } catch (e) {
 
@@ -119,6 +123,10 @@ async function deleteAppProject(ctx, next) {
   let ids = finalParams.id.split(',');
   try {
     data = await AppProject.remove({ _id:{$in: ids}}, { multi: true });
+    let apis = await ApiBase.cfind({ _id:{$in: ids}});
+    let aids = apis.map(function(api){return api._id})
+    await AppModel.remove({ baseid:{$in: aids}}, { multi: true })
+    await ApiBase.remove({ _id:{$in: ids}}, { multi: true })
   } catch (e) {
 
   }

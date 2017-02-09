@@ -24,17 +24,19 @@ module.exports = {
 
 let appConfig, projectConfig;
 
-let projectId = minimist(process.argv.slice(2)).projectId || '';
-
+let projectId = argv.projectId || '';
+let apiList;
 // 获取当前项目所有的api列表，存储到内存中
 async function getProjectApiList(ctx, next) {
-  let apiList, api;
-  try {
-    apiList = await apiBase.cfind({ project: projectId }).sort({ name: 1 }).exec();
-  } catch (e) {
-    return ctx.body = {
-      code: -1,
-      err: '后台错误'
+
+   if(!ctx.is('application/x-www-form-urlencoded'))return next();
+
+  let api;
+  if(!apiList){
+    try {
+      apiList = await apiBase.cfind({ project: projectId }).sort({ name: 1 }).exec();
+    } catch (e) {
+      return resError(ctx, '后台错误')
     }
   }
   let url = ctx.path;
@@ -72,10 +74,7 @@ async function getProjectApiList(ctx, next) {
     try {
       conditionList = await apiModel.cfind({ baseid: apiItem._id }).exec();
     } catch (e) {
-      return ctx.body = {
-        code: -1,
-        err: '后台错误'
-      }
+      return resError(ctx, '后台错误')
     }
     ctx.apiInfo = {
       apiBase: apiItem,
@@ -83,10 +82,7 @@ async function getProjectApiList(ctx, next) {
       params: params
     };
   } else {
-    return ctx.body = {
-      code: -1,
-      err: '不存在api信息，请添加相关信息'
-    };
+    return resError(ctx, '不存在api信息，请添加相关信息')
   }
 
   return next();
@@ -94,14 +90,13 @@ async function getProjectApiList(ctx, next) {
 
 // 通用函数
 async function sendApiData(ctx, next) {
+  if(!ctx.is('application/x-www-form-urlencoded'))return next();
+
   let currentMode = 0;
   let reqApiModel = ctx.apiInfo.apiModel;
   let reqApiBase = ctx.apiInfo.apiBase;
   let params = ctx.apiInfo.params;
-  let data = {
-    code: -1,
-    err: '无数据'
-  };
+  let data;
 
   let defaultApi, i, api, noData;
   let conditionFunction, result, dealedParams, paramsArr = [];
@@ -120,6 +115,7 @@ async function sendApiData(ctx, next) {
       if (condition.indexOf('return') < 0) condition = 'return ' + condition;
 
       dealedParams = formatEntranceParam(params, api.inputParam);
+      if(dealedParams._err)return resError(ctx, dealedParams._err);
       let keys = Object.keys(dealedParams);
       keys.forEach(function(key) {
         paramsArr.push(dealedParams[key]);
@@ -187,6 +183,10 @@ async function sendApiData(ctx, next) {
 
   if (i >= reqApiModel.length && defaultApi) {
     api = defaultApi || {};
+    if(!dealedParams){
+      dealedParams = formatEntranceParam(params, api.inputParam);
+      if(dealedParams._err)return resError(ctx, dealedParams._err);
+    }
     let apiData = api.data || [];
     data = apiData[0] || {};
   } else if(i >= reqApiModel.length && !defaultApi){
@@ -231,6 +231,7 @@ async function sendApiData(ctx, next) {
     });
   }
 
+  if(!data)return resError(ctx, '无数据');
   ctx.body = data;
   return next();
 }
@@ -383,4 +384,11 @@ function sendHisData(ctx, data) {
   };
   msg = Object.assign(msg, data);
   process.send(msg);
+}
+
+let errorModel = argv.errorModel || '{code: -1, codeDesc:"${msg}", codeDescUser:"${msg}"}';
+let errorExp = /\$\{msg\}/gi;
+function resError(ctx, msg){
+  sendErrorMsg(ctx, msg)
+  return ctx.body = errorModel.replace(errorExp, msg)
 }

@@ -50,8 +50,8 @@
 
 <style>
 .m-about-box {
-  width: 100%;
   display: block;
+  width: 100%;
   text-align: center;
 }
 </style>

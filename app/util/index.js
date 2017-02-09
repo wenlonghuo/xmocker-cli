@@ -338,6 +338,15 @@ function formatParam(ctx, next) {
   }
 }
 
+function uid(){
+  let max = 1000000, cnt = 0;
+  return function(){
+    cnt ++;
+    if(cnt >= max)cnt = 0;
+    return (+new Date() * max + cnt).toString(36);
+  }
+}
+
 module.exports = {
   checkParam: checkParam,
   formatParam: formatParam,
@@ -345,4 +354,5 @@ module.exports = {
   setError: setError,
   log: log,
   formatArr: formatArr,
+  uid: uid,
 }

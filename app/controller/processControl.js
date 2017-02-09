@@ -166,6 +166,8 @@ function startMockServer(proc, option) {
   param.push(' --projectId=' + (proc._id || ''));
 
   param.push(' --projectName=' + (proc.name || ''));
+
+  param.push(' --errorModel=' + (JSON.stringify(proc.error) || ''));
   // 服务器
   const server = spawn('node', ['--harmony-async-await', path.join(__dirname, '../mockapp'), ...param], {
     stdio: ['pipe', 'ipc', 'pipe'],

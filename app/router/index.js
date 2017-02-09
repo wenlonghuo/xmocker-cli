@@ -12,3 +12,5 @@ require('./appProject');
 require('./appBase');
 
 require('./apiHis');
+
+require('./appOther');

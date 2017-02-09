@@ -400,21 +400,21 @@
   .app-toolbar {}
   
   .app-input-search {
-    width: 40%;
     position: fixed;
     top: 64px;
     left: 30%;
-    z-index: 1;
-    background-color: white;
     padding: 0 30px;
+    width: 40%;
+    background-color: white;
+    z-index: 1;
     box-shadow: 0 3px 5px #666666;
     border-radius: 3px;
   }
   
   .app-project-show {
     margin: 20px auto;
-    text-align: center;
     max-width: 1000px;
+    text-align: center;
   }
   
   .app-project-show-form {
@@ -426,9 +426,9 @@
     margin: 0 auto;
   }
   .m-api-add-button {
+    display: flex;
     width: 100%;
     text-align: center;
-    display: flex
   }
   .m-api-add-new{
     margin: 0 auto;

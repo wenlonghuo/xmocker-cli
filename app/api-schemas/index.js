@@ -11,4 +11,5 @@ Object.assign(schemas, require('./appBase'));
 
 Object.assign(schemas, require('./apiHis'));
 
+Object.assign(schemas, require('./appOther'));
 module.exports = schemas
