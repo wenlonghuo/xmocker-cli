@@ -161,13 +161,13 @@ function startMockServer(proc, option) {
   if (proc.gulp && proc.gulp.buildPath) {
     fPath = path.join(fPath, proc.gulp.buildPath)
   }
-  param.push(' --fileServerPath=' + (fPath || ''));
+  param.push(' --fileServerPath="' + (fPath || '') + '"');
 
-  param.push(' --projectId=' + (proc._id || ''));
+  param.push(' --projectId="' + (proc._id || '') + '"');
 
-  param.push(' --projectName=' + (proc.name || ''));
+  param.push(' --projectName="' + (proc.name || '') + '"');
 
-  param.push(' --errorModel=' + (JSON.stringify(proc.error) || ''));
+  param.push(' --errorModel="' + (JSON.stringify(proc.error) || '') + '"');
   // 服务器
   const server = spawn('node', ['--harmony-async-await', path.join(__dirname, '../mockapp'), ...param], {
     stdio: ['pipe', 'ipc', 'pipe'],
