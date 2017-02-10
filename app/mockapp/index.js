@@ -10,6 +10,24 @@ const spawn = require('child_process').spawn;
 // 全局变量定义区，待后续可改为配置
 var args = minimist(process.argv.slice(2));
 
+console.log = function log(data) {
+  let msg = {
+    _type: 'console',
+    time: +new Date(),
+    data: data
+  };
+  process.send(msg);
+}
+
+
+for(let key in args) {
+    let str = args[key];
+    
+    if(typeof str === "string" && str[0] === '"' && str[str.length-1] === '"'){
+        args[key] = str.slice(1, str.length-1);
+    }
+}
+console.log(args);
 const apiPORT = args.port || 6000;
 const projectDir = args.fileServerPath;
 let gulpServer;
@@ -36,8 +54,6 @@ app.use(require('./router.js').routes())
 const httpServer = http.createServer(app.callback());
 
 httpServer.listen(apiPORT, function(e) {
-    console.log(args);
-    console.log(process.argv);
     process.send({_type: 'cmd', data: 'finished'});
 });
 
@@ -56,11 +72,3 @@ process.on('message', function(msg){
     }
 })
 
-console.log = function log(data) {
-  let msg = {
-    _type: 'console',
-    time: +new Date(),
-    data: data
-  };
-  process.send(msg);
-}

@@ -155,20 +155,20 @@ function startMockServer(proc, option) {
   let processInfo;
 
   let param = [];
-  param.push(' --port ' + (proc.port || 6000));
+  param.push('--port=' + (proc.port || 6000));
 
   let fPath = proc.path;
   if (proc.gulp && proc.gulp.buildPath) {
     fPath = path.join(fPath, proc.gulp.buildPath)
   }
-  param.push(' --fileServerPath "' + (fPath || '') + '"');
+  param.push('--fileServerPath="' + (fPath || '') + '"');
 
-  param.push(' --projectId "' + (proc._id || '') + '"');
+  param.push('--projectId="' + (proc._id || '') + '"');
 
-  param.push(' --projectName "' + (proc.name || '') + '"');
+  param.push('--projectName="' + (proc.name || '') + '"');
 
-  param.push(' --errorModel "' + (JSON.stringify(proc.error).replace(/\"/g, "\\\"") || '') + '"');
-  console.log(param);
+  param.push('--errorModel="' + (JSON.stringify(proc.error).replace(/\"/g, "\\\"") || '') + '"');
+
   // 服务器
   let startArgs = ['--harmony-async-await', path.join(__dirname, '../mockapp'), ...param];
   if(process.versions.node.split(".")[0] < 7){
@@ -261,10 +261,10 @@ function startGulp(proc, option = { force: false }) {
   if(!gOption.html)return;
   let params = [];
   for (let key in gOption) {
-    params.push('--' + key + ' "' + gOption[key] + '"');
+    params.push('--' + key + '="' + gOption[key] + '"');
   }
 
-  params.push('--root ' + proc.path)
+  params.push('--root=' + proc.path)
 
   let gulpPath = gOption.path || path.join(__dirname, '../../tools/gulp');
   gulpPath = path.join(gulpPath, './node_modules/.bin');
