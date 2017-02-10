@@ -27,7 +27,7 @@ for(let key in args) {
         args[key] = str.slice(1, str.length-1);
     }
 }
-console.log(args);
+
 const apiPORT = args.port || 6000;
 const projectDir = args.fileServerPath;
 let gulpServer;

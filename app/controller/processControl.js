@@ -1,4 +1,10 @@
 'use strict'
+const os = require('os');
+let ostype = '*nix';
+if(os.EOL === "\r\n"){
+  ostype = "win"
+}
+
 const spawn = require('child_process').spawn;
 const path = require('path')
 const _ = require('lodash')
@@ -268,7 +274,9 @@ function startGulp(proc, option = { force: false }) {
 
   let gulpPath = gOption.path || path.join(__dirname, '../../tools/gulp');
   gulpPath = path.join(gulpPath, './node_modules/.bin');
-  let gulpServer = spawn('gulp', [proc.task || 'dev', ...params], {
+  let cmdGulp = "./gulp";
+  if(ostype === 'win')cmdGulp = "gulp";
+  let gulpServer = spawn(cmdGulp, [proc.task || 'dev', ...params], {
     stdio: 'pipe',
     shell: true,
     cwd: gulpPath,
