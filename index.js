@@ -1,10 +1,13 @@
 'use strict'
 const spawn = require('child_process').spawn;
 
-
 function startServer(){
   // 服务器
-  const server = spawn('node', ['--harmony-async-await', './app/index.js'], {
+  let args = ['--harmony-async-await', './app/index.js'];
+  if(process.versions.node.split(".")[0] < 7){
+    args = ['./app/lower-start.js']
+  }
+  const server = spawn('node', args, {
     stdio: 'inherit',
     shell: true
   });

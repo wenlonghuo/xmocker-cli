@@ -169,7 +169,11 @@ function startMockServer(proc, option) {
 
   param.push(' --errorModel="' + (JSON.stringify(proc.error) || '') + '"');
   // 服务器
-  const server = spawn('node', ['--harmony-async-await', path.join(__dirname, '../mockapp'), ...param], {
+  let startArgs = ['--harmony-async-await', path.join(__dirname, '../mockapp'), ...param];
+  if(process.versions.node.split(".")[0] < 7){
+    startArgs = [path.join(__dirname, '../mockapp/lower-start'), ...param]
+  }
+  const server = spawn('node', startArgs, {
     stdio: ['pipe', 'ipc', 'pipe'],
     shell: true
   });
