@@ -167,7 +167,7 @@ function startMockServer(proc, option) {
 
   param.push(' --projectName="' + (proc.name || '') + '"');
 
-  param.push(' --errorModel="' + (JSON.stringify(proc.error) || '') + '"');
+  param.push(' --errorModel="' + (JSON.stringify(proc.error).replace(/\"/g, "\\\"") || '') + '"');
   // 服务器
   let startArgs = ['--harmony-async-await', path.join(__dirname, '../mockapp'), ...param];
   if(process.versions.node.split(".")[0] < 7){

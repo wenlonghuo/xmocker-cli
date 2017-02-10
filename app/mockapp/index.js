@@ -36,8 +36,8 @@ app.use(require('./router.js').routes())
 const httpServer = http.createServer(app.callback());
 
 httpServer.listen(apiPORT, function(e) {
-    console.log(e);
-    console.log("监听端口"+ apiPORT);
+    console.log(args);
+    console.log(process.argv);
     process.send({_type: 'cmd', data: 'finished'});
 });
 
