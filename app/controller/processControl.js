@@ -155,7 +155,7 @@ function startMockServer(proc, option) {
   let processInfo;
 
   let param = [];
-  param.push(' --port=' + (proc.port || 6000));
+  param.push(' --port ' + (proc.port || 6000));
 
   let fPath = proc.path;
   if (proc.gulp && proc.gulp.buildPath) {
