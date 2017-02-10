@@ -4,7 +4,7 @@
  * 添加304代码，通过opts的always控制。
  * Module dependencies.
  */
-
+'use strict'
 var debug = require('debug')('koa-send');
 var resolvePath = require('resolve-path');
 var assert = require('assert');

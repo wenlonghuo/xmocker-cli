@@ -1,3 +1,4 @@
+'use strict'
 let router = require('koa-router')();
 const controller = require('./controller');
 let util = require('../util');
