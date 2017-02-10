@@ -35,7 +35,9 @@ app.use(require('./router.js').routes())
 // 建立是的监听及server
 const httpServer = http.createServer(app.callback());
 
-httpServer.listen(apiPORT, function() {
+httpServer.listen(apiPORT, function(e) {
+    console.log(e);
+    console.log("监听端口"+ apiPORT);
     process.send({_type: 'cmd', data: 'finished'});
 });
 
