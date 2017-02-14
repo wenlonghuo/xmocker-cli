@@ -1,9 +1,9 @@
 'use strict'
-const router = require('./index.js');
-const controller = require('../controller/appProject');
+const router = require('./index.js')
+const controller = require('../controller/appProject')
 
-let util = require('../util');
-let formatParam = util.formatParam;
+let util = require('../util')
+let formatParam = util.formatParam
 
 router.get('/mock/getAppProject', formatParam, controller.getAppProject)
 

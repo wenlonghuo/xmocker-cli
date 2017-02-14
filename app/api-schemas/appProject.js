@@ -3,12 +3,12 @@
 module.exports.getAppProject = {
   pageSize: {
     type: 'number',
-    required: true
+    required: true,
   },
   pageNo: {
     type: 'number',
-    required: true
-  }
+    required: true,
+  },
 }
 
 module.exports.addAppProject = {
@@ -44,37 +44,37 @@ module.exports.addAppProject = {
     child: {
       path: {
         type: 'string',
-        cname: 'gulp文件路径'
+        cname: 'gulp文件路径',
       },
       buildPath: {
         type: 'string',
-        cname: 'gulp目标路径'
+        cname: 'gulp目标路径',
       },
       cmd: {
         type: 'string',
-        cname: 'gulp任务'
+        cname: 'gulp任务',
       },
       params: {
         type: 'string',
-        cname: '其他参数'
+        cname: '其他参数',
       },
       js: {
         type: 'string',
-        cname: 'js文件夹路径'
+        cname: 'js文件夹路径',
       },
       css: {
         type: 'string',
-        cname: 'js文件夹路径'
+        cname: 'js文件夹路径',
       },
       html: {
         type: 'string',
-        cname: 'js文件夹路径'
+        cname: 'js文件夹路径',
       },
       image: {
         type: 'string',
-        cname: 'js文件夹路径'
+        cname: 'js文件夹路径',
       },
-    }
+    },
   },
   webpack: {
     type: 'object',
@@ -86,9 +86,9 @@ module.exports.addAppProject = {
       },
       cmd: {
         type: 'string',
-        cname: 'webpack指令'
-      }
-    }
+        cname: 'webpack指令',
+      },
+    },
   },
 }
 
@@ -96,7 +96,7 @@ module.exports.editAppProject = {
   id: {
     type: 'string',
     required: true,
-    noEmpty: true
+    noEmpty: true,
   },
   name: {
     type: 'string',
@@ -130,35 +130,35 @@ module.exports.editAppProject = {
     child: {
       path: {
         type: 'string',
-        cname: 'gulp文件路径'
+        cname: 'gulp文件路径',
       },
       buildPath: {
         type: 'string',
-        cname: 'gulp目标路径'
+        cname: 'gulp目标路径',
       },
       cmd: {
         type: 'string',
-        cname: 'gulp任务'
+        cname: 'gulp任务',
       },
       params: {
         type: 'string',
-        cname: '其他参数'
+        cname: '其他参数',
       },
       js: {
         type: 'string',
-        cname: 'js文件夹路径'
+        cname: 'js文件夹路径',
       },
       css: {
         type: 'string',
-        cname: 'js文件夹路径'
+        cname: 'js文件夹路径',
       },
       html: {
         type: 'string',
-        cname: 'js文件夹路径'
+        cname: 'js文件夹路径',
       },
       image: {
         type: 'string',
-        cname: 'js文件夹路径'
+        cname: 'js文件夹路径',
       },
     }
   },
@@ -172,7 +172,7 @@ module.exports.editAppProject = {
       },
       cmd: {
         type: 'string',
-        cname: 'webpack指令'
+        cname: 'webpack指令',
       }
     }
   },
@@ -182,7 +182,7 @@ module.exports.deleteAppProject = {
   id: {
     type: 'string',
     required: true,
-    noEmpty: true
+    noEmpty: true,
   },
 }
 
@@ -190,7 +190,7 @@ module.exports.startAppProject = {
   id: {
     type: 'string',
     required: true,
-    noEmpty: true
+    noEmpty: true,
   },
   force: {
     type: 'boolean',
@@ -201,7 +201,7 @@ module.exports.stopAppProject = {
   id: {
     type: 'string',
     required: true,
-    noEmpty: true
+    noEmpty: true,
   },
 }
 
@@ -209,7 +209,7 @@ module.exports.setDefaultApiParam = {
   project: {
     type: 'string',
     required: true,
-    noEmpty: true
+    noEmpty: true,
   },
   inputParam: {
     type: 'object',

@@ -1,11 +1,11 @@
 'use strict'
-const router = require('./index.js');
-const controller = require('../controller/apiModel');
+const router = require('./index.js')
+const controller = require('../controller/apiModel')
 // const checkLogin = require('../auth').checkLogin
 // 查询书签
 
-let util = require('../util');
-let formatParam = util.formatParam;
+let util = require('../util')
+let formatParam = util.formatParam
 
 router.get('/mock/getApiModel', formatParam, controller.getApiModel)
 

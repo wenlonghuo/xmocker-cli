@@ -12,5 +12,5 @@ new Vue({
   template: '<App/>',
   router,
   store,
-  components: { App }
+  components: { App },
 })

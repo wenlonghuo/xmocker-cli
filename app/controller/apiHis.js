@@ -1,32 +1,27 @@
 'use strict'
-const db = require('../db');
-const MockHis = db.mockHis;
+const db = require('../db')
+const MockHis = db.mockHis
 
-const util = require('../util');
-
-
+// const util = require('../util')
 module.exports = {
   getMockHis: getMockHis,
 }
+async function getMockHis (ctx, next) {
+  let finalParams = ctx.finalParams
 
-
-async function getMockHis(ctx, next){
-
-  let finalParams = ctx.finalParams;
-
-  let data;
-  try{
+  let data
+  try {
     data = await MockHis.cfind(finalParams).exec()
-  }catch(e){
+  } catch (e) {
 
   }
 
   ctx.body = {
     code: 0,
     data: {
-      list: data
-    }
-  };
-  return next();
+      list: data,
+    },
+  }
+  return next()
 }
 

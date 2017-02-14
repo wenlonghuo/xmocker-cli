@@ -1,9 +1,9 @@
 'use strict'
-let router = require('koa-router')();
-const controller = require('./controller');
-let util = require('../util');
-let formatParam = util.formatParam;
-let getProjectApiList = controller.getProjectApiList;
+let router = require('koa-router')()
+const controller = require('./controller')
+let util = require('../util')
+let formatParam = util.formatParam
+let getProjectApiList = controller.getProjectApiList
 
 router.get('*', getProjectApiList, controller.getApi)
 

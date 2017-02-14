@@ -1,32 +1,31 @@
 'use strict'
 
-const crypto = require('crypto');
+// const crypto = require('crypto')
 
 let nodeUtil = require('util')
 
 /*
  * 设置错误
  * */
-function setError(ctx, err, e, code) {
+function setError (ctx, err, e, code) {
   if (code === undefined) {
-    code = e;
+    code = e
   }
 
   if (typeof e === 'object') {
-    log("ERROR", e, ctx)
+    log('ERROR', e, ctx)
     if (e.status === 413) {
-      err = "填写的内容总长度超出限制"
+      err = '填写的内容总长度超出限制'
     }
   }
 
-  code = (typeof code !== 'number') ? -1 : code;
+  code = (typeof code !== 'number') ? -1 : code
 
   ctx.body = {
     code: code,
-    err: err
+    err: err,
   }
 }
-
 
 /*
  * 日志记录
@@ -35,45 +34,43 @@ function setError(ctx, err, e, code) {
  * */
 
 let levelBox = {
-  "OFF": 0,
-  "FATAL": 2,
-  "ERROR": 4,
-  "WARN": 6,
-  "INFO": 10,
-  "DETAIL": 12,
-  "DEBUG": 15,
+  'OFF': 0,
+  'FATAL': 2,
+  'ERROR': 4,
+  'WARN': 6,
+  'INFO': 10,
+  'DETAIL': 12,
+  'DEBUG': 15,
 }
 
 let currentLogLevel = 15
 
-function log(level, err, ctx) {
+function log (level, err, ctx) {
   if (err == null) {
-    err = level;
-    level = 15;
+    err = level
+    level = 15
   }
   if (typeof level === 'string') {
-    level = levelBox[level] || 15;
+    level = levelBox[level] || 15
   }
-
 
   if (Number(level) <= currentLogLevel) {
     if (typeof err === 'object') {
       try {
-        err = currentLogLevel < 15 ?
-          JSON.stringify(err) : nodeUtil.inspect(err, { depth: null, colors: true })
+        err = currentLogLevel < 15 ? JSON.stringify(err) : nodeUtil.inspect(err, { depth: null, colors: true })
       } catch (e) {
-        console.log(e);
+        console.log(e)
       }
     }
 
     if (ctx) {
-      let sess = ctx.session || {};
+      let sess = ctx.session || {}
       let info = '[' + new Date().toLocaleString() + '] user: ' + sess.name + ', id: ' + sess.id +
-        ',' + ctx.method + ': ' + ctx.url + ', body:' + JSON.stringify(ctx.request.body);
-      console.log(info);
+        ',' + ctx.method + ': ' + ctx.url + ', body:' + JSON.stringify(ctx.request.body)
+      console.log(info)
     }
 
-    console.log(err);
+    console.log(err)
   }
 }
 
@@ -82,73 +79,68 @@ function log(level, err, ctx) {
  *
  * */
 
-function formatArr(arr, option) {
-  if (!Array.isArray(arr)) return arr;
+function formatArr (arr, option) {
+  if (!Array.isArray(arr)) return arr
 
-  option = option || {};
+  option = option || {}
 
-  let deleteArr = !option.del ? [] : option.del.split(' ');
-  let toStr = !option.toStr ? [] : option.toStr.split(' ');
-  let cpArr = [];
+  let deleteArr = !option.del ? [] : option.del.split(' ')
+  let toStr = !option.toStr ? [] : option.toStr.split(' ')
+  let cpArr = []
 
-  arr.forEach(function(obj, index) {
+  arr.forEach(function (obj, index) {
     // 转换为json
-    let item = obj;
-    if (obj.toJSON) item = obj.toJSON();
+    let item = obj
+    if (obj.toJSON) item = obj.toJSON()
 
-    deleteArr.forEach(function(d) {
-
+    deleteArr.forEach(function (d) {
       // 有子集
-      if (d.indexOf('\.') < 0) {
+      if (d.indexOf('.') < 0) {
         if (item[d]) {
-          delete item[d];
+          delete item[d]
         }
       } else {
         let names = d.split('.')
-        let name1 = names[0],
-          name2 = names[1];
-        let subArr = item[name1];
+        let name1 = names[0]
+        let name2 = names[1]
+        let subArr = item[name1]
 
         if (subArr && Array.isArray(subArr)) {
-          subArr.forEach(function(sba) {
+          subArr.forEach(function (sba) {
             if (sba[name2] !== undefined) {
-              delete sba[name2];
+              delete sba[name2]
             }
-          });
+          })
         }
       }
-    });
+    })
 
-    toStr.forEach(function(s) {
+    toStr.forEach(function (s) {
       // 有子集
       if (s.indexOf('.') < 0) {
         if (item[s] !== undefined && typeof item[s] !== 'string') {
-          item[s] = String(item[s]);
+          item[s] = String(item[s])
         }
       } else {
-
         let names = s.split('.')
-        let name1 = names[0],
-          name2 = names[1];
-        let subArr = item[name1];
+        let name1 = names[0]
+        let name2 = names[1]
+        let subArr = item[name1]
 
         if (subArr && Array.isArray(subArr)) {
-          subArr.forEach(function(sba) {
+          subArr.forEach(function (sba) {
             if (sba[name2] !== undefined && typeof sba[name2] !== 'string') {
-              sba[name2] = String(sba[name2]);
+              sba[name2] = String(sba[name2])
             }
-          });
+          })
         }
       }
-
-    });
-
+    })
     cpArr.push(item)
-  });
+  })
 
-  return cpArr;
+  return cpArr
 }
-
 
 /*
  * 参数校验
@@ -168,182 +160,172 @@ function formatArr(arr, option) {
  * schema中default值设置后，不管该参数是否是required，返回的obj均放入返回对象中
  *
  * */
-let specialList = ['null', 'undefined', 'NaN', 'Infinity', '-Infinity'];
-function checkParam(ctx, params, schema, option) {
-  if (!ctx) throw new Error('ctx is needed when use checkParam function');
+let specialList = ['null', 'undefined', 'NaN', 'Infinity', '-Infinity']
+function checkParam (ctx, params, schema, option) {
+  if (!ctx) throw new Error('ctx is needed when use checkParam function')
 
-  option = option || {};
+  option = option || {}
   // 返回数据类型，默认是编辑状态，仅处理存在数据的部分
-  let oriParam = formatEntranceParam(params, schema, option);
-  if(oriParam._err){
-      return setError(ctx, oriParam._err,  oriParam._e)
+  let oriParam = formatEntranceParam(params, schema, option)
+  if (oriParam._err) {
+    return setError(ctx, oriParam._err, oriParam._e)
   }
-  return oriParam;
+  return oriParam
 }
 
 // 格式化代码
-function formatEntranceParam(params, schema, option = {}){
-  let keys = Object.keys(schema),
-    key, param, oriParam = {}, cname;
-  let keyObj;
+function formatEntranceParam (params, schema, option = {}) {
+  let keys = Object.keys(schema)
+  let key, param, cname
+  let oriParam = {}
+  let keyObj
 
   for (let i = 0; i < keys.length; i++) {
-    key = keys[i];
-    keyObj = schema[key] || {};
+    key = keys[i]
+    keyObj = schema[key] || {}
 
     // 客户端传输进来的参数
-    param = params[key];
-    cname = keyObj.cname || key;
-
+    param = params[key]
+    cname = keyObj.cname || key
 
     if (param === undefined) {
-
       // 参数未上传
       if (keyObj.required) {
-        return {_err: '请填写参数：' + cname};
+        return {_err: '请填写参数：' + cname}
       }
       // 未传参数，但模板存在默认值，设定该值
       if (keyObj.default !== undefined) {
-        oriParam[key] = keyObj.default;
+        oriParam[key] = keyObj.default
       }
-
     } else {
-
       // 特殊值提醒
-      if(option.warn && keyObj.specialValue && specialList.indexOf(String(param)) >=0 && keyObj.specialValue.indexOf(String(param))<0){
-        console.error('传入参数可能存在错误' + cname + ', 值为：' +param);
+      if (option.warn && keyObj.specialValue && specialList.indexOf(String(param)) >= 0 && keyObj.specialValue.indexOf(String(param)) < 0) {
+        console.error('传入参数可能存在错误' + cname + ', 值为：' + param)
       }
 
       // 参数已经上传
-      let paramType = typeof param;
+      let paramType = typeof param
 
       if (keyObj.type === 'string') {
-
         // 字符串型
-        param = String(param);
-        
+        param = String(param)
+
         // 非空判断
         if (keyObj.noEmpty && param === '') {
-          return {_err: '参数值不能为空: ' + cname};
+          return {_err: '参数值不能为空: ' + cname}
         }
 
-        if(keyObj.max != null && (keyObj.max < param.length || keyObj.min > param.length)) {
-          return {_err: '参数值长度范围不正常: ' + cname};
+        if (keyObj.max != null && (keyObj.max < param.length || keyObj.min > param.length)) {
+          return {_err: '参数值长度范围不正常: ' + cname}
         }
-
       } else if (keyObj.type === 'number') {
-
         // 数字类型
-        param = parseFloat(param);
+        param = parseFloat(param)
         if (isNaN(param)) {
-          return {_err: cname + ' 必须是数字或数字样式的字符串'};
+          return {_err: cname + ' 必须是数字或数字样式的字符串'}
         }
 
-        if(keyObj.max != null && (keyObj.max < param || keyObj.min > param)) {
-          return {_err: '参数数值超出范围: ' + cname};
+        if (keyObj.max != null && (keyObj.max < param || keyObj.min > param)) {
+          return {_err: '参数数值超出范围: ' + cname}
         }
-
       } else if (keyObj.type === 'boolean') {
-
         // 布尔型
         if (paramType !== 'boolean') {
           try {
             if (param === 'true' || param === 'false' && paramType === 'string') {
-              param = JSON.parse(param);
+              param = JSON.parse(param)
             } else {
-              param = keyObj.default;
+              param = keyObj.default
             }
           } catch (e) {
-            return {_err: '转换布尔类型失败' + cname, _e: e};
+            return {_err: '转换布尔类型失败' + cname, _e: e}
           }
         }
-
       } else if (keyObj.type === 'object') {
-
         // 对象类型
         if (typeof param !== 'object') {
           try {
-            param = JSON.parse(param);
+            param = JSON.parse(param)
           } catch (e) {
-            return {_err: cname + ' 必须是对象格式的字符串'};
+            return {_err: cname + ' 必须是对象格式的字符串'}
           }
         }
         // 存在子对象校验
-        if(keyObj.child) {
-          param = formatEntranceParam(param, keyObj.child, option);
-          if(param._err){
-            return param;
+        if (keyObj.child) {
+          param = formatEntranceParam(param, keyObj.child, option)
+          if (param._err) {
+            return param
           }
         }
-      } else if(keyObj.type === 'array') {
-
+      } else if (keyObj.type === 'array') {
         // 数组类型
         if (typeof param !== 'object') {
           try {
-            param = JSON.parse(param);
+            param = JSON.parse(param)
           } catch (e) {
-            return {_err: cname + ' 必须是数组格式的字符串'};
+            return {_err: cname + ' 必须是数组格式的字符串'}
           }
         }
         // 存在子对象校验
-        if(keyObj.child && Array.isArray(param)) {
-          let tmpArr = [], item, resultItem;
-          for(let i=0; i<param.length; i++){
-            item = param[i];
-            resultItem = formatEntranceParam(item, keyObj.child, option);
-            if(resultItem._err){
-              return resultItem;
+        if (keyObj.child && Array.isArray(param)) {
+          let tmpArr = []
+          let item, resultItem
+          for (let i = 0; i < param.length; i++) {
+            item = param[i]
+            resultItem = formatEntranceParam(item, keyObj.child, option)
+            if (resultItem._err) {
+              return resultItem
             }
-            tmpArr.push(resultItem);
+            tmpArr.push(resultItem)
           }
-          param = tmpArr;
-          
-        } else if(!Array.isArray(param)){
-          return {_err: cname + ' 传入的不是数组'};
+          param = tmpArr
+        } else if (!Array.isArray(param)) {
+          return {_err: cname + ' 传入的不是数组'}
         }
       }
-
-      oriParam[key] = param;
+      oriParam[key] = param
     }
-
   }
-  return oriParam;
+  return oriParam
 }
 
-let apiSchema = require('../api-schemas');
+let apiSchema = require('../api-schemas')
 /**
  * formatParam
- * 
  * 格式化参数中间件
  * @param  {} ctx
  * @param  {} next
  */
-function formatParam(ctx, next) {
-  let method = ctx.method;
-  let params = ctx.request.body;
-  if (method.toLowerCase() == 'get' || method.toLowerCase() == 'delete') params = ctx.query;
+function formatParam (ctx, next) {
+  let method = ctx.method
+  let params = ctx.request.body
+  if (method.toLowerCase() === 'get' || method.toLowerCase() === 'delete') params = ctx.query
 
-  let p = ctx.request.path;
-  p = p.split('/').pop();
-  let schema = apiSchema[p];
-  if (!schema) return ctx.body = {
-    code: -1,
-    err: '接口' + p + '不存在schema'
-  };
+  let p = ctx.request.path
+  p = p.split('/').pop()
+  let schema = apiSchema[p]
+  if (!schema) {
+    ctx.body = {
+      code: -1,
+      err: '接口' + p + '不存在schema',
+    }
+    return
+  }
 
-  let finalParams = checkParam(ctx, params, schema);
+  let finalParams = checkParam(ctx, params, schema)
   if (finalParams) {
-    ctx.finalParams = finalParams;
-    return next();
+    ctx.finalParams = finalParams
+    return next()
   }
 }
 
-function uid(){
-  let max = 1000000, cnt = 0;
-  return function(){
-    cnt ++;
-    if(cnt >= max)cnt = 0;
-    return (+new Date() * max + cnt).toString(36);
+function uid () {
+  let max = 1000000
+  let cnt = 0
+  return function () {
+    cnt++
+    if (cnt >= max) cnt = 0
+    return (+new Date() * max + cnt).toString(36)
   }
 }
 

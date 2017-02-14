@@ -25,7 +25,7 @@ module.exports.editAppBase = {
     type: 'string',
     cname: '系统管理端口',
   },
-  defaultProject:{
+  defaultProject: {
     type: 'string',
     cname: '默认project的id',
   },

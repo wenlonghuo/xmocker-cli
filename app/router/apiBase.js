@@ -1,9 +1,9 @@
 'use strict'
-const router = require('./index.js');
-const controller = require('../controller/apiBase');
+const router = require('./index.js')
+const controller = require('../controller/apiBase')
 
-let util = require('../util');
-let formatParam = util.formatParam;
+let util = require('../util')
+let formatParam = util.formatParam
 
 router.get('/mock/getApiDetail', formatParam, controller.getApiDetail)
 

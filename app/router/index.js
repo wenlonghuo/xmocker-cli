@@ -1,16 +1,16 @@
 'use strict'
-let router = require('koa-router')();
+let router = require('koa-router')()
 
 module.exports = router
 
-require('./apiBase');
+require('./apiBase')
 
-require('./apiModel');
+require('./apiModel')
 
-require('./appProject');
+require('./appProject')
 
-require('./appBase');
+require('./appBase')
 
-require('./apiHis');
+require('./apiHis')
 
-require('./appOther');
+require('./appOther')

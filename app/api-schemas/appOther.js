@@ -66,7 +66,7 @@ module.exports.serverGetApi = {
     name: 'api uid列表',
     required: true,
     cname: 'api uid列表',
-  }
+  },
 }
 
 module.exports.serverDiffProj = {
@@ -75,7 +75,7 @@ module.exports.serverDiffProj = {
     name: '项目列表',
     required: true,
     cname: '项目列表',
-  }
+  },
 }
 
 module.exports.serverDiffApi = {
@@ -90,7 +90,7 @@ module.exports.serverDiffApi = {
     name: 'api详细信息',
     required: true,
     cname: 'api详细信息',
-  }
+  },
 }
 
 

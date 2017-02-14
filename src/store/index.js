@@ -7,8 +7,8 @@ var store = new Vuex.Store({
   state: {
     ws: {
       cmd: [{_cmd: 'init'}],
-      logs: []
-    }
+      logs: [],
+    },
   },
   mutations: {
     pushCmd: function (state, option) {
@@ -23,8 +23,8 @@ var store = new Vuex.Store({
     },
     pushLogs: function (state, option) {
       state.ws.logs.push(...option)
-    }
-  }
+    },
+  },
 })
 
 export default store
