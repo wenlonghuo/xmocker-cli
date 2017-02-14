@@ -16,6 +16,10 @@ import about from '../view/about.vue'
 
 import log from '../view/log.vue'
 
+import syncProj from '../view/sync-proj.vue'
+
+import syncApi from '../view/sync-api.vue'
+
 var router = new VueRouter({
   routes: [
     {name: 'index', path: '/', component: main},
@@ -24,6 +28,8 @@ var router = new VueRouter({
     {name: 'app-base', path: '/app/base', component: appBase},
     {name: 'api-add', path: '/apiAdd/:id?', component: apiAdd},
     {name: 'log', path: '/log/', component: log},
+    {name: 'sync-proj', path: '/sync-proj/', component: syncProj},
+    {name: 'sync-api', path: '/sync-proj/:id', component: syncApi},
     {name: 'about', path: '/about', component: about}
   ]
 })

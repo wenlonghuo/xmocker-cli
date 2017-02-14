@@ -1,23 +1,49 @@
 
 module.exports.clientGetProjDiff = {
-
 }
 
 module.exports.clientGetApiDiff = {
-
+  id: {
+    type: 'string',
+    name: '项目uid',
+    required: true,
+    cname: '项目uid',
+  },
 }
 
 module.exports.clientDownLoadProj = {
-
+  id: {
+    type: 'string',
+    name: '项目uid',
+    required: true,
+    cname: '项目uid',
+  },
 }
 
 module.exports.clientDownLoadProjBase = {
-
+  id: {
+    type: 'string',
+    name: '项目uid',
+    required: true,
+    cname: '项目uid',
+  },
 }
 
 
 module.exports.clientDownLoadApi = {
-
+  ids: {
+    type: 'string',
+    name: 'api uid列表',
+    noEmpty: true,
+    required: true,
+    cname: 'api uid列表',
+  },
+  project: {
+    type: 'string',
+    name: '项目uid',
+    required: true,
+    cname: '项目uid',
+  },
 }
 
 module.exports.serverGetProj = {

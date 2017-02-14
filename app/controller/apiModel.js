@@ -1,6 +1,7 @@
 'use strict'
 const db = require('../db');
 const ApiModel = db.apiModel;
+const ApiBase = db.apiBase;
 
 const util = require('../util');
 const uid = util.uid();
@@ -44,6 +45,7 @@ async function addApiModel(ctx, next){
   try{
     finalParams._uid = uid();
     finalParams._mt = + new Date();
+    await ApiBase.update({_id: finalParams.baseid}, {$set:{_mt: +new Date()}});
     data = await ApiModel.insert(finalParams);
   }catch(e){
     
@@ -74,7 +76,8 @@ async function editApiModel(ctx, next){
     finalParams._mt = + new Date();
     data = await ApiModel.update({_id: id}, {$set:finalParams}, {returnUpdatedDocs: true});
     
-    data = data[1]
+    data = data[1];
+    await ApiBase.update({_id: data.baseid}, {$set:{_mt: +new Date()}});
   }catch(e){
     
   }

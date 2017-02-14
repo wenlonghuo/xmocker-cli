@@ -13,9 +13,9 @@ router.get('/mock/serverGetProj', formatParam, controller.serverGetProj)
 
 router.get('/mock/serverGetApi', formatParam, controller.serverGetApi)
 
-router.get('/mock/serverDiffProj', formatParam, controller.serverDiffProj)
+router.put('/mock/serverDiffProj', formatParam, controller.serverDiffProj)
 
-router.get('/mock/serverDiffApi', formatParam, controller.serverDiffApi)
+router.put('/mock/serverDiffApi', formatParam, controller.serverDiffApi)
 
 router.put('/mock/clientDownLoadProj', formatParam, controller.clientDownLoadProj)
 

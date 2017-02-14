@@ -24,7 +24,7 @@
         <md-menu-content>
           <md-menu-item>导入api数据</md-menu-item>
           <md-menu-item>导出api数据</md-menu-item>
-          <md-menu-item>同步服务器数据</md-menu-item>
+          <md-menu-item @click.native="navTo($event,'sync-proj')">同步服务器数据</md-menu-item>
         </md-menu-content>
       </md-menu>
 
