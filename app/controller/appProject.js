@@ -5,7 +5,8 @@ const ApiModel = db.apiModel
 const ApiBase = db.apiBase
 
 const util = require('../util')
-const uid = util.uid()
+const uid = require('../util/common').uid()
+const setError = util.setError
 const processControl = require('./processControl')
 const processList = processControl.processList
 
@@ -35,7 +36,7 @@ async function getAppProject (ctx, next) {
     total = await AppProject.count(finalParams)
     data = await AppProject.cfind(finalParams).sort({name: 1}).skip(skip).limit(size).exec()
   } catch (e) {
-
+    return setError({ctx: ctx, next: next, err: '查询项目信息出错', e: e})
   }
 
   data.forEach(function (d) {
@@ -69,7 +70,7 @@ async function addAppProject (ctx, next) {
     finalParams._mt = +new Date()
     data = await AppProject.insert(finalParams)
   } catch (e) {
-
+    return setError({ctx: ctx, next: next, err: '添加项目出错', e: e})
   }
   restartProcess({project: data._id})
 
@@ -94,7 +95,7 @@ async function editAppProject (ctx, next) {
     finalParams._mt = +new Date()
     data = await AppProject.update({ _id: id }, { $set: finalParams })
   } catch (e) {
-
+    return setError({ctx: ctx, next: next, err: '编辑项目出错', e: e})
   }
   restartProcess({project: id})
   ctx.body = {
@@ -119,6 +120,7 @@ async function deleteAppProject (ctx, next) {
     await ApiModel.remove({baseid: {$in: aids}}, { multi: true })
     await ApiBase.remove({_id: {$in: ids}}, { multi: true })
   } catch (e) {
+    return setError({ctx: ctx, next: next, err: '删除项目出错', e: e})
   }
   ctx.body = {
     code: 0,
@@ -137,7 +139,7 @@ async function startAppProject (ctx, next) {
   try {
     data = await AppProject.cfind({_id: {$in: ids}}).exec()
   } catch (e) {
-
+    return setError({ctx: ctx, next: next, err: '启动项目出错', e: e})
   }
 
   if (!data || !data.length) {
@@ -172,7 +174,7 @@ async function stopAppProject (ctx, next) {
   try {
     data = await AppProject.cfind({_id: {$in: ids}}).exec()
   } catch (e) {
-
+    return setError({ctx: ctx, next: next, err: '停止项目出错', e: e})
   }
 
   if (!data || !data.length) {
@@ -221,7 +223,7 @@ async function setDefaultApiParam (ctx, next) {
       }
     }
   } catch (e) {
-
+    return setError({ctx: ctx, next: next, err: '设置默认api出错', e: e})
   }
   restartProcess({project: project})
   ctx.body = {

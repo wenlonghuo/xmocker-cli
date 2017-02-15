@@ -1,18 +1,13 @@
 'use strict'
-const os = require('os')
-let ostype = '*nix'
-if (os.EOL === '\r\n') {
-  ostype = 'win'
-}
-
 const spawn = require('child_process').spawn
 const path = require('path')
 const _ = require('lodash')
 const log = require('../util/log')
 
+let nv = nodeVersion()
+let ostype = process.platform
 let processList = []
 let gulpList = []
-
 let procTeam = []
 let restartRunning
 
@@ -172,7 +167,7 @@ function startMockServer (proc, option) {
 
   // 服务器
   let startArgs = ['--harmony-async-await', path.join(__dirname, '../mockapp'), ...param]
-  if (process.versions.node.split('.')[0] < 7) {
+  if (nv < 7) {
     startArgs = [path.join(__dirname, '../mockapp/lower-start'), ...param]
   }
   const server = spawn('node', startArgs, {
@@ -268,7 +263,7 @@ function startGulp (proc, option = { force: false }) {
   let gulpPath = gOption.path || path.join(__dirname, '../../tools/gulp')
   gulpPath = path.join(gulpPath, './node_modules/.bin')
   let cmdGulp = './gulp'
-  if (ostype === 'win')cmdGulp = 'gulp'
+  if (ostype === 'win32')cmdGulp = 'gulp'
   let gulpServer = spawn(cmdGulp, [proc.task || 'dev', ...params], {
     stdio: 'pipe',
     shell: true,
@@ -279,6 +274,11 @@ function startGulp (proc, option = { force: false }) {
   gulpServer.stderr.pipe(log.errGulp)
 
   return gulpServer
+}
+
+function nodeVersion () {
+  let nv = process.versions.node || ''
+  return ~~nv.split('.')[0]
 }
 
 module.exports = {

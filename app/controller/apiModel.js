@@ -4,7 +4,8 @@ const ApiModel = db.apiModel
 const ApiBase = db.apiBase
 
 const util = require('../util')
-const uid = util.uid()
+const uid = require('../util/common').uid()
+const setError = util.setError
 const restartProcess = require('./restartProcess').pushRestartList
 
 module.exports = {
@@ -15,7 +16,6 @@ module.exports = {
 
 }
 
-
 async function getApiModel (ctx, next) {
   let finalParams = ctx.finalParams
 
@@ -23,7 +23,7 @@ async function getApiModel (ctx, next) {
   try {
     data = await ApiModel.cfind(finalParams).exec()
   } catch (e) {
-
+    return setError({ctx: ctx, next: next, err: '查询api分支信息出错', e: e})
   }
 
   ctx.body = {
@@ -35,8 +35,6 @@ async function getApiModel (ctx, next) {
   return next()
 }
 
-
-
 async function addApiModel (ctx, next) {
   let finalParams = ctx.finalParams
 
@@ -47,7 +45,7 @@ async function addApiModel (ctx, next) {
     await ApiBase.update({ _id: finalParams.baseid }, { $set: { _mt: +new Date() } })
     data = await ApiModel.insert(finalParams)
   } catch (e) {
-
+    return setError({ctx: ctx, next: next, err: '添加api分支信息出错', e: e})
   }
   restartProcess({ apiModel: data._id })
 
@@ -60,9 +58,6 @@ async function addApiModel (ctx, next) {
   }
   next()
 }
-
-
-
 
 async function editApiModel (ctx, next) {
   let finalParams = ctx.finalParams
@@ -78,9 +73,10 @@ async function editApiModel (ctx, next) {
     data = data[1]
     await ApiBase.update({ _id: data.baseid }, { $set: { _mt: +new Date() } })
   } catch (e) {
+    return setError({ctx: ctx, next: next, err: '编辑api分支信息出错', e: e})
   }
   restartProcess({ apiModel: id })
-  
+
   ctx.body = {
     code: 0,
     data: {
@@ -98,7 +94,7 @@ async function deleteApiModel (ctx, next) {
   try {
     data = await ApiModel.remove({ _id: finalParams.id })
   } catch (e) {
-
+    return setError({ctx: ctx, next: next, err: '删除api分支信息出错', e: e})
   }
 
   ctx.body = {

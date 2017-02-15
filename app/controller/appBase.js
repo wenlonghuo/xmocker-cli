@@ -3,6 +3,8 @@ const db = require('../db')
 const AppBase = db.appBase
 
 // const util = require('../util')
+const util = require('../util')
+const setError = util.setError
 const processControl = require('./processControl')
 const processList = processControl.processList
 
@@ -40,7 +42,7 @@ async function getAppBase (ctx, next) {
   try {
     data = await AppBase.cfindOne(finalParams).exec()
   } catch (e) {
-
+    return setError({ctx: ctx, next: next, err: '查询基础信息出错', e: e})
   }
 
   ctx.body = {
@@ -52,7 +54,6 @@ async function getAppBase (ctx, next) {
   return next()
 }
 
-
 async function editAppBase (ctx, next) {
   let finalParams = ctx.finalParams
 
@@ -61,6 +62,7 @@ async function editAppBase (ctx, next) {
     data = await AppBase.update({}, {$set: finalParams}, {returnUpdatedDocs: true, upsert: true})
     data = data[1]
   } catch (e) {
+    return setError({ctx: ctx, next: next, err: '保存基础信息出错', e: e})
   }
 
   ctx.body = {

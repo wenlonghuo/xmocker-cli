@@ -5,7 +5,8 @@ const apiModel = db.apiModel
 
 const util = require('../util')
 const pushRestartList = require('./restartProcess').pushRestartList
-const uid = util.uid()
+const uid = require('../util/common').uid()
+const setError = util.setError
 
 module.exports = {
   getApiBase: getApiBase,
@@ -23,7 +24,9 @@ async function getApiDetail (ctx, next) {
   try {
     baseData = await apiBase.cfind({_id: finalParams.id}).exec()
     modelData = await apiModel.cfind({baseid: finalParams.id}).exec()
-  } catch (e) {}
+  } catch (e) {
+    return setError({ctx: ctx, next: next, err: '查询api详细信息出错', e: e})
+  }
   ctx.body = {
     code: 0,
     data: {
@@ -48,9 +51,8 @@ async function getApiBase (ctx, next) {
     total = await apiBase.count(finalParams)
     data = await apiBase.cfind(finalParams).sort({name: 1}).skip(skip).limit(size).exec()
   } catch (e) {
-
+    return setError({ctx: ctx, next: next, err: '查询api基础信息出错', e: e})
   }
-
 
   ctx.body = {
     code: 0,
@@ -75,6 +77,7 @@ async function addApiBase (ctx, next) {
     finalParams._mt = +new Date()
     data = await apiBase.insert(finalParams)
   } catch (e) {
+    return setError({ctx: ctx, next: next, err: '添加api基础信息出错', e: e})
   }
   pushRestartList({apiBase: data._id})
   ctx.body = {
@@ -99,6 +102,7 @@ async function editApiBase (ctx, next) {
     data = await apiBase.update({_id: id}, {$set: finalParams}, {returnUpdatedDocs: true})
     data = data[1]
   } catch (e) {
+    return setError({ctx: ctx, next: next, err: '编辑api基础信息出错', e: e})
   }
 
   pushRestartList({apiBase: id})
@@ -121,6 +125,7 @@ async function deleteApiBase (ctx, next) {
     data = await apiBase.remove({_id: finalParams.id})
     data = await apiModel.remove({baseid: finalParams.id})
   } catch (e) {
+    return setError({ctx: ctx, next: next, err: '删除api基础信息出错', e: e})
   }
 
   ctx.body = {
@@ -177,6 +182,7 @@ async function copyApi (ctx, next) {
       pushRestartList({project: proj})
     }
   } catch (e) {
+    return setError({ctx: ctx, next: next, err: '复制api出错', e: e})
   }
 
 

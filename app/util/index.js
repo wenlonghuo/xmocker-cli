@@ -1,145 +1,61 @@
 'use strict'
-
 // const crypto = require('crypto')
-
-let nodeUtil = require('util')
-
+let log = require('./log')
 /*
  * 设置错误
  * */
-function setError (ctx, err, e, code) {
-  if (code === undefined) {
-    code = e
-  }
+/**
+ * 日志记录。包含内容
+ * _type: 'out'
+ * level: 10 日志等级
+ * time: 时间戳
+ * data: 内容
+ * project: project名称
+ * api： api名称
+ * apiModel： 分支名称
+ * projectId: 项目id
+ * apiId: 接口Id
+ * apiModelId: 分支id
+ * req: 请求入参
+ * reqParse: 转换后入参
+ * res: 输出参数
+ * args: process的启动参数
+ * err: 错误详细信息
+ * additional: 其他参数
+ */
+function setError (option) {
+  let ctx = option.ctx
+  let next = option.next
+  let err = option.err
+  let e = option.e
+  let code = option.code || -1
 
-  if (typeof e === 'object') {
-    log('ERROR', e, ctx)
-    if (e.status === 413) {
-      err = '填写的内容总长度超出限制'
-    }
-  }
-
-  code = (typeof code !== 'number') ? -1 : code
-
-  ctx.body = {
+  let errObj = {
     code: code,
     err: err,
   }
-}
 
-/*
- * 日志记录
- * 根据日志级别进行，级别越低，越重要
- *
- * */
-
-let levelBox = {
-  'OFF': 0,
-  'FATAL': 2,
-  'ERROR': 4,
-  'WARN': 6,
-  'INFO': 10,
-  'DETAIL': 12,
-  'DEBUG': 15,
-}
-
-let currentLogLevel = 15
-
-function log (level, err, ctx) {
-  if (err == null) {
-    err = level
-    level = 15
-  }
-  if (typeof level === 'string') {
-    level = levelBox[level] || 15
+  let info = {
+    _type: 'error',
+    level: 4,
+    time: +new Date(),
+    data: err,
+    req: {
+      params: ctx.finalParams,
+      url: ctx.url,
+      method: ctx.method,
+    },
+    res: errObj,
+    err: {
+      msg: String(e),
+      stack: String(e.stack),
+    },
   }
 
-  if (Number(level) <= currentLogLevel) {
-    if (typeof err === 'object') {
-      try {
-        err = currentLogLevel < 15 ? JSON.stringify(err) : nodeUtil.inspect(err, { depth: null, colors: true })
-      } catch (e) {
-        console.log(e)
-      }
-    }
+  log(info)
 
-    if (ctx) {
-      let sess = ctx.session || {}
-      let info = '[' + new Date().toLocaleString() + '] user: ' + sess.name + ', id: ' + sess.id +
-        ',' + ctx.method + ': ' + ctx.url + ', body:' + JSON.stringify(ctx.request.body)
-      console.log(info)
-    }
-
-    console.log(err)
-  }
-}
-
-/*
- * 数组的数字类型转字符串，删除指定键值
- *
- * */
-
-function formatArr (arr, option) {
-  if (!Array.isArray(arr)) return arr
-
-  option = option || {}
-
-  let deleteArr = !option.del ? [] : option.del.split(' ')
-  let toStr = !option.toStr ? [] : option.toStr.split(' ')
-  let cpArr = []
-
-  arr.forEach(function (obj, index) {
-    // 转换为json
-    let item = obj
-    if (obj.toJSON) item = obj.toJSON()
-
-    deleteArr.forEach(function (d) {
-      // 有子集
-      if (d.indexOf('.') < 0) {
-        if (item[d]) {
-          delete item[d]
-        }
-      } else {
-        let names = d.split('.')
-        let name1 = names[0]
-        let name2 = names[1]
-        let subArr = item[name1]
-
-        if (subArr && Array.isArray(subArr)) {
-          subArr.forEach(function (sba) {
-            if (sba[name2] !== undefined) {
-              delete sba[name2]
-            }
-          })
-        }
-      }
-    })
-
-    toStr.forEach(function (s) {
-      // 有子集
-      if (s.indexOf('.') < 0) {
-        if (item[s] !== undefined && typeof item[s] !== 'string') {
-          item[s] = String(item[s])
-        }
-      } else {
-        let names = s.split('.')
-        let name1 = names[0]
-        let name2 = names[1]
-        let subArr = item[name1]
-
-        if (subArr && Array.isArray(subArr)) {
-          subArr.forEach(function (sba) {
-            if (sba[name2] !== undefined && typeof sba[name2] !== 'string') {
-              sba[name2] = String(sba[name2])
-            }
-          })
-        }
-      }
-    })
-    cpArr.push(item)
-  })
-
-  return cpArr
+  ctx.body = errObj
+  return next()
 }
 
 /*
@@ -319,22 +235,9 @@ function formatParam (ctx, next) {
   }
 }
 
-function uid () {
-  let max = 1000000
-  let cnt = 0
-  return function () {
-    cnt++
-    if (cnt >= max) cnt = 0
-    return (+new Date() * max + cnt).toString(36)
-  }
-}
-
 module.exports = {
   checkParam: checkParam,
   formatParam: formatParam,
   formatEntranceParam: formatEntranceParam,
   setError: setError,
-  log: log,
-  formatArr: formatArr,
-  uid: uid,
 }

@@ -5,9 +5,8 @@ const ApiModel = db.apiModel
 const ApiBase = db.apiBase
 const request = require('superagent')
 
-// const util = require('../util')
-// const processControl = require('./processControl')
-// const processList = processControl.processList
+const util = require('../util')
+const setError = util.setError
 
 module.exports = {
   clientGetProjDiff: clientGetProjDiff,
@@ -42,7 +41,7 @@ async function clientGetProjDiff (ctx, next) {
   try {
     projData = await AppProject.cfind({}).exec()
   } catch (e) {
-
+    return setError({ctx: ctx, next: next, err: '获取项目信息出错', e: e})
   }
 
   let host = await getServerInfo()
@@ -75,7 +74,7 @@ async function clientGetApiDiff (ctx, next) {
       })
     }
   } catch (e) {
-    console.log(e)
+    return setError({ctx: ctx, next: next, err: '获取api信息出错', e: e})
   }
   let host = await getServerInfo()
   let url = host + '/mock/serverDiffApi'
@@ -97,6 +96,8 @@ async function clientDownLoadProj (ctx, next) {
   let req = request.get(url).query(finalParams)
   let res = await req
   let data = res.body.data
+
+  if (!res.body || res.body.code) return setError({ctx: ctx, next: next, err: '下载项目信息出错'})
 
   let proj = data.proj
   let apis = data.api
@@ -147,6 +148,8 @@ async function clientDownLoadProjBase (ctx, next) {
   let res = await req
   let data = res.body.data
 
+  if (!res.body || res.body.code) return setError({ctx: ctx, next: next, err: '下载项目信息出错'})
+
   let proj = data.proj
   delete proj._id
   delete proj.path
@@ -174,8 +177,9 @@ async function clientDownLoadApi (ctx, next) {
   let url = host + '/mock/serverGetApi'
   let req = request.get(url).query(finalParams)
   let res = await req
-  ctx.body = res
+
   let data = res.body.data
+  if (!res.body || res.body.code) return setError({ctx: ctx, next: next, err: '下载api信息出错'})
 
   let apis = data.api
 
@@ -234,7 +238,7 @@ async function serverGetProj (ctx, next) {
       })
     }
   } catch (e) {
-    console.log(e)
+    return setError({ctx: ctx, next: next, err: '下载项目信息出错', e: e})
   }
   ctx.body = {
     code: 0,
@@ -262,7 +266,7 @@ async function serverGetApi (ctx, next) {
       apiArr.push({base: api, model: model})
     })
   } catch (e) {
-    console.log(e)
+    return setError({ctx: ctx, next: next, err: '下载api信息出错', e: e})
   }
 
   ctx.body = {
@@ -298,7 +302,7 @@ async function serverDiffApi (ctx, next) {
     }
     result = diffTimeStamp(fromApi, toArr, {idKeys: ['base', '_uid'], timeKeys: ['base', '_mt']})
   } catch (e) {
-    console.log(e)
+    return setError({ctx: ctx, next: next, err: '下载api区别信息出错', e: e})
   }
 
   ctx.body = {
@@ -320,7 +324,7 @@ async function serverDiffProj (ctx, next) {
     // console.log(fromProj, toProj);
     result = diffTimeStamp(fromProj, toProj)
   } catch (e) {
-    console.log(e)
+    return setError({ctx: ctx, next: next, err: '下载项目区别信息出错', e: e})
   }
   ctx.body = {
     code: 0,
