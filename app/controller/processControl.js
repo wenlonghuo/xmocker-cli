@@ -11,16 +11,23 @@ let gulpList = []
 let procTeam = []
 let restartRunning
 
+function EmptyProm () {
+  return new Promise(function (resolve) {
+    resolve(null)
+  })
+}
+
 /**
  * addNewProcess
  * @param  {} option 传入的project对象
  */
 function addNewProcess (proc, option = {force: false}) {
-  if (!proc) return
-  let existSamePort = processList.find(function (proc) {
-    return proc.proc && proc.proc.port === proc.port && proc.status
+  if (!proc) return EmptyProm()
+  let existSamePort = processList.find(function (p) {
+    return p.proc && p.proc.port === p.port && p.status
   })
-  if (existSamePort) return
+  if (existSamePort) return EmptyProm()
+  if (!proc.port) return EmptyProm()
 
   let index = processList.findIndex(function (p) { return p.id === proc._id })
   if (index >= 0) {

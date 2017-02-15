@@ -33,11 +33,6 @@
             <md-option v-for="proj in projList" :value="proj._id">{{proj.name}}</md-option>
           </md-select>
         </md-input-container>
-
-        <md-input-container>
-          <label>重复次数</label>
-          <md-input v-model="model.repeatTime"></md-input>
-        </md-input-container>
       </div>
        
       <md-button class="md-primary" @click="buttonSubmit($event)">提交</md-button>     
@@ -89,7 +84,6 @@
           remotePassword: '',
           managePort: '',
           defaultProject: '',
-          repeatTime: '',
         },
         
         projList:[]

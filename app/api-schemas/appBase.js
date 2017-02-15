@@ -29,10 +29,6 @@ module.exports.editAppBase = {
     type: 'string',
     cname: '默认project的id',
   },
-  repeatTime: {
-    type: 'number',
-    cname: '重复次数',
-  },
 }
 
 

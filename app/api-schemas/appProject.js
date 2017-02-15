@@ -38,6 +38,28 @@ module.exports.addAppProject = {
     type: 'object',
     cname: '错误提示信息格式',
   },
+  repeatTime: {
+    type: 'number',
+    cname: '重复次数',
+  },
+  urls: {
+    type: 'array',
+    cname: '常用url',
+    child: {
+      name: {
+        type: 'string',
+        required: true,
+        cname: '链接名称',
+      },
+      url: {
+        type: 'string',
+        cname: '链接路径',
+      },
+      apis: {
+        type: 'array',
+      },
+    },
+  },
   gulp: {
     type: 'object',
     cname: 'gulp信息',
@@ -124,6 +146,28 @@ module.exports.editAppProject = {
     type: 'object',
     cname: '错误提示信息格式',
   },
+  repeatTime: {
+    type: 'number',
+    cname: '重复次数',
+  },
+  urls: {
+    type: 'array',
+    cname: '常用url',
+    child: {
+      name: {
+        type: 'string',
+        required: true,
+        cname: '链接名称',
+      },
+      url: {
+        type: 'string',
+        cname: '链接路径',
+      },
+      apis: {
+        type: 'array',
+      },
+    },
+  },
   gulp: {
     type: 'object',
     cname: 'gulp信息',
@@ -160,7 +204,7 @@ module.exports.editAppProject = {
         type: 'string',
         cname: 'js文件夹路径',
       },
-    }
+    },
   },
   webpack: {
     type: 'object',
@@ -173,8 +217,8 @@ module.exports.editAppProject = {
       cmd: {
         type: 'string',
         cname: 'webpack指令',
-      }
-    }
+      },
+    },
   },
 }
 
@@ -221,5 +265,3 @@ module.exports.setDefaultApiParam = {
     type: 'string',
   },
 }
-
-

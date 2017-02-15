@@ -48,11 +48,11 @@ function setError (option) {
     res: errObj,
     err: {
       msg: String(e),
-      stack: String(e.stack),
+      stack: String(e ? e.stack : ''),
     },
   }
 
-  log(info)
+  log.childLog(info)
 
   ctx.body = errObj
   return next()
@@ -84,7 +84,7 @@ function checkParam (ctx, params, schema, option) {
   // 返回数据类型，默认是编辑状态，仅处理存在数据的部分
   let oriParam = formatEntranceParam(params, schema, option)
   if (oriParam._err) {
-    return setError(ctx, oriParam._err, oriParam._e)
+    return setError({ctx: ctx, next: new Function(), err: oriParam._err, e: oriParam._e})
   }
   return oriParam
 }

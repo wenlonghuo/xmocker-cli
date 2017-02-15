@@ -108,6 +108,16 @@
         </md-input-container>
 
         <md-input-container>
+          <label>随机值重复次数</label>
+          <md-input v-model="proj.model.repeatTime"></md-input>
+        </md-input-container>
+
+        <md-input-container>
+          <label>常用url列表</label>
+          <md-textarea v-model="proj.model.urls"></md-textarea>
+        </md-input-container>
+
+        <md-input-container>
           <label>gulp配置</label>
           <md-textarea v-model="proj.model.gulp"></md-textarea>
         </md-input-container>
@@ -176,8 +186,10 @@
             path: '',
             port: '',
             error: errorMsg,
-            gulp:'',
-            webpack: '',
+            repeatTime: 5,
+            urls: [],
+            gulp:{},
+            webpack: {},
           }
         },
         deleteInfo: {
@@ -262,30 +274,7 @@
         var gulp = this.formatJSONString(model.gulp);
         var webpack = this.formatJSONString(model.webpack);
         var error = this.formatJSONString(model.error);
-
-        if(!gulp){
-          this.alert('gulp配置格式不正确');
-          return;
-        }else if(!webpack){
-          this.alert('webpack配置格式不正确');
-          return;
-        } else if(!error){
-          error = undefined;
-        }
-
-        param.gulp = gulp;
-        param.webpack = webpack;
-        
-
-        return this.app.add(param);
-      },
-      // 编辑项目
-      editProject: function() {
-        var param = this.copyObj({}, this.proj.model);
-        var model = this.proj.model;
-        var gulp = this.formatJSONString(model.gulp);
-        var webpack = this.formatJSONString(model.webpack);
-        var error = this.formatJSONString(model.error);
+        var urls = this.formatJSONString(model.urls);
 
         if(!gulp){
           this.alert('gulp配置格式不正确');
@@ -300,6 +289,33 @@
         param.gulp = gulp;
         param.webpack = webpack;
         param.error = error;
+        param.urls = urls;
+
+        return this.app.add(param);
+      },
+      // 编辑项目
+      editProject: function() {
+        var param = this.copyObj({}, this.proj.model);
+        var model = this.proj.model;
+        var gulp = this.formatJSONString(model.gulp);
+        var webpack = this.formatJSONString(model.webpack);
+        var error = this.formatJSONString(model.error);
+        var urls = this.formatJSONString(model.urls);
+
+        if(!gulp){
+          this.alert('gulp配置格式不正确');
+          return;
+        }else if(!webpack){
+          this.alert('webpack配置格式不正确');
+          return;
+        } else if(!error){
+          error = undefined;
+        }
+
+        param.gulp = gulp;
+        param.webpack = webpack;
+        param.error = error;
+        param.urls = urls;
         param.id = param._id;
         return this.app.edit(param);
       },
@@ -399,12 +415,8 @@
             path: '',
             port: '',
             error: errorMsg,
-            gulp: {
-              path: '',
-            },
-            webpack: {
-              path: '',
-            },
+            gulp: {},
+            webpack: {},
           };
 
         } else if (type === 'edit') {
@@ -493,6 +505,7 @@
         models.forEach((model)=>{
           model.gulp = this.prettyJSON(model.gulp)
           model.webpack = this.prettyJSON(model.webpack)
+          model.urls = this.prettyJSON(model.urls)
           model.error = this.prettyJSON(model.error) || errorMsg
         });
       }
