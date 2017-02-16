@@ -142,5 +142,19 @@ module.exports.copyApi = {
   },
 }
 
-
+module.exports.setApiStatus = {
+  id: {
+    type: 'string',
+    required: true,
+    noEmpty: true,
+  },
+  type: {
+    type: 'string',
+    required: true,
+    noEmpty: true,
+  },
+  data: {
+    type: 'object',
+  },
+}
 

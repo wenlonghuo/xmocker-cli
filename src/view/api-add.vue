@@ -27,8 +27,11 @@
       <md-toolbar class="">
         <h1 class="md-title app-toolbar-title">api数据定义分支 —— {{model.name}}</h1>
         <span style="flex: 1"></span>
-         <md-button class="md-icon-button md-accent">
-            <md-icon :data-mIndex="mIndex" @click.native="deleteApiModel">clear</md-icon>
+        <md-button class="md-icon-button m-api-add-btn-set" href="javascript:;" @click.native="setAsNow" :data-mIndex="mIndex">
+            设为当前值
+         </md-button>
+         <md-button class="md-icon-button" :data-mIndex="mIndex" @click.native="deleteApiModel">
+            删除
          </md-button>
       </md-toolbar>
 
@@ -185,6 +188,10 @@
           method: 'DELETE',
           url: '/mock/deleteApiModel'
         },
+        setApi: {
+          method: 'PUT',
+          url: '/mock/setApiStatus'
+        },
       });
     },
     mounted: function() {
@@ -307,6 +314,29 @@
 
         this.$refs['confirmDiag'].open();
       },
+
+      setAsNow: function(e){
+        var mIndex = e.target.getAttribute('data-mIndex');
+        if(mIndex == null)return;
+
+        var item = this.formModel.apiModel[mIndex];
+        if (!item) return
+
+        var data = item.data
+        if(!data)return
+        try {
+          data = JSON.parse(data)
+          data = data[0]
+        } catch (e) {
+          return
+        }
+
+        this.app.setApi({id: this.formModel.apiBase._id, type: 'fixed', data: data}).then(function(data){
+          data = data.data;
+          this.alert(data.err || data.data.tip);
+        });
+      },
+
       //
       buttonSubmit: function(e, mIndex){
         this.confirm.type = 'operation';
@@ -432,5 +462,8 @@
   }
   .m-api-add-new{
     margin: 0 auto;
+  }
+  .md-button.m-api-add-btn-set {
+    width: 100px;
   }
 </style>

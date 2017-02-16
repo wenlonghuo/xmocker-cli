@@ -20,12 +20,16 @@ module.exports = {
   editApi: sendApiData,
   deleteApi: sendApiData,
   getProjectApiList: getProjectApiList,
+  reloadDatabase: reloadDatabase,
+  setApiStatus: setApiStatus,
+  getValStatus: getValStatus,
 }
 
 // let appConfig, projectConfig
 
 let projectId = argv.projectId || ''
 let apiList
+let apiStatus = {}
 // 获取当前项目所有的api列表，存储到内存中
 async function getProjectApiList (ctx, next) {
   if (!ctx.is('application/x-www-form-urlencoded')) return next()
@@ -91,11 +95,20 @@ async function getProjectApiList (ctx, next) {
 async function sendApiData (ctx, next) {
   if (!ctx.is('application/x-www-form-urlencoded')) return next()
 
-  let currentMode = 0
   let reqApiModel = ctx.apiInfo.apiModel
   let reqApiBase = ctx.apiInfo.apiBase
   let params = ctx.apiInfo.params
   let data
+
+  let cApiStatus = apiStatus[reqApiBase._id]
+  if (cApiStatus) {
+    if (cApiStatus.code === 3) {
+      return resError(ctx, '错误状态提示')
+    } else if (cApiStatus.code === 2) {
+      ctx.body = cApiStatus.data
+      return
+    }
+  }
 
   let defaultApi, i, api, noData
   let conditionFunction, result, dealedParams
@@ -193,7 +206,7 @@ async function sendApiData (ctx, next) {
     noData = true
   }
 
-  if (currentMode === 1) { // 随机模式
+  if (cApiStatus && cApiStatus.code === 1) {
     data = setKeys(api.outputParam)
   }
 
@@ -270,7 +283,7 @@ function generateData (option) {
   let type = option._type || 'string'
   if (type === 'string') {
     let len = Math.round(Math.random() * 200)
-    return randomCode(len)
+    return len
   } else if (type === 'number') {
     return Math.random() * 10000
   } else if (type === 'boolean') {
@@ -280,58 +293,6 @@ function generateData (option) {
   }
 }
 // 生成随机字符串
-
-let codeDirecory = {
-  punctuation: [
-    [32, 15],
-    [58, 6],
-    [91, 5],
-    [123, 3],
-    [160, 31],
-    [215, 0],
-    [247, 0],
-  ],
-  number: [
-    [48, 0],
-  ],
-  letter: [
-    [65, 25],
-    [97, 25],
-  ],
-  chinese: [
-    [19968, 20941],
-  ],
-}
-
-function randomCode (len = 10, type = ['letter', 'chinese', 'number', 'punctuation']) {
-  let i = 0
-  let str = ''
-  let base, range, order, arr, lower
-  let typeLen = type.length - 1
-  if (typeLen < 0) {
-    return ''
-  }
-
-  while (i < len) {
-    i++
-    order = Math.round(Math.random() * typeLen)
-    arr = codeDirecory[type[order]] || codeDirecory.letter
-
-    let randomInfo
-    let randomLen = arr.length - 1
-
-    if (randomLen > 0) {
-      randomInfo = arr[Math.round(Math.random() * randomLen)]
-    } else {
-      randomInfo = arr[0]
-    }
-    base = randomInfo[0]
-    range = randomInfo[1]
-    lower = parseInt(Math.random() * range)
-    str += String.fromCharCode(base + lower)
-  }
-  return str
-}
 
 function sendErrorMsg (ctx, data) {
   let msg = {
@@ -385,5 +346,46 @@ let errorModel = argv.errorModel || '{code: -1, codeDesc:"${msg}", codeDescUser:
 let errorExp = /\$\{msg\}/gi
 function resError (ctx, msg) {
   sendErrorMsg(ctx, msg)
-  ctx.body = errorModel.replace(errorExp, msg)
+  ctx.body = formatError(msg)
+}
+
+function formatError (msg) {
+  let str = errorModel.replace(errorExp, msg)
+  let obj
+  try {
+    obj = JSON.parse(str)
+  } catch (e) {
+    console.log('项目中错误串无法转换为obj。')
+  }
+  return obj
+}
+
+// 重启数据库
+function reloadDatabase (msg) {
+  let data = msg.data || []
+  if (!data.length) {
+    Object.keys(db).forEach((key) => {
+      db[key].loadDatabase()
+    })
+  } else {
+    data.forEach(function (name) {
+      if (db[name]) db[name].loadDatabase()
+    })
+  }
+}
+
+// 设置api状态 1表示随机值， 2表示固定值， 3表示错误值, 4表示清除
+function setApiStatus (msg) {
+  if (msg.id) {
+    if (msg.status === 4) {
+      apiStatus[msg.id] = undefined
+    } else {
+      apiStatus[msg.id] = {status: msg.status, code: msg.code, data: msg.data}
+    }
+  }
+}
+
+// 获取本api状态, 0表示正常， 1表示随机值， 2表示固定值， 3表示错误值
+function getValStatus (msg) {
+
 }

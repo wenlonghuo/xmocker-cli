@@ -29,7 +29,6 @@ for (let key in args) {
 
 const apiPORT = args.port || 6000
 const projectDir = args.fileServerPath
-let gulpServer
 // passport认证
 
 app.proxy = true
@@ -47,25 +46,25 @@ app.use(async function (ctx, next) {
 // log(projectDir)
 app.use(require('./router.js').routes())
 
+const controller = require('./controller')
+
 // 建立是的监听及server
 const httpServer = http.createServer(app.callback())
 
 httpServer.listen(apiPORT, function (e) {
-  process.send({_type: 'cmd', data: 'finished'})
+  process.send({_type: 'process', data: 'finished'})
 })
 
 module.exports = httpServer
 
 process.on('message', function (msg) {
-  if (typeof msg === 'object' && msg._type === 'cmd') {
-    if (msg.data === 'kill') {
-      if (gulpServer) {
-        gulpServer.kill()
-        process.exit(1)
-      } else {
-        process.exit(1)
-      }
+  if (typeof msg !== 'object') return
+
+  if (msg._type === 'process' && msg.data === 'kill') {
+    process.exit(1)
+  } else if (msg._type === 'func') {
+    if (controller[msg.func]) {
+      controller[msg.func](msg)
     }
   }
 })
-

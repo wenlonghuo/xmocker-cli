@@ -28,6 +28,15 @@
         </md-card-content>
 
         <md-card-actions>
+          <md-button class="md-icon-button" @click="buttonSetApi($event, item._id, 'clear')">
+            <md-icon>undo</md-icon>
+          </md-button>
+          <md-button class="md-icon-button" @click="buttonSetApi($event, item._id, 'error')">
+            <md-icon>error</md-icon>
+          </md-button>
+          <md-button class="md-icon-button" @click="buttonSetApi($event, item._id, 'random')">
+            <md-icon>toys</md-icon>
+          </md-button>
           <md-button class="md-icon-button" @click="buttonCopyApi($event, item._id)">
             <md-icon>content_copy</md-icon>
           </md-button>
@@ -167,6 +176,10 @@
         getProj: {
           method: 'GET',
           url: '/mock/getAppProject'
+        },
+        setApi: {
+          method: 'PUT',
+          url: '/mock/setApiStatus'
         }
       });
       this.getProjectList()
@@ -285,6 +298,16 @@
 
       buttonCloseCopy: function(){
         this.show.copy = false;
+      },
+
+      buttonSetApi: function(e, id, type){
+        this.app.setApi({type: type, id: id}).then(function () {
+          data = data.data;
+          if (data.code) {
+            this.alert(data.err);
+            return;
+          }
+        })
       },
 
        // 提示

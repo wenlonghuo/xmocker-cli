@@ -10,7 +10,7 @@ const setError = util.setError
 const processControl = require('./processControl')
 const processList = processControl.processList
 
-const restartProcess = require('./restartProcess').pushRestartList
+const restartBackground = require('./communication').restartBackground
 
 module.exports = {
   getAppProject: getAppProject,
@@ -72,7 +72,7 @@ async function addAppProject (ctx, next) {
   } catch (e) {
     return setError({ctx: ctx, next: next, err: '添加项目出错', e: e})
   }
-  restartProcess({project: data._id})
+  // restartBackground({project: data._id})
 
   ctx.body = {
     code: 0,
@@ -97,7 +97,7 @@ async function editAppProject (ctx, next) {
   } catch (e) {
     return setError({ctx: ctx, next: next, err: '编辑项目出错', e: e})
   }
-  restartProcess({project: id})
+  restartBackground({project: id})
   ctx.body = {
     code: 0,
     data: {
@@ -225,7 +225,7 @@ async function setDefaultApiParam (ctx, next) {
   } catch (e) {
     return setError({ctx: ctx, next: next, err: '设置默认api出错', e: e})
   }
-  restartProcess({project: project})
+  restartBackground({project: project})
   ctx.body = {
     code: 0,
     data: {

@@ -6,7 +6,7 @@ const ApiBase = db.apiBase
 const util = require('../util')
 const uid = require('../util/common').uid()
 const setError = util.setError
-const restartProcess = require('./restartProcess').pushRestartList
+const reloadDatabase = require('./communication').reloadDatabase
 
 module.exports = {
   getApiModel: getApiModel,
@@ -47,7 +47,7 @@ async function addApiModel (ctx, next) {
   } catch (e) {
     return setError({ctx: ctx, next: next, err: '添加api分支信息出错', e: e})
   }
-  restartProcess({ apiModel: data._id })
+  reloadDatabase({ apiModel: data._id })
 
   ctx.body = {
     code: 0,
@@ -75,7 +75,7 @@ async function editApiModel (ctx, next) {
   } catch (e) {
     return setError({ctx: ctx, next: next, err: '编辑api分支信息出错', e: e})
   }
-  restartProcess({ apiModel: id })
+  reloadDatabase({ apiModel: id })
 
   ctx.body = {
     code: 0,

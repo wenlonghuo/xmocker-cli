@@ -4,7 +4,9 @@ const apiBase = db.apiBase
 const apiModel = db.apiModel
 
 const util = require('../util')
-const pushRestartList = require('./restartProcess').pushRestartList
+const ctrlApi = require('./communication').ctrlApi
+
+const reloadDatabase = require('./communication').reloadDatabase
 const uid = require('../util/common').uid()
 const setError = util.setError
 
@@ -15,6 +17,7 @@ module.exports = {
   deleteApiBase: deleteApiBase,
   getApiDetail: getApiDetail,
   copyApi: copyApi,
+  setApiStatus: setApiStatus,
 }
 
 async function getApiDetail (ctx, next) {
@@ -79,7 +82,7 @@ async function addApiBase (ctx, next) {
   } catch (e) {
     return setError({ctx: ctx, next: next, err: '添加api基础信息出错', e: e})
   }
-  pushRestartList({apiBase: data._id})
+  reloadDatabase({apiBase: data._id})
   ctx.body = {
     code: 0,
     data: {
@@ -105,7 +108,7 @@ async function editApiBase (ctx, next) {
     return setError({ctx: ctx, next: next, err: '编辑api基础信息出错', e: e})
   }
 
-  pushRestartList({apiBase: id})
+  reloadDatabase({apiBase: id})
 
   ctx.body = {
     code: 0,
@@ -144,7 +147,7 @@ async function copyApi (ctx, next) {
   let apiIds = finalParams.from.split(',')
   let projList = finalParams.to.split(',')
 
-  let data
+  // let data
   try {
     let apiBaseList = await apiBase.cfind({_id: {$in: apiIds}}).exec()
     let apiModelList
@@ -168,7 +171,6 @@ async function copyApi (ctx, next) {
 
         apiModelList = await apiModel.cfind({baseid: oriApiId}).exec()
 
-
         for (k = 0; k < apiModelList.length; k++) {
           let model = apiModelList[k]
           delete model._id
@@ -179,12 +181,11 @@ async function copyApi (ctx, next) {
           await apiModel.update(query, {$set: model}, {returnUpdatedDocs: true, upsert: true})
         }
       }
-      pushRestartList({project: proj})
+      reloadDatabase({project: proj})
     }
   } catch (e) {
     return setError({ctx: ctx, next: next, err: '复制api出错', e: e})
   }
-
 
   ctx.body = {
     code: 0,
@@ -196,3 +197,33 @@ async function copyApi (ctx, next) {
   return next()
 }
 
+// 设置 api状态， 包括 clear 清除状态  error 错误模式 fixed 固定模式 random 随机模式
+async function setApiStatus (ctx, next) {
+  let finalParams = ctx.finalParams
+
+  let codeList = {
+    clear: 4,
+    error: 3,
+    fixed: 2,
+    random: 1,
+  }
+  let code = codeList[finalParams.type]
+  let id = finalParams.id
+  if (code != null) {
+    ctrlApi(id, {_type: 'func', func: 'setApiStatus', data: finalParams.data, id: id, status: finalParams.type, code: code})
+    ctx.body = {
+      code: 0,
+      data: {
+        tip: '提交成功',
+      },
+    }
+  } else {
+    ctx.body = {
+      code: -1,
+      data: {
+        tip: '无法识别命令',
+      },
+    }
+  }
+  return next()
+}

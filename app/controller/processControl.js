@@ -106,7 +106,7 @@ function killProcess (proc, option = {force: false}) {
     })
 
     if (processInfo.status) {
-      server.send({_type: 'cmd', data: 'kill'})
+      server.send({_type: 'process', data: 'kill'})
       setTimeout(function () {
         if (!hasResolved) {
           hasResolved = true
@@ -221,7 +221,7 @@ function startMockServer (proc, option) {
     })
 
     server.on('message', function (msg) {
-      if (msg._type === 'cmd') {
+      if (msg._type === 'process') {
         if (msg.data === 'finished') {
           console.log('项目启动成功: [' + proc.name + '] , 进程id： ' + server.pid + ', 端口号：' + proc.port)
           processInfo.status = 1
@@ -288,9 +288,17 @@ function nodeVersion () {
   return ~~nv.split('.')[0]
 }
 
+function sendMsg (id, msg) {
+  let proj = processList.find((p) => { return p.id === id })
+  if (proj && proj.server && proj.server.connected) {
+    proj.server.send(msg)
+  }
+}
+
 module.exports = {
   addNewProcess: addNewProcess,
   restartProcess: restartProcess,
   killProcess: killProcess,
   processList: processList,
+  sendMsg: sendMsg,
 }
