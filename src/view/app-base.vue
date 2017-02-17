@@ -35,7 +35,7 @@
         </md-input-container>
       </div>
        
-      <md-button class="md-primary" @click="buttonSubmit($event)">提交</md-button>     
+      <md-button class="md-primary" @click.native="buttonSubmit($event)">提交</md-button>     
     </md-whiteframe>
 
 

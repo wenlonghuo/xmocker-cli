@@ -7,7 +7,7 @@
  --- 7. project中添加api接口的默认值
 8. 根据keysword对所有接口进行标签化筛选，添加个数统计
 9. api列表下的搜索
-10. faker.js的引入
+ --- 10. faker.js的引入
 11. 页面url与api关系定位
 12. 重复次数生效
 13. 日志下api的fixed 设置

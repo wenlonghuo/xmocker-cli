@@ -9,6 +9,8 @@ router.get('/mock/getApiDetail', formatParam, controller.getApiDetail)
 
 router.get('/mock/getApiBase', formatParam, controller.getApiBase)
 
+router.get('/mock/searchApiBase', formatParam, controller.searchApiBase)
+
 router.post('/mock/addApiBase', formatParam, controller.addApiBase)
 
 router.put('/mock/editApiBase', formatParam, controller.editApiBase)

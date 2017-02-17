@@ -12,6 +12,7 @@ const setError = util.setError
 
 module.exports = {
   getApiBase: getApiBase,
+  searchApiBase: searchApiBase,
   addApiBase: addApiBase,
   editApiBase: editApiBase,
   deleteApiBase: deleteApiBase,
@@ -49,12 +50,56 @@ async function getApiBase (ctx, next) {
   delete finalParams.pageSize
   delete finalParams.pageNo
 
+  if (finalParams.name) {
+    finalParams.name = {$in: finalParams.name.split(',')}
+  }
+
   let data, total
   try {
     total = await apiBase.count(finalParams)
     data = await apiBase.cfind(finalParams).sort({name: 1}).skip(skip).limit(size).exec()
   } catch (e) {
     return setError({ctx: ctx, next: next, err: '查询api基础信息出错', e: e})
+  }
+
+  ctx.body = {
+    code: 0,
+    data: {
+      list: data,
+      pagination: {
+        total: total,
+        pageNum: Math.ceil(total / size),
+        pageNo: no,
+      },
+    },
+  }
+  return next()
+}
+
+async function searchApiBase (ctx, next) {
+  let finalParams = ctx.finalParams
+  let size = ~~finalParams.pageSize
+  let no = finalParams.pageNo
+  let skip = ~~(size * no)
+
+  delete finalParams.pageSize
+  delete finalParams.pageNo
+
+  let words = finalParams.words
+  let project = finalParams.project
+  let regex = new RegExp(words)
+
+  let query = {
+    project: project,
+    name: {$regex: regex},
+  }
+
+  let data, total
+  try {
+    total = await apiBase.count(query)
+    data = await apiBase.cfind(query).sort({name: 1}).skip(skip).limit(size).exec()
+  } catch (e) {
+    return setError({ctx: ctx, next: next, err: '搜索API出错', e: e})
   }
 
   ctx.body = {

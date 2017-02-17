@@ -4,23 +4,23 @@
       <md-toolbar class="md-medium">
         <h1 class="md-title app-toolbar-title">项目列表</h1>
 
-        <md-button class="md-icon-button" @click="dealProject($event, 'add')">
+        <md-button class="md-icon-button" @click.native="dealProject($event, 'add')">
           <md-icon>add</md-icon>
         </md-button>
           
-        <md-button class="md-icon-button  md-warn" @click="openDiag">
+        <md-button class="md-icon-button  md-warn" @click.native="openDiag">
           <md-icon>clear</md-icon>
         </md-button>
 
-        <md-button class="md-icon-button" @click="controlProjectStatus($event, 1)">
+        <md-button class="md-icon-button" @click.native="controlProjectStatus($event, 1)">
           <md-icon>play_arrow</md-icon>
         </md-button>
 
-        <md-button class="md-icon-button md-warn" @click="controlProjectStatus($event, 0)">
+        <md-button class="md-icon-button md-warn" @click.native="controlProjectStatus($event, 0)">
           <md-icon>stop_arrow</md-icon>
         </md-button>
 
-        <md-button class="md-icon-button" @click="buttonSearch">
+        <md-button class="md-icon-button" @click.native="buttonSearch">
           <md-icon>search</md-icon>
         </md-button>
       </md-toolbar>
@@ -74,7 +74,7 @@
       <md-toolbar class="md-dense" md-theme="md-menu">
         <h1 class="md-title app-toolbar-title" style="flex:1;text-align: left;" v-html="proj.title"></h1>
 
-        <md-button class="md-icon-button" @click="cancelVal('showProj')">
+        <md-button class="md-icon-button" @click.native="cancelVal('showProj')">
           取消
         </md-button>
       </md-toolbar>
@@ -129,7 +129,7 @@
         </md-input-container>
       </div>
        
-        <md-button class="md-primary" @click="submitProject">提交</md-button>     
+        <md-button class="md-primary" @click.native="submitProject">提交</md-button>     
     </md-whiteframe>
 
 
@@ -242,7 +242,6 @@
       // 获取信息
       getProject: function(option) {
         if (option) {
-          console.log(option);
           this.pageInfo.pageNo = option.page;
           this.pageInfo.pageSize = option.size;
         }

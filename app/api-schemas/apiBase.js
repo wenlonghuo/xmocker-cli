@@ -11,6 +11,7 @@ module.exports.getApiBase = {
   name: {
     type: 'string',
     noEmpty: true,
+    cname: '名称列表',
   },
   project: {
     type: 'string',
@@ -25,6 +26,27 @@ module.exports.getApiBase = {
     required: true,
   },
 }
+
+module.exports.searchApiBase = {
+  words: {
+    type: 'string',
+    noEmpty: true,
+  },
+  project: {
+    type: 'string',
+    noEmpty: true,
+  },
+  pageSize: {
+    type: 'number',
+    required: true,
+  },
+  pageNo: {
+    type: 'number',
+    required: true,
+  },
+}
+
+
 
 module.exports.addApiBase = {
   url: {

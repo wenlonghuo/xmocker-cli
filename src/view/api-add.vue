@@ -20,7 +20,7 @@
         </md-input-container>
       </div>
        
-        <md-button class="md-primary" @click="buttonSubmit()">提交</md-button>     
+        <md-button class="md-primary" @click.native="buttonSubmit()">提交</md-button>     
     </md-whiteframe>
 
     <md-whiteframe v-for="(model, mIndex) in formModel.apiModel" md-elevation="10" class="app-project-show" :key="mIndex">
@@ -63,10 +63,10 @@
 
       </div>
        
-      <md-button class="md-primary" @click="buttonSubmit($event, mIndex)">提交</md-button>     
+      <md-button class="md-primary" @click.native="buttonSubmit($event, mIndex)">提交</md-button>     
     </md-whiteframe>
     <div class="m-api-add-button">
-      <md-button class="md-accent m-api-add-new" @click="buttonAddNew">新建分支</md-button>     
+      <md-button class="md-accent m-api-add-new" @click.native="buttonAddNew">新建分支</md-button>     
     </div>
 
 

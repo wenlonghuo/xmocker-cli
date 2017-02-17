@@ -132,8 +132,8 @@
 
         </div>
         
-      <md-button class="md-primary" @click="buttonUpload">上传选中api</md-button>
-      <md-button class="md-primary" @click="buttonDownload">下载选中api</md-button>
+      <md-button class="md-primary" @click.native="buttonUpload">上传选中api</md-button>
+      <md-button class="md-primary" @click.native="buttonDownload">下载选中api</md-button>
       </md-whiteframe>
     </div>
 

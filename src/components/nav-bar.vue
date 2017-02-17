@@ -4,14 +4,7 @@
 
       <md-button href="/#/">首页</md-button>
 
-      <md-menu md-align-trigger>
-        <md-button md-menu-trigger>api管理</md-button>
-
-        <md-menu-content>
-          <md-menu-item @click.native="navTo($event,'api-list')">api列表</md-menu-item>
-          <md-menu-item @click.native="navTo($event,'api-add')">添加api</md-menu-item>
-        </md-menu-content>
-      </md-menu>
+      <md-button md-menu-trigger href="/#/api">API列表</md-button>
 
       <md-button href="/#/projectList/">项目管理</md-button>
 

@@ -36,10 +36,10 @@
           </md-card-content>
 
           <md-card-actions>
-            <md-button class="md-icon-button" @click="restartProj($event, item.procInfo._id)" md-tooltip="重启">
+            <md-button class="md-icon-button" @click.native="restartProj($event, item.procInfo._id)" md-tooltip="重启">
               <md-icon>refresh</md-icon>
             </md-button>
-            <md-button @click="showList($event, item)" v-if="item.procInfo.urls && item.procInfo.urls.length">
+            <md-button @click.native="showList($event, item)" v-if="item.procInfo.urls && item.procInfo.urls.length">
               查看url列表
             </md-button>
           </md-card-actions>

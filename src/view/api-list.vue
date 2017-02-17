@@ -1,20 +1,52 @@
 <template>
   <div>
-    <md-whiteframe md-elevation="1" class="app-project-show m-api-title">
-      <div class="field-group">
-         <h1 class="md-title app-toolbar-title">api列表</h1>
+    <div class="m-api-list-speeddial">
+      <md-button class="md-fab md-primary" @click.native="chooseProj">
+        <md-icon>swap_horiz</md-icon>
+        <md-tooltip md-direction="top">切换项目</md-tooltip>
+      </md-button>
+      <md-button class="md-fab md-primary" @click.native="showSearch">
+        <md-icon>search</md-icon>
+        <md-tooltip md-direction="top">搜索</md-tooltip>
+      </md-button>
+      <md-button class="md-fab md-primary" href="/#/apiAdd">
+        <md-icon>add</md-icon>
+        <md-tooltip md-direction="top">添加API</md-tooltip>
+      </md-button>
+      <md-button class="md-fab md-primary" @click.native="buttonNav($event, -1)">
+        <md-icon>navigate_before</md-icon>
+        <md-tooltip md-direction="top">上一页</md-tooltip>
+      </md-button>
+      <md-button class="md-fab md-primary" @click.native="buttonNav($event, 1)">
+        <md-icon>navigate_next</md-icon>
+        <md-tooltip md-direction="top">下一页</md-tooltip>
+      </md-button>
+    </div>
 
-        <md-input-container class="m-choose-project">
-          <label>切换项目</label>
-          <md-select name="proj" id="proj" v-model="selection.proj" @change="buttonSelectProj">
-            <md-option v-for="proj in projList" :value="proj._id">{{proj.name}}</md-option>
-          </md-select>
-        </md-input-container>
+    <div class="m-api-list-search" v-if="show.search">
+      <md-input-container>
+        <md-icon class="md-warn">
+          search
+        </md-icon>
+        <label>输入关键字进行搜索</label>
+        <md-input type="search" v-model="selection.search" @change="inputSearch"></md-input>
+      </md-input-container>
+    </div>
+
+    <div class="m-api-list-choose-proj" v-if="show.proj">
+      <div class="m-api-list-choose-proj-box">
+        <h3>切换项目</h3>
+        <md-list @click.native="setSelectionVal">
+          <md-list-item class="m-api-list-selection" href="javascript:;" v-for="proj in projList" :data-id="proj._id" :data-name="proj.name">
+            <md-icon class="md-primary" v-show="selection.proj === proj._id">check</md-icon>
+            <span>{{proj.name}}</span>
+          </md-list-item>
+        </md-list>
       </div>
-       
-         
-    </md-whiteframe>
+    </div>
+
     <div class="m-api-card-list">
+      <h1 class="md-title app-toolbar-title">API列表 -- {{selection.projName}}</h1>
       <md-card md-with-hover v-for="item in apiList" class="m-api-list">
         <md-card-header>
           <md-card-header-text>
@@ -22,33 +54,41 @@
             <div class="md-subhead">{{item.method.toUpperCase()}} --> {{item.url}}</div>
           </md-card-header-text>
         </md-card-header>
-          
-        <md-card-content>
-          {{item.description}}
+        <md-card-area md-inset>
+
+          <md-card-content>
+            {{item.description}}
+          </md-card-content>
+        </md-card-area>
+        <md-card-content class="m-api-card-list-buttons">
+          <md-icon class="darkIcon">settings</md-icon>
+          <md-button-toggle md-single class="md-button-group">
+            <md-button @click.native="buttonSetApi($event, item._id, 'clear')">
+              清除
+              <md-tooltip md-direction="top">清除设置api的默认项，如错误、随机和固定值</md-tooltip>
+            </md-button>
+            <md-button @click.native="buttonSetApi($event, item._id, 'error')">
+              错误
+              <md-tooltip md-direction="top">设置api当前值为错误值</md-tooltip>
+            </md-button>
+            <md-button @click.native="buttonSetApi($event, item._id, 'random')">
+              随机
+              <md-tooltip md-direction="top">设置api当前值为随机值</md-tooltip>
+            </md-button>
+          </md-button-toggle>
         </md-card-content>
 
         <md-card-actions>
-          <md-button class="md-icon-button" @click="buttonSetApi($event, item._id, 'clear')">
-            <md-icon>undo</md-icon>
-            <md-tooltip md-direction="top">清除设置api的默认项，如错误、随机和固定值</md-tooltip>
-          </md-button>
-          <md-button class="md-icon-button" @click="buttonSetApi($event, item._id, 'error')">
-            <md-icon>error</md-icon>
-            <md-tooltip md-direction="top">设置api当前值为错误值</md-tooltip>
-          </md-button>
-          <md-button class="md-icon-button" @click="buttonSetApi($event, item._id, 'random')">
-            <md-icon>toys</md-icon>
-            <md-tooltip md-direction="top">设置api当前值为随机值</md-tooltip>
-          </md-button>
-          <md-button class="md-icon-button" @click="buttonCopyApi($event, item._id)">
+          
+          <md-button class="md-icon-button" @click.native="buttonCopyApi($event, item._id)">
             <md-icon>content_copy</md-icon>
             <md-tooltip md-direction="top">复制到其他项目</md-tooltip>
           </md-button>
-          <md-button class="md-icon-button" @click="buttondeleteApi($event, item)">
+          <md-button class="md-icon-button" @click.native="buttondeleteApi($event, item)">
             <md-icon>delete</md-icon>
             <md-tooltip md-direction="top">删除</md-tooltip>
           </md-button>
-          <md-button class="md-icon-button" @click="buttonEditApi($event, item._id)">
+          <md-button class="md-icon-button" @click.native="buttonEditApi($event, item._id)">
             <md-icon>mode_edit</md-icon>
             <md-tooltip md-direction="top">编辑</md-tooltip>
           </md-button>
@@ -101,16 +141,11 @@
             </div>
         </div>
         
-      <md-button class="md-primary" @click="buttonCloseCopy">关闭</md-button>
-      <md-button class="md-primary" @click="buttonSubmitCopy">提交</md-button>
+      <md-button class="md-primary" @click.native="buttonCloseCopy">关闭</md-button>
+      <md-button class="md-primary" @click.native="buttonSubmitCopy">提交</md-button>
       </md-whiteframe>
     </div>
       
-    <md-bottom-bar class="m-api-change-page">
-      <md-bottom-bar-item md-icon="navigate_before"  @click.native="buttonNav($event, -1)">上一页</md-bottom-bar-item>
-      <md-bottom-bar-item md-icon="navigate_next" md-active @click.native="buttonNav($event, 1)">下一页</md-bottom-bar-item>
-    </md-bottom-bar>
-
     <md-dialog-alert
       :md-content="alertInfo.content"
       md-ok-text="我知道了"
@@ -136,12 +171,16 @@
       return {
         selection: {
           proj:'',
+          projName: '',
           deleteId: '',
           copyApi: [],
-          copyProj: []
+          copyProj: [],
+          search: '',
         },
         show: {
           copy: false,
+          proj: false,
+          search: false,
         },
         projList: [
 
@@ -150,7 +189,7 @@
         pageInfo: {
           total: 0,
           pageNo: 0,
-          pageSize: 20,
+          pageSize: 10,
         },
         confirm: {
           title: '删除api',
@@ -170,6 +209,10 @@
         get: {
           method: 'GET',
           url: '/mock/getApiBase'
+        },
+        search: {
+          method: 'GET',
+          url: '/mock/searchApiBase'
         },
         delete: {
           method: 'DELETE',
@@ -204,7 +247,10 @@
           }
           // 设置到数据中
           this.projList = data.data.list;
-          this.selection.proj = this.$route.params.id || this.projList[0]._id;
+          var id = this.$route.params.id || window.localStorage.getItem('api-list-proj-id') || this.projList[0]._id
+          this.selection.proj = id;
+          var proj = this.projList.find(function(p){return p._id === id});
+          if(proj)this.selection.projName = proj.name
           if(this.selection.proj)this.getApiList();
         });
       },
@@ -215,6 +261,10 @@
           pageSize: this.pageInfo.pageSize,
           pageNo: this.pageInfo.pageNo
         };
+        var q =  this.$route.query || {};
+        if (q.name) {
+          param.name = q.name
+        }
         return this.app.get(param).then(function(data){
           data = data.data;
           if (data.code) {
@@ -224,6 +274,28 @@
           // 设置到数据中
           this.apiList = data.data.list;
           this.pageInfo.total = data.data.pagination.total;
+        });
+      },
+
+      searchApi: function(words){
+        var param = {
+          project: this.selection.proj,
+          words: words,
+          pageSize: 2000,
+          pageNo: 0
+        };
+        if(!words) {
+          this.getApiList()
+          return;
+        }
+        return this.app.search(param).then(function(data){
+          data = data.data;
+          if (data.code) {
+            this.alert(data.err);
+            return;
+          }
+          // 设置到数据中
+          this.apiList = data.data.list;
         });
       },
 
@@ -307,13 +379,46 @@
       },
 
       buttonSetApi: function(e, id, type){
-        this.app.setApi({type: type, id: id}).then(function () {
+        this.app.setApi({type: type, id: id}).then(function (data) {
           data = data.data;
           if (data.code) {
             this.alert(data.err);
             return;
           }
         })
+      },
+
+      showSearch: function (e) {
+        this.show.search = !this.show.search
+      },
+
+      inputSearch: function(e){
+        this.searchApi(e)
+      },
+      chooseProj: function () {
+        this.show.proj = true
+      },
+
+      setSelectionVal: function(e){
+        var item = this.getParentNode(e.target, 'm-api-list-selection')
+        var id = item.getAttribute('data-id')
+        if(id) {
+          this.selection.proj = id
+          this.selection.projName = item.getAttribute('data-name')
+          window.localStorage.setItem('api-list-proj-id', id)
+          this.buttonSelectProj()
+          this.show.proj = false
+        }
+      },
+
+      getParentNode: function (node, cname) {
+        var p = node
+        var classname = p.className
+        while(p && classname.indexOf(cname) < 0) {
+          p = p.parentNode
+          classname  = p.className || ''
+        }
+        return p
       },
 
        // 提示
@@ -385,7 +490,8 @@
   width: 100%;
   display: block;
   text-align: center;
-  padding-bottom: 60px;
+  padding: 10px 80px 10px 10px;
+
 }
 .m-api-move-module {
   position: fixed;
@@ -412,5 +518,58 @@
   margin: 20px 30px;
   text-align: justify;
   /*border: 1px solid #fefefe;*/
+}
+
+.m-api-list-speeddial {
+  position: fixed;
+  top: 50%;
+  right: 10px;
+  margin-top: -150px;
+  width: 80px;
+  height: 300px;
+  z-index: 2;
+}
+.m-api-list-choose-proj {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 4;
+  background-color: white;
+  display: flex;
+  align-items: center;
+}
+.m-api-list-choose-proj-box {
+ margin: 0 auto;
+ display: inline-block;
+ width: 300px;
+ overflow-x: hidden;
+ padding: 20px 20px;
+ overflow-y: auto;
+ border: 1px solid #efefef;
+ background-color: white;
+}
+.m-api-list-search {
+  position: fixed;
+  top: 64px;
+  left: 0;
+  width: 100%;
+  padding: 10px 50px;
+  box-shadow: 0px 2px 5px 1px #aeaeae;
+  background-color: white;
+  z-index: 4;
+}
+.m-api-list-search .md-input-container {
+  margin-bottom: 2px;
+}
+
+.m-api-card-list-buttons {
+  display: flex;
+}
+
+.darkIcon {
+  margin: 8px;
+  color: rgba(0, 0, 0, .54) !important;
 }
 </style>

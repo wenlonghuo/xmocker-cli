@@ -14,13 +14,13 @@
         </md-card-content>
 
         <md-card-actions>
-          <md-button class="md-icon-button" @click="buttonDownLoadBase($event, item.client)">
+          <md-button class="md-icon-button" @click.native="buttonDownLoadBase($event, item.client)">
             <md-icon>file_download</md-icon>
           </md-button>
-          <md-button class="md-icon-button" @click="buttonUpload($event, item.client)">
+          <md-button class="md-icon-button" @click.native="buttonUpload($event, item.client)">
             <md-icon>file_upload</md-icon>
           </md-button>
-          <md-button class="md-icon-button" @click="buttonEditApi($event, item.client)">
+          <md-button class="md-icon-button" @click.native="buttonEditApi($event, item.client)">
             <md-icon>folder_open</md-icon>
           </md-button>
         </md-card-actions>
@@ -41,7 +41,7 @@
         </md-card-content>
 
         <md-card-actions>
-          <md-button class="md-icon-button" @click="buttonDownLoadAll($event, item.server)">
+          <md-button class="md-icon-button" @click.native="buttonDownLoadAll($event, item.server)">
             <md-icon>file_download</md-icon>
           </md-button>
         </md-card-actions>
@@ -63,13 +63,13 @@
         </md-card-content>
 
         <md-card-actions>
-          <md-button class="md-icon-button" @click="buttonDownLoadBase($event, item.client)">
+          <md-button class="md-icon-button" @click.native="buttonDownLoadBase($event, item.client)">
             <md-icon>file_download</md-icon>
           </md-button>
-          <md-button class="md-icon-button" @click="buttonUpload($event, item.client)">
+          <md-button class="md-icon-button" @click.native="buttonUpload($event, item.client)">
             <md-icon>file_upload</md-icon>
           </md-button>
-          <md-button class="md-icon-button" @click="buttonEditApi($event, item.client)">
+          <md-button class="md-icon-button" @click.native="buttonEditApi($event, item.client)">
             <md-icon>folder_open</md-icon>
           </md-button>
         </md-card-actions>
@@ -91,7 +91,7 @@
         </md-card-content>
 
         <md-card-actions>
-          <md-button class="md-icon-button" @click="buttonDownLoadBase($event, item.client)">
+          <md-button class="md-icon-button" @click.native="buttonDownLoadBase($event, item.client)">
             <md-icon>file_download</md-icon>
           </md-button>
         </md-card-actions>
@@ -113,13 +113,13 @@
         </md-card-content>
 
         <md-card-actions>
-          <md-button class="md-icon-button" @click="buttonDownLoadBase($event, item.client)">
+          <md-button class="md-icon-button" @click.native="buttonDownLoadBase($event, item.client)">
             <md-icon>file_download</md-icon>
           </md-button>
-          <md-button class="md-icon-button" @click="buttonUpload($event, item.client)">
+          <md-button class="md-icon-button" @click.native="buttonUpload($event, item.client)">
             <md-icon>file_upload</md-icon>
           </md-button>
-          <md-button class="md-icon-button" @click="buttonEditApi($event, item.client)">
+          <md-button class="md-icon-button" @click.native="buttonEditApi($event, item.client)">
             <md-icon>folder_open</md-icon>
           </md-button>
         </md-card-actions>
@@ -141,13 +141,13 @@
         </md-card-content>
 
         <md-card-actions>
-          <md-button class="md-icon-button" @click="buttonDownLoadBase($event, item.client)">
+          <md-button class="md-icon-button" @click.native="buttonDownLoadBase($event, item.client)">
             <md-icon>file_download</md-icon>
           </md-button>
-          <md-button class="md-icon-button" @click="buttonUpload($event, item.client)">
+          <md-button class="md-icon-button" @click.native="buttonUpload($event, item.client)">
             <md-icon>file_upload</md-icon>
           </md-button>
-          <md-button class="md-icon-button" @click="buttonEditApi($event, item.client)">
+          <md-button class="md-icon-button" @click.native="buttonEditApi($event, item.client)">
             <md-icon>folder_open</md-icon>
           </md-button>
         </md-card-actions>
