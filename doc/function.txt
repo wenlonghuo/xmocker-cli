@@ -74,7 +74,7 @@ api同步：
   child: 类型为object或array类型时，内置下一层数据  
 
 输出参数定义
-  type: 类型，支持 number, string, boolean, object, array,
+  type: 类型，支持 number, string, boolean, object, array, fixed
   required: 是否必传
   noEmpty: 是否不能为空，字符串类型
   name: 参数名称
@@ -85,3 +85,4 @@ api同步：
   specialValue: 只允许bool值，特殊值，允许null, undefined, NaN等特殊值
   default: 默认值，生成即时显示数据，原始类型具有该值
   child: 类型为object或array类型时，内置下一层数据  
+  faker: 指定为faker的类型，字符串，以.隔开

@@ -30,21 +30,27 @@
         <md-card-actions>
           <md-button class="md-icon-button" @click="buttonSetApi($event, item._id, 'clear')">
             <md-icon>undo</md-icon>
+            <md-tooltip md-direction="top">清除设置api的默认项，如错误、随机和固定值</md-tooltip>
           </md-button>
           <md-button class="md-icon-button" @click="buttonSetApi($event, item._id, 'error')">
             <md-icon>error</md-icon>
+            <md-tooltip md-direction="top">设置api当前值为错误值</md-tooltip>
           </md-button>
           <md-button class="md-icon-button" @click="buttonSetApi($event, item._id, 'random')">
             <md-icon>toys</md-icon>
+            <md-tooltip md-direction="top">设置api当前值为随机值</md-tooltip>
           </md-button>
           <md-button class="md-icon-button" @click="buttonCopyApi($event, item._id)">
             <md-icon>content_copy</md-icon>
+            <md-tooltip md-direction="top">复制到其他项目</md-tooltip>
           </md-button>
           <md-button class="md-icon-button" @click="buttondeleteApi($event, item)">
             <md-icon>delete</md-icon>
+            <md-tooltip md-direction="top">删除</md-tooltip>
           </md-button>
           <md-button class="md-icon-button" @click="buttonEditApi($event, item._id)">
             <md-icon>mode_edit</md-icon>
+            <md-tooltip md-direction="top">编辑</md-tooltip>
           </md-button>
         </md-card-actions>
       </md-card>

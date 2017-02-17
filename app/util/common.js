@@ -44,7 +44,75 @@ function killPort (port) {
   })
 }
 
+function getDeepVal (obj, str) {
+  if (typeof obj !== 'object' || typeof str !== 'string') return
+  let arr = str.split('.')
+  let val = obj
+  for (let i = 0; i < arr.length; i++) {
+    val = val[arr[i]]
+    if (typeof val !== 'object' && i !== arr.length - 1) return
+  }
+  return val
+}
+
+
+// 生成随机字符串
+
+let codeDirecory = {
+  punctuation: [
+    [32, 15],
+    [58, 6],
+    [91, 5],
+    [123, 3],
+    [160, 31],
+    [215, 0],
+    [247, 0],
+  ],
+  number: [
+    [48, 0],
+  ],
+  letter: [
+    [65, 25],
+    [97, 25],
+  ],
+  chinese: [
+    [19968, 20941],
+  ],
+}
+
+function randomCode (len = 10, type = ['letter', 'chinese', 'number', 'punctuation']) {
+  let i = 0
+  let str = ''
+  let base, range, order, arr, lower
+  let typeLen = type.length - 1
+  if (typeLen < 0) {
+    return ''
+  }
+
+  while (i < len) {
+    i++
+    order = Math.round(Math.random() * typeLen)
+    arr = codeDirecory[type[order]] || codeDirecory.letter
+
+    let randomInfo
+    let randomLen = arr.length - 1
+
+    if (randomLen > 0) {
+      randomInfo = arr[Math.round(Math.random() * randomLen)]
+    } else {
+      randomInfo = arr[0]
+    }
+    base = randomInfo[0]
+    range = randomInfo[1]
+    lower = parseInt(Math.random() * range)
+    str += String.fromCharCode(base + lower)
+  }
+  return str
+}
+
 module.exports = {
   uid: uid,
   killPort: killPort,
+  getDeepVal: getDeepVal,
+  randomCode: randomCode,
 }

@@ -1,18 +1,17 @@
 'use strict'
 const minimist = require('minimist')
+const faker = require('faker')
 
 const db = require('../db')
-const apiModel = db.apiModel
-// const mockHis = db.mockHis
-
-const apiBase = db.apiBase
-// const appBase = db.appBase
-// const appProject = db.appProject
-
-// const funcToString = Function.prototype.toString
 const util = require('../util')
+const common = require('../util/common')
 const argv = minimist(process.argv.slice(2))
+
+const apiModel = db.apiModel
+const apiBase = db.apiBase
 const formatEntranceParam = util.formatEntranceParam
+const getDeepVal = common.getDeepVal
+const randomCode = common.randomCode
 
 module.exports = {
   getApi: sendApiData,
@@ -24,8 +23,6 @@ module.exports = {
   setApiStatus: setApiStatus,
   getValStatus: getValStatus,
 }
-
-// let appConfig, projectConfig
 
 let projectId = argv.projectId || ''
 let apiList
@@ -42,6 +39,7 @@ async function getProjectApiList (ctx, next) {
       return resError(ctx, '后台错误')
     }
   }
+  // 查询api
   let url = ctx.path
   let method = ctx.method
   let apiItem
@@ -50,22 +48,17 @@ async function getProjectApiList (ctx, next) {
   if (apiList.length) {
     for (let i = 0; i < apiList.length; i++) {
       api = apiList[i]
+      // 判断 url 和 method 是否相等
       if (api.url !== url || api.method.toUpperCase() !== method) continue
+      // api 的path不存在，当名称和url相等时自动判断为当前url
       if (!api.path) {
         if (api.name === url) {
           apiItem = api
           break
         }
       } else {
-        let paramArr = api.path.split('.')
-        let urlName, i
-        urlName = params
-        for (i = 0; i < paramArr.length; i++) {
-          let n = paramArr[i]
-          if (!urlName[n]) break
-          urlName = urlName[n]
-        }
-        if (i >= paramArr.length && urlName === api.name) {
+        let urlName = getDeepVal(params, api.path)
+        if (urlName !== undefined && urlName === api.name) {
           apiItem = api
           break
         }
@@ -95,11 +88,13 @@ async function getProjectApiList (ctx, next) {
 async function sendApiData (ctx, next) {
   if (!ctx.is('application/x-www-form-urlencoded')) return next()
 
-  let reqApiModel = ctx.apiInfo.apiModel
-  let reqApiBase = ctx.apiInfo.apiBase
-  let params = ctx.apiInfo.params
+  let apiInfo = ctx.apiInfo || {}
+  let reqApiModel = apiInfo.apiModel
+  let reqApiBase = apiInfo.apiBase
+  let params = apiInfo.params
   let data
 
+  // 特殊状态查询
   let cApiStatus = apiStatus[reqApiBase._id]
   if (cApiStatus) {
     if (cApiStatus.code === 3) {
@@ -110,25 +105,27 @@ async function sendApiData (ctx, next) {
     }
   }
 
-  let defaultApi, i, api, noData
+  let defaultModel, i, model, noData
   let conditionFunction, result, dealedParams
   let paramsArr = []
 
   // 获取不同条件的api
   for (i = 0; i < reqApiModel.length; i++) {
-    api = reqApiModel[i]
-    let condition = api.condition || ''
+    model = reqApiModel[i]
+    let condition = model.condition || ''
     // 条件为空时设置为默认值
     if (condition === '') {
-      defaultApi = api
+      defaultModel = model
       continue
     }
 
     try {
       if (condition.indexOf('return') < 0) condition = 'return ' + condition
 
-      dealedParams = formatEntranceParam(params, api.inputParam)
+      // 格式化输入参数
+      dealedParams = formatEntranceParam(params, model.inputParam)
       if (dealedParams._err) return resError(ctx, dealedParams._err)
+
       let keys = Object.keys(dealedParams)
       keys.forEach(function (key) {
         paramsArr.push(dealedParams[key])
@@ -138,25 +135,12 @@ async function sendApiData (ctx, next) {
 
       conditionFunction = new Function(...keys)
     } catch (e) {
-      sendErrorMsg(ctx, {
-        data: 'api分支判断条件函数不合法：' + condition,
-        level: 6,
-        apiId: reqApiBase._id,
-        api: reqApiBase.name,
-        apiModelId: api._id,
-        apiModel: api.name,
-        req: {
-          params: params,
-          url: ctx.url,
-          method: ctx.method,
-        },
-        reqParsed: dealedParams,
-        res: null,
-        err: {
-          msg: String(e),
-          stack: String(e.stack),
-        },
-        additional: null,
+      sendErrorMsg(ctx, 'api分支判断条件函数不合法：' + condition, {
+        base: reqApiBase,
+        model: model,
+        params: params,
+        dealedParams: dealedParams,
+        e: e,
       })
       continue
     }
@@ -165,79 +149,53 @@ async function sendApiData (ctx, next) {
     try {
       result = conditionFunction.apply(ctx, paramsArr)
     } catch (e) {
-      sendErrorMsg(ctx, {
-        data: 'api分支执行判断条件的函数时出现错误：' + condition,
-        level: 6,
-        apiId: reqApiBase._id,
-        api: reqApiBase.name,
-        apiModelId: api._id,
-        apiModel: api.name,
-        req: {
-          params: params,
-          url: ctx.url,
-          method: ctx.method,
-        },
-        reqParsed: dealedParams,
-        res: null,
-        err: {
-          msg: String(e),
-          path: 'app/mockapp/controller/sendApiData',
-        },
-        additional: null,
+      sendErrorMsg(ctx, 'api分支执行判断条件的函数时出现错误：' + condition, {
+        base: reqApiBase,
+        model: model,
+        params: params,
+        dealedParams: dealedParams,
+        e: e,
       })
       continue
     }
 
     if (result) {
-      data = api.data[0]
+      data = model.data[0]
       break
     }
   }
 
-  if (i >= reqApiModel.length && defaultApi) {
-    api = defaultApi || {}
+  if (i >= reqApiModel.length && defaultModel) {
+    model = defaultModel || {}
     if (!dealedParams) {
-      dealedParams = formatEntranceParam(params, api.inputParam)
+      dealedParams = formatEntranceParam(params, model.inputParam)
       if (dealedParams._err) return resError(ctx, dealedParams._err)
     }
-    let apiData = api.data || []
+    let apiData = model.data || []
     data = apiData[0] || {}
-  } else if (i >= reqApiModel.length && !defaultApi) {
+  } else if (i >= reqApiModel.length && !defaultModel) {
     noData = true
   }
 
   if (cApiStatus && cApiStatus.code === 1) {
-    data = setKeys(api.outputParam)
+    data = setKeys(model.outputParam)
   }
 
+  // 保存至历史记录
   if (!noData) {
-    sendHisData(ctx, {
-      data: '获取api数据成功：' + reqApiBase.name,
-      level: 8,
-      apiId: reqApiBase._id,
-      api: reqApiBase.name,
-      apiModelId: api._id,
-      apiModel: api.name,
-      req: {
-        params: params,
-        url: ctx.url,
-        method: ctx.method,
-      },
-      reqParsed: dealedParams,
+    sendHisData(ctx, '获取api数据成功：' + reqApiBase.name, {
+      base: reqApiBase,
+      model: model,
+      params: params,
+      dealedParams: dealedParams,
       res: data,
     })
   } else {
-    sendHisData(ctx, {
-      data: '获取api数据失败：' + reqApiBase.name,
-      level: 8,
-      apiId: reqApiBase._id,
-      api: reqApiBase.name,
-      req: {
-        params: params,
-        url: ctx.url,
-        method: ctx.method,
-      },
-      reqParsed: dealedParams,
+    sendHisData(ctx, '获取api数据失败：' + reqApiBase.name, {
+      base: reqApiBase,
+      model: model,
+      params: params,
+      dealedParams: dealedParams,
       res: data,
     })
   }
@@ -280,34 +238,29 @@ function setKeys (obj) {
 }
 
 function generateData (option) {
-  let type = option._type || 'string'
+  let type = option.type || 'string'
+  if (option.faker) {
+    let func = getDeepVal(faker, option.faker)
+    if (typeof func === 'function') return func()
+  }
+  let max = option.max == null ? 200 : ~~option.max
+  let min = ~~option.min || 0
+  let range = max - min
+  let len = Math.round(Math.random() * range) + min
+
   if (type === 'string') {
-    let len = Math.round(Math.random() * 200)
-    return len
+    return randomCode(len)
   } else if (type === 'number') {
-    return Math.random() * 10000
+    return Math.round(Math.random() * range) + min
   } else if (type === 'boolean') {
     return true
+  } else if (type === 'fixed') {
+    return option.default
   } else {
     return null
   }
 }
-// 生成随机字符串
 
-function sendErrorMsg (ctx, data) {
-  let msg = {
-    _type: 'error',
-    time: +new Date(),
-    args: {
-      port: argv.port,
-      fsPath: argv.fileServerPath,
-    },
-    projectId: argv.projectId,
-    project: argv.projectName,
-  }
-  msg = Object.assign(msg, data)
-  process.send(msg)
-}
 /**
  * 日志记录。包含内容
  * _type: 'out'
@@ -327,7 +280,46 @@ function sendErrorMsg (ctx, data) {
  * err: 错误详细信息
  * additional: 其他参数
  */
-function sendHisData (ctx, data) {
+function sendErrorMsg (ctx, data, option = {}) {
+  let base = option.base || {}
+  let model = option.model || {}
+  let e = option.e || {}
+
+  let msg = {
+    _type: 'error',
+    time: +new Date(),
+    args: {
+      port: argv.port,
+      fsPath: argv.fileServerPath,
+    },
+    projectId: argv.projectId,
+    project: argv.projectName,
+    data: data,
+    level: 6,
+    apiId: base._id,
+    api: base.name,
+    apiModelId: model._id,
+    apiModel: model.name,
+    req: {
+      params: option.params,
+      url: ctx.url,
+      method: ctx.method,
+    },
+    reqParsed: option.dealedParams,
+    res: option.res,
+    err: {
+      msg: String(e),
+      stack: String(e.stack),
+    },
+    additional: option.additional,
+  }
+
+  process.send(msg)
+}
+function sendHisData (ctx, data, option = {}) {
+  let base = option.base || {}
+  let model = option.model || {}
+
   let msg = {
     _type: 'his',
     time: +new Date(),
@@ -337,6 +329,19 @@ function sendHisData (ctx, data) {
     },
     projectId: argv.projectId,
     project: argv.projectName,
+    data: data,
+    level: 8,
+    apiId: base._id,
+    api: base.name,
+    apiModelId: model._id,
+    apiModel: model.name,
+    req: {
+      params: option.params,
+      url: ctx.url,
+      method: ctx.method,
+    },
+    reqParsed: option.dealedParams,
+    res: option.res,
   }
   msg = Object.assign(msg, data)
   process.send(msg)
@@ -363,6 +368,7 @@ function formatError (msg) {
 // 重启数据库
 function reloadDatabase (msg) {
   let data = msg.data || []
+  apiList = undefined
   if (!data.length) {
     Object.keys(db).forEach((key) => {
       db[key].loadDatabase()
@@ -389,3 +395,4 @@ function setApiStatus (msg) {
 function getValStatus (msg) {
 
 }
+
