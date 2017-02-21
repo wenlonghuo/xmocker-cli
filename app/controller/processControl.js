@@ -163,14 +163,16 @@ function startMockServer (proc, option) {
   if (proc.gulp && proc.gulp.buildPath) {
     fPath = path.join(fPath, proc.gulp.buildPath)
   }
-  param.push('--fileServerPath="' + (fPath || '') + '\\"')
+  param.push('--fileServerPath="' + convertCode(fPath) + '"')
 
   param.push('--projectId="' + (proc._id || '') + '"')
 
   param.push('--projectName="' + (proc.name || '') + '"')
 
+  param.push('--repeatTime=' + (proc.repeatTime || '0') + '')
+
   let error = JSON.stringify(proc.error) || ''
-  param.push('--errorModel="' + (error.replace(/"/g, '\\"') || '') + '"')
+  param.push('--errorModel="' + convertCode(error) + '"')
 
   // 服务器
   let startArgs = ['--harmony-async-await', path.join(__dirname, '../mockapp'), ...param]
@@ -262,15 +264,15 @@ function startGulp (proc, option = { force: false }) {
   if (!gOption.html) return
   let params = []
   for (let key in gOption) {
-    params.push('--' + key + '="' + gOption[key] + '"')
+    params.push('--' + key + '="' + convertCode(gOption[key]) + '"')
   }
 
-  params.push('--root=' + proc.path)
+  params.push('--root="' + convertCode(proc.path) + '"')
 
   let gulpPath = gOption.path || path.join(__dirname, '../../tools/gulp')
   gulpPath = path.join(gulpPath, './node_modules/.bin')
-  let cmdGulp = './gulp'
-  if (ostype === 'win32')cmdGulp = 'gulp'
+  let cmdGulp = '/bin/sh ./gulp'
+  if (ostype === 'win32')cmdGulp = 'gulp.cmd'
   let gulpServer = spawn(cmdGulp, [proc.task || 'dev', ...params], {
     stdio: 'pipe',
     shell: true,
@@ -293,6 +295,11 @@ function sendMsg (id, msg) {
   if (proj && proj.server && proj.server.connected) {
     proj.server.send(msg)
   }
+}
+
+function convertCode (param) {
+  let p = param || ''
+  return p.replace(/\\/g, '\\\\').replace(/"/g, '\\"')
 }
 
 module.exports = {

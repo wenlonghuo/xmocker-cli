@@ -161,14 +161,14 @@
 <script>
   import tbPagination from '../components/tab-pagination.vue'
 
-  var errorMsg = JSON.stringify({code: -1, codeDesc:"${msg}", codeDescUser:"${msg}"}, null, 2)
+  var errorMsg = JSON.stringify({code: -1, codeDesc: '${msg}', codeDescUser: '${msg}'}, null, 2)
 
   export default {
     name: 'projectList',
     components: {
-      tbPagination: tbPagination
+      tbPagination: tbPagination,
     },
-    data: function() {
+    data: function () {
       return {
         showSearch: false,
         showProj: false,
@@ -177,8 +177,8 @@
         ],
         selectedItem: [],
         proj: {
-          type: "add",
-          title: "新增项目",
+          type: 'add',
+          title: '新增项目',
           model: {
             _id: '',
             name: '',
@@ -188,9 +188,9 @@
             error: errorMsg,
             repeatTime: 5,
             urls: [],
-            gulp:{},
-            webpack: {},
-          }
+            gulp: '',
+            webpack: '',
+          },
         },
         deleteInfo: {
           title: '删除项目',
@@ -204,209 +204,209 @@
           pageNo: 1,
           pageSize: 5,
         },
-      };
+      }
     },
-    created: function() {
+    created: function () {
       this.app = this.$resource('', {}, {
         get: {
           method: 'GET',
-          url: '/mock/getAppProject'
+          url: '/mock/getAppProject',
         },
         add: {
           method: 'POST',
-          url: '/mock/addAppProject'
+          url: '/mock/addAppProject',
         },
         edit: {
           method: 'PUT',
-          url: '/mock/editAppProject'
+          url: '/mock/editAppProject',
         },
         delete: {
           method: 'DELETE',
-          url: '/mock/deleteAppProject'
+          url: '/mock/deleteAppProject',
         },
         start: {
           method: 'PUT',
-          url: '/mock/startAppProject'
+          url: '/mock/startAppProject',
         },
         stop: {
           method: 'PUT',
-          url: '/mock/stopAppProject'
+          url: '/mock/stopAppProject',
         },
-      });
+      })
     },
-    mounted: function() {
-      this.getProject();
+    mounted: function () {
+      this.getProject()
     },
     methods: {
       // 服务器交互
       // 获取信息
-      getProject: function(option) {
+      getProject: function (option) {
         if (option) {
-          this.pageInfo.pageNo = option.page;
-          this.pageInfo.pageSize = option.size;
+          this.pageInfo.pageNo = option.page
+          this.pageInfo.pageSize = option.size
         }
         var param = {
           pageSize: this.pageInfo.pageSize,
-          pageNo: this.pageInfo.pageNo - 1
-        };
+          pageNo: this.pageInfo.pageNo - 1,
+        }
 
-        return this.app.get(param).then(function(res) {
-          var data = res.data;
+        return this.app.get(param).then(function (res) {
+          var data = res.data
           if (data.code) {
-            this.alert(data.err);
-            return;
+            this.alert(data.err)
+            return
           }
           // 设置到数据中
           this.dealModelResult(data.data.list)
-          this.list = data.data.list;
+          this.list = data.data.list
           this.pageInfo = {
             total: data.data.pagination.total,
             pageNo: data.data.pagination.pageNo + 1,
-            pageSize: param.pageSize
-          };
-        });
+            pageSize: param.pageSize,
+          }
+        })
       },
       // 添加项目
-      addProject: function() {
-        var param = this.copyObj({}, this.proj.model);
-        var model = this.proj.model;
-        var gulp = this.formatJSONString(model.gulp);
-        var webpack = this.formatJSONString(model.webpack);
-        var error = this.formatJSONString(model.error);
-        var urls = this.formatJSONString(model.urls);
+      addProject: function () {
+        var param = this.copyObj({}, this.proj.model)
+        var model = this.proj.model
+        var gulp = this.formatJSONString(model.gulp)
+        var webpack = this.formatJSONString(model.webpack)
+        var error = this.formatJSONString(model.error)
+        var urls = this.formatJSONString(model.urls)
 
-        if(!gulp){
-          this.alert('gulp配置格式不正确');
-          return;
-        }else if(!webpack){
-          this.alert('webpack配置格式不正确');
-          return;
-        } else if(!error){
-          error = undefined;
+        if (!gulp) {
+          this.alert('gulp配置格式不正确')
+          return
+        } else if (!webpack) {
+          this.alert('webpack配置格式不正确')
+          return
+        } else if (!error) {
+          error = undefined
         }
 
-        param.gulp = gulp;
-        param.webpack = webpack;
-        param.error = error;
-        param.urls = urls;
+        param.gulp = gulp
+        param.webpack = webpack
+        param.error = error
+        param.urls = urls
 
-        return this.app.add(param);
+        return this.app.add(param)
       },
       // 编辑项目
-      editProject: function() {
-        var param = this.copyObj({}, this.proj.model);
-        var model = this.proj.model;
-        var gulp = this.formatJSONString(model.gulp);
-        var webpack = this.formatJSONString(model.webpack);
-        var error = this.formatJSONString(model.error);
-        var urls = this.formatJSONString(model.urls);
+      editProject: function () {
+        var param = this.copyObj({}, this.proj.model)
+        var model = this.proj.model
+        var gulp = this.formatJSONString(model.gulp)
+        var webpack = this.formatJSONString(model.webpack)
+        var error = this.formatJSONString(model.error)
+        var urls = this.formatJSONString(model.urls)
 
-        if(!gulp){
-          this.alert('gulp配置格式不正确');
-          return;
-        }else if(!webpack){
-          this.alert('webpack配置格式不正确');
-          return;
-        } else if(!error){
-          error = undefined;
+        if (!gulp) {
+          this.alert('gulp配置格式不正确')
+          return
+        } else if (!webpack) {
+          this.alert('webpack配置格式不正确')
+          return
+        } else if (!error) {
+          error = undefined
         }
 
-        param.gulp = gulp;
-        param.webpack = webpack;
-        param.error = error;
-        param.urls = urls;
-        param.id = param._id;
-        return this.app.edit(param);
+        param.gulp = gulp
+        param.webpack = webpack
+        param.error = error
+        param.urls = urls
+        param.id = param._id
+        return this.app.edit(param)
       },
       // 删除项目
-      deleteProject: function(ids) {
+      deleteProject: function (ids) {
         var param = {
-          id: ids
-        };
-        return this.app.delete(param);
+          id: ids,
+        }
+        return this.app.delete(param)
       },
-      startProject: function(ids) {
+      startProject: function (ids) {
         var param = {
-          id: ids
-        };
-        return this.app.start(param);
+          id: ids,
+        }
+        return this.app.start(param)
       },
-      stopProject: function(ids) {
+      stopProject: function (ids) {
         var param = {
-          id: ids
-        };
-        return this.app.stop(param);
+          id: ids,
+        }
+        return this.app.stop(param)
       },
 
       // 提示
-      alert: function(msg) {
-        this.$set(this.alertInfo, 'content', msg);
+      alert: function (msg) {
+        this.$set(this.alertInfo, 'content', msg)
         // this.alertInfo.content = msg
-        this.$refs['alertInfo'].open();
+        this.$refs['alertInfo'].open()
       },
-      
-      selectTable: function(e) {
-        
+
+      selectTable: function (e) {
+
       },
       // 搜索按钮点击显示
-      buttonSearch: function(e) {
-        this.showSearch = true;
+      buttonSearch: function (e) {
+        this.showSearch = true
       },
-      closeDialog: function(ref) {
-        this.$refs[ref].close();
+      closeDialog: function (ref) {
+        this.$refs[ref].close()
       },
       // 删除弹窗
-      openDiag: function(ref) {
-        var inlineItems = this.getSelected(), itemArr = [];
+      openDiag: function (ref) {
+        var inlineItems = this.getSelected()
+        var itemArr = []
 
         if (!inlineItems.length) {
-          this.alert('请至少选择一个项目');
-          return;
+          this.alert('请至少选择一个项目')
+          return
         }
 
         for (var i = 0; i < inlineItems.length; i++) {
-          itemArr.push('&nbsp;' + (i + 1) + '. ' + inlineItems[i].name);
+          itemArr.push('&nbsp;' + (i + 1) + '. ' + inlineItems[i].name)
         }
 
-        this.deleteInfo.contentHtml = "是否删除以下条目？<br/>" + itemArr.join('<br/>');
-        this.$refs['deleteDiag'].open();
+        this.deleteInfo.contentHtml = '是否删除以下条目？<br/>' + itemArr.join('<br/>')
+        this.$refs['deleteDiag'].open()
       },
-      deleteDiagClose: function(e) {
+      deleteDiagClose: function (e) {
         if (e === 'ok') {
-          var ids = this.selectedItem.map(function(item) {
+          var ids = this.selectedItem.map(function (item) {
             return item._id
-          });
+          })
 
-          this.deleteProject(ids.join(',')).then(function(data) {
-            data = data.data;
-            this.getProject();
-            this.alert(data.err || data.data.tip);
-          }).catch(this.catchError);
+          this.deleteProject(ids.join(',')).then(function (data) {
+            data = data.data
+            this.getProject()
+            this.alert(data.err || data.data.tip)
+          }).catch(this.catchError)
         }
       },
-      controlProjectStatus: function(e, type) {
-        var inlineItems = this.getSelected();
-        var ids = inlineItems.map(function(item) {
-            return item._id
-          });
-        var req;
-        if(type){
+      controlProjectStatus: function (e, type) {
+        var inlineItems = this.getSelected()
+        var ids = inlineItems.map(function (item) {
+          return item._id
+        })
+        var req
+        if (type) {
           req = this.startProject(ids.join(','))
         } else {
-          req = this.stopProject(ids.join(','));
+          req = this.stopProject(ids.join(','))
         }
-        req.then(function(data) {
-          data = data.data;
-          this.getProject();
-          this.alert(data.err || data.data.tip);
-        }).catch(this.catchError);
-        
+        req.then(function (data) {
+          data = data.data
+          this.getProject()
+          this.alert(data.err || data.data.tip)
+        }).catch(this.catchError)
       },
       // 编辑或新增操作
-      dealProject: function(e, type) {
+      dealProject: function (e, type) {
         if (type === 'add') {
-          this.$set(this.proj, 'type', 'add');
-          this.$set(this.proj, 'title', '新增项目');
+          this.$set(this.proj, 'type', 'add')
+          this.$set(this.proj, 'title', '新增项目')
           this.proj.model = {
             id: '',
             name: '',
@@ -416,99 +416,99 @@
             error: errorMsg,
             gulp: {},
             webpack: {},
-          };
-
+          }
         } else if (type === 'edit') {
-          this.$set(this.proj, 'type', 'edit');
-          this.$set(this.proj, 'title', '编辑项目');
+          this.$set(this.proj, 'type', 'edit')
+          this.$set(this.proj, 'title', '编辑项目')
         }
-        this.showProj = true;
+        this.showProj = true
       },
-      cancelVal: function(name) {
-        this[name] = false;
+      cancelVal: function (name) {
+        this[name] = false
       },
       // 编辑或新增后提交
-      submitProject: function(e) {
-        var result;
+      submitProject: function (e) {
+        var result
         if (this.proj.type === 'add') {
-          result = this.addProject();
+          result = this.addProject()
         } else if (this.proj.type === 'edit') {
-          result = this.editProject();
+          result = this.editProject()
         }
-        if(result)result.then(function(data) {
-          data = data.data;
-          if (!data.code) {
-            this.showProj = false;
-          }
-          this.getProject();
-          if (data.err) this.alert(data.err);
-        }).catch(this.catchError);
+        if (result) {
+          result.then(function (data) {
+            data = data.data
+            if (!data.code) {
+              this.showProj = false
+            }
+            this.getProject()
+            if (data.err) this.alert(data.err)
+          }).catch(this.catchError)
+        }
       },
       // 编辑按钮事件
-      buttonEdit: function(e) {
-        var id = e.target.getAttribute('data-id');
-        if (!id) return;
-        let r = this.list.find(function(li) {
-          return li._id === id;
-        });
-        if (!r) return;
-        this.proj.model = r;
+      buttonEdit: function (e) {
+        var id = e.target.getAttribute('data-id')
+        if (!id) return
+        let r = this.list.find(function (li) {
+          return li._id === id
+        })
+        if (!r) return
+        this.proj.model = r
         this.dealProject(e, 'edit')
       },
-      catchError: function(data) {
-        this.alert('网络错误，请稍后重试');
+      catchError: function (data) {
+        this.alert('网络错误，请稍后重试')
       },
-      getSelected: function(){
-        var query = document.querySelectorAll('#mytable table tbody tr.md-selected');
-        var inlineItems = [];
-        var list = this.list;
-        for(var i=0;i<query.length; i++){
-          var item = query[i];
-          var _id = item.getAttribute('data-item') || '';
-          var p = list.find(function(l) {
-              return l._id === _id
-            });
+      getSelected: function () {
+        var query = document.querySelectorAll('#mytable table tbody tr.md-selected')
+        var inlineItems = []
+        var list = this.list
+        for (var i = 0; i < query.length; i++) {
+          var item = query[i]
+          var _id = item.getAttribute('data-item') || ''
+          var p = list.find(function (l) {
+            return l._id === _id
+          })
           if (p) {
             inlineItems.push(p)
           }
         }
 
-        this.selectedItem = inlineItems;
-        return inlineItems;
+        this.selectedItem = inlineItems
+        return inlineItems
       },
 
-      copyObj: function(to, from){
-        for(var f in from){
-          to[f] = typeof f === 'object'?
-            this.copyObj(to[f] || {}, from[f]): from[f]
+      copyObj: function (to, from) {
+        for (var f in from) {
+          to[f] = typeof f === 'object' ? this.copyObj(to[f] || {}, from[f]) : from[f]
         }
-        return to;
+        return to
       },
-      formatJSONString: function(str){
+      formatJSONString: function (str) {
         str = str || '{}'
-        var obj;
-        try{
-          obj = new Function('return ' + str + '')();
-        }catch(e){
-          return;
+        var obj
+        try {
+          obj = new Function('return ' + str + '')()
+        } catch (e) {
+          return
         }
         return JSON.stringify(obj)
       },
-      prettyJSON: function(obj){
+      prettyJSON: function (obj) {
         return JSON.stringify(obj, null, 4)
       },
-      dealModelResult: function(models){
-        if(Object.prototype.toString.call(models) !== '[object Array]'){
+      dealModelResult: function (models) {
+        if (Object.prototype.toString.call(models) !== '[object Array]') {
           models = [models]
         }
-        models.forEach((model)=>{
+        models.forEach((model) => {
           model.gulp = this.prettyJSON(model.gulp)
           model.webpack = this.prettyJSON(model.webpack)
           model.urls = this.prettyJSON(model.urls)
           model.error = this.prettyJSON(model.error) || errorMsg
-        });
-      }
-    }
+        })
+      },
+    },
   }
 </script>
 

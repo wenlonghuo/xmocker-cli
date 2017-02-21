@@ -37,7 +37,7 @@ module.exports.addApiModel = {
     cname: '输出参数schema',
   },
   data: {
-    type: 'array',
+    type: 'object',
     required: true,
     cname: '样板数据',
   },
@@ -72,7 +72,7 @@ module.exports.editApiModel = {
     cname: '输出参数schema',
   },
   data: {
-    type: 'array',
+    type: 'object',
     required: true,
     cname: '样板数据',
   },

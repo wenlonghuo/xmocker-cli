@@ -21,32 +21,27 @@
         </md-menu-content>
       </md-menu>
 
-      
       <md-button href="/#/log">日志</md-button>
 
-      <md-button href="/#/about">关于</md-button>
+      <md-button href="https://github.com/wenlonghuo/fe-mock-server/tree/master/doc/guide.md">指南</md-button>
 
-      <md-button class="md-icon-button">
-        <md-icon>account_circle</md-icon>
-      </md-button>
+      <md-button href="/#/about">关于</md-button>
 
     </md-toolbar>
 </template>
 
 <script>
-
   export default {
     name: 'nav-bar',
-    data: function(){
+    data: function () {
       return {
 
       }
     },
     methods: {
-      navTo: function(e, href){
-        this.$router.push({name: href, params: {}});
-      }
-    }
+      navTo: function (e, href) {
+        this.$router.push({name: href, params: {}})
+      },
+    },
   }
-
 </script>

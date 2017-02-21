@@ -23,82 +23,81 @@
     props: {
       mdSize: {
         type: [Number, String],
-        default: 10
+        default: 10,
       },
       mdPageOptions: [Array, Boolean],
       mdPage: {
         type: [Number, String],
-        default: 1
+        default: 1,
       },
       mdTotal: {
         type: [Number, String],
-        default: 'Many'
+        default: 'Many',
       },
       mdLabel: {
         type: String,
-        default: 'Rows per page'
+        default: 'Rows per page',
       },
       mdSeparator: {
         type: String,
-        default: 'of'
-      }
+        default: 'of',
+      },
     },
-    data() {
+    data () {
       return {
         subTotal: 0,
         currentSize: parseInt(this.mdSize, 10),
         currentPage: parseInt(this.mdPage, 10),
-        
-      };
+      }
     },
     computed: {
-      lastPage() {
-        return false;
+      lastPage () {
+        return false
       },
-      totalItems: function(){
+      totalItems: function () {
         return isNaN(this.mdTotal) ? Number.MAX_SAFE_INTEGER : parseInt(this.mdTotal, 10)
-      }
+      },
     },
     methods: {
-      emitPaginationEvent() {
+      emitPaginationEvent () {
         if (this.canFireEvents) {
-          const sub = this.currentPage * this.currentSize;
+          const sub = this.currentPage * this.currentSize
 
-          this.subTotal = sub > this.mdTotal ? this.mdTotal : sub;
+          this.subTotal = sub > this.mdTotal ? this.mdTotal : sub
           this.$emit('pagination', {
             size: this.currentSize,
-            page: this.currentPage
-          });
+            page: this.currentPage,
+          })
         }
       },
-      changeSize() {
+      changeSize () {
         if (this.canFireEvents) {
-          this.$emit('size', this.currentSize);
-          this.emitPaginationEvent();
+          this.$emit('size', this.currentSize)
+          this.emitPaginationEvent()
         }
       },
-      previousPage() {
+      previousPage () {
         if (this.canFireEvents) {
-          this.currentPage--;
-          this.$emit('page', this.currentPage);
-          this.emitPaginationEvent();
+          this.currentPage--
+          this.$emit('page', this.currentPage)
+          this.emitPaginationEvent()
         }
       },
-      nextPage() {
+      nextPage () {
         if (this.canFireEvents) {
-          this.currentPage++;
-          this.$emit('page', this.currentPage);
-          this.emitPaginationEvent();
+          this.currentPage++
+          this.$emit('page', this.currentPage)
+          this.emitPaginationEvent()
         }
-      }
+      },
     },
-    mounted() {
+    mounted () {
       this.$nextTick(() => {
-        this.subTotal = this.currentPage * this.currentSize;
-        this.mdPageOptions = this.mdPageOptions || [10, 25, 50, 100];
-        this.currentSize = this.mdPageOptions[0];
-        this.canFireEvents = true;
-      });
-    }
-  };
+        this.subTotal = this.currentPage * this.currentSize
+        this.mdPageOptions = this.mdPageOptions || [10, 25, 50, 100]
+        this.currentSize = this.mdPageOptions[0]
+        this.canFireEvents = true
+      })
+    },
+  }
 </script>

@@ -4,24 +4,10 @@
       
       <md-whiteframe md-elevation="1" class="m-log-leftBox-tool">
           <h1 class="md-title">日志记录</h1>
-          <md-chip v-for="chip in selection.chips" md-deletable>
-            {{chip.name}}
-          </md-chip>
-          <md-button-toggle class="m-log-type">
-            <md-button class="md-toggle md-accent">
-              <md-icon>error</md-icon>
-              错误
-            </md-button>
-
-            <md-button class="md-toggle">
-              <md-icon>battery_full</md-icon>
-              数据
-            </md-button>
-          </md-button-toggle>
 
           <div class="m-log-tool-choose">
-
             <div class="m-log-proj">
+              <label for="proj">选择项目</label>
               <md-select name="proj" id="proj" v-model="selection.proj" multiple  @change="buttonSelectProj">
                 <md-option v-for="proj in projList" :value="proj._id">{{proj.name}}</md-option>
               </md-select>
@@ -43,7 +29,7 @@
         <md-card-header>
           <h2 class="md-title">log详情</h2>
         </md-card-header>
-         <md-card-area md-inset> 
+         <md-card-area md-inset>
           <md-card-header>
             <h2 class="md-subheading">{{detail.api}}</h2>
             <div class="md-subhead">
@@ -87,6 +73,12 @@
           <md-card-content>
             <pre><code lang="json">{{formatStr(detail.res)}}</code></pre>
           </md-card-content>
+          <md-card-actions>
+            <md-button @click.native="setApiAsDefault" v-if="detail.projectId && detail.res">
+              <md-icon>settings</md-icon>
+              设为当前值
+            </md-button>
+          </md-card-actions>
         </md-card-area>
 
         <md-card-area md-inset  v-if="detail.err">
@@ -122,144 +114,154 @@
     </md-card>
   </div>
 </template>
-
 <script>
-
   // import '../lib/highlight/highlight.pack.js'
   // import '../lib/highlight/styles/default.css'
-
   export default {
     name: 'log',
-    data: function(){
+    data: function () {
       return {
         detail: {},
         projList: [
 
         ],
         selection: {
-          proj:[],
+          proj: [],
           api: [],
           apiModel: [],
           chips: [
-            {name: "getHospitalWeiXinGuid"}
-          ]
+            {name: 'getHospitalWeiXinGuid'},
+          ],
+        },
+        show: {
+          proj: true,
         },
       }
     },
     watch: {
-      'logs': function(){
-        var that = this;
-        var ratio = that.ele.scrollHeight - (that.ele.scrollTop + that.ele.clientHeight);
-        if(ratio < 50){
-          setTimeout(function(){
-            that.ele.scrollTop = that.ele.scrollHeight;
+      'logs': function () {
+        var that = this
+        var ratio = that.ele.scrollHeight - (that.ele.scrollTop + that.ele.clientHeight)
+        if (ratio < 50) {
+          setTimeout(function () {
+            that.ele.scrollTop = that.ele.scrollHeight
           }, 0)
         }
-      }
+      },
     },
     computed: {
-      logs: function(){
-        return this.$store.state.ws.logs;
+      logs: function () {
+        return this.$store.state.ws.logs
       },
-      dHeight: function(){
+      dHeight: function () {
         return (document.documentElement.clientHeight - 64) + 'px'
       },
     },
-    mounted: function(){
+    mounted: function () {
       this.app = this.$resource('', {}, {
         get: {
           method: 'GET',
-          url: '/mock/getAppStatus'
+          url: '/mock/getAppStatus',
         },
         getProj: {
           method: 'GET',
-          url: '/mock/getAppProject'
-        }
-      });
-      if(!this.logs.length)this.getLogs();
-      this.ele = document.querySelector('.m-log-leftBox-main');
-      this.getProjectList();
+          url: '/mock/getAppProject',
+        },
+        setApi: {
+          method: 'PUT',
+          url: '/mock/setApiStatus',
+        },
+      })
+      if (!this.logs.length) this.getLogs()
+      this.ele = document.querySelector('.m-log-leftBox-main')
+      this.getProjectList()
     },
     methods: {
-      getAppStatus: function(){
+      getAppStatus: function () {
       },
-      getLogs: function(){
+      getLogs: function () {
         this.$store.commit('pushCmd', {
-          _cmd: 'getAllLogs', 
+          _cmd: 'getAllLogs',
           projectId: this.selection.proj,
-          apiId: this.selection.api.map(function(a){return a.id}),
-          apiModel: this.selection.apiModel.map(function(a){return a.id}),
-        });
+          apiId: this.selection.api.map(function (a) { return a.id }),
+          apiModel: this.selection.apiModel.map(function (a) { return a.id }),
+        })
       },
 
-      getProjectList: function(){
+      getProjectList: function () {
         var param = {
           pageSize: 2000,
-          pageNo: 0
-        };
-        return this.app.getProj(param).then(function(data){
-          data = data.data;
+          pageNo: 0,
+        }
+        return this.app.getProj(param).then(function (data) {
+          data = data.data
           if (data.code) {
-            this.alert(data.err);
-            return;
+            this.alert(data.err)
+            return
           }
           // 设置到数据中
-          this.projList = data.data.list;
-          // this.selection.proj = this.$route.params.id || this.projList[0]._id;
-        });
+          this.projList = data.data.list
+          // this.selection.proj = this.$route.params.id || this.projList[0]._id
+        })
       },
 
-      buttonSelectProj: function(){
+      buttonSelectProj: function () {
         // this.$router.replace({name: 'api-list', params: {id: this.selection.proj}})
-        // this.pageInfo.pageNo = 0;
-        // this.getApiList();
-        this.getLogs();
+        // this.pageInfo.pageNo = 0
+        // this.getApiList()
+        this.getLogs()
       },
 
-      showDetail: function(e, id){
-        var el = this.getTarget(e.target, 'm-log-item');
-        if(el){
-          var id = el.getAttribute('data-id')
-          var log = this.logs[id]
-          this.detail = log;
+      setApiAsDefault: function () {
+        var detail = this.detail
+        if (!detail.projectId || !detail.apiId || !detail.res) return
+        this.app.setApi({type: 'fixed', id: detail.apiId, data: detail.res})
+      },
+
+      showDetail: function (e, id) {
+        var el = this.getTarget(e.target, 'm-log-item')
+        if (el) {
+          var did = el.getAttribute('data-id')
+          var log = this.logs[did]
+          this.detail = log
         }
       },
-      formatStr: function(obj){
-        var str = '';
-        if(typeof obj !== 'object')return obj;
-        str = JSON.stringify(obj, null, 2);
+      formatStr: function (obj) {
+        var str = ''
+        if (typeof obj !== 'object') return obj
+        str = JSON.stringify(obj, null, 2)
         return str
-        // String.prototype.replaceAll = function(s1,s2){ 
-        //   return this.replace(new RegExp(s1,"gm"),s2); 
+        // String.prototype.replaceAll = function (s1,s2) {
+        //   return this.replace(new RegExp(s1,"gm"), s2)
         // }
-        // return str.replaceAll("&", "&amp;")
-        //   .replaceAll("<", "&lt;")
-        //   .replaceAll(">", "&gt;")
-        //   .replaceAll(String.fromCharCode(32), "&nbsp;")
-        //   .replaceAll(String.fromCharCode(9), "&nbsp;")
-        //   .replaceAll(String.fromCharCode(9), "&#160;&#160;&#160;&#160;")
-        //   .replaceAll(String.fromCharCode(34),  "&quot;")
-        //   .replaceAll(String.fromCharCode(39),  "&#39;")
+        // return str.replaceAll("&", "&amp")
+        //   .replaceAll("<", "&lt")
+        //   .replaceAll(">", "&gt")
+        //   .replaceAll(String.fromCharCode(32), "&nbsp")
+        //   .replaceAll(String.fromCharCode(9), "&nbsp")
+        //   .replaceAll(String.fromCharCode(9), "&#160&#160&#160&#160")
+        //   .replaceAll(String.fromCharCode(34),  "&quot")
+        //   .replaceAll(String.fromCharCode(39),  "&#39")
         //   .replaceAll(String.fromCharCode(13),  "")
         //   .replaceAll(String.fromCharCode(10),  "<br/>")
       },
-      formatTime: function(d){
-        if(!d)return
+      formatTime: function (d) {
+        if (!d) return
         var time = new Date(d)
-        var diff = time.getTimezoneOffset();
+        var diff = time.getTimezoneOffset()
         time = new Date(time.getTime() - diff * 60 * 1000)
-        return time.toISOString().replace('T', ' ').replace('Z', '');
+        return time.toISOString().replace('T', ' ').replace('Z', '')
       },
-      getTarget: function(elem, cssName) {
-        if (!elem) return;
+      getTarget: function (elem, cssName) {
+        if (!elem) return
         if (cssName === elem.className) {
-          return elem;
+          return elem
         }
-        var p = elem.parentNode;
+        var p = elem.parentNode
         while (p && p.className !== cssName) {
-          p = p.parentNode;
+          p = p.parentNode
         }
-        if (p && p.className === cssName) return p;
+        if (p && p.className === cssName) return p
       },
     },
   }
@@ -291,12 +293,15 @@
 }
 
 .m-log-leftBox-tool{
-  height: 150px;
+  height: 80px;
   position: relative;
+}
+.m-log-leftBox-tool h1 {
+  display: inline-block;
 }
 
 .m-log-leftBox-main {
-  max-height: calc( 100% - 180px );
+  max-height: calc( 100% - 100px );
   overflow-y: auto;
   padding: 10px 20px;
 }
@@ -317,8 +322,9 @@
 }
 
 .m-log-tool-choose {
-  display: block;
-  padding: 20px 10px;
+  position: absolute;
+  right: 10px;
+  top: 20px;
 }
 .m-log-proj {
   width: 200px;
@@ -326,10 +332,7 @@
 }
 
 .m-log-type {
-  display: block;
-  position: absolute;
-  right: 30px;
-  top: 40px;
+  display: inline-block;
 }
 
 pre {

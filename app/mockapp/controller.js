@@ -13,6 +13,8 @@ const formatEntranceParam = util.formatEntranceParam
 const getDeepVal = common.getDeepVal
 const randomCode = common.randomCode
 
+const repeatTime = argv.repeatTime || 1
+
 module.exports = {
   getApi: sendApiData,
   addApi: sendApiData,
@@ -160,7 +162,7 @@ async function sendApiData (ctx, next) {
     }
 
     if (result) {
-      data = model.data[0]
+      data = Array.isArray(model.data) ? model.data[0] : model.data
       break
     }
   }
@@ -172,13 +174,24 @@ async function sendApiData (ctx, next) {
       if (dealedParams._err) return resError(ctx, dealedParams._err)
     }
     let apiData = model.data || []
-    data = apiData[0] || {}
+    data = (Array.isArray(apiData) ? apiData[0] : apiData) || {}
   } else if (i >= reqApiModel.length && !defaultModel) {
     noData = true
   }
 
   if (cApiStatus && cApiStatus.code === 1) {
-    data = setKeys(model.outputParam)
+    if (cApiStatus.times == null) {
+      cApiStatus.times = 0
+    } else {
+      cApiStatus.times ++
+    }
+    if (cApiStatus.times < repeatTime && cApiStatus.lastData) {
+      data = cApiStatus.lastData
+    } else {
+      data = setKeys(model.outputParam)
+      cApiStatus.lastData = data
+      cApiStatus.times = null
+    }
   }
 
   // 保存至历史记录
@@ -347,7 +360,7 @@ function sendHisData (ctx, data, option = {}) {
   process.send(msg)
 }
 
-let errorModel = argv.errorModel || '{code: -1, codeDesc:"${msg}", codeDescUser:"${msg}"}'
+let errorModel = argv.errorModel || '{"code": -1, "codeDesc":"${msg}", "codeDescUser":"${msg}"}'
 let errorExp = /\$\{msg\}/gi
 function resError (ctx, msg) {
   sendErrorMsg(ctx, msg)

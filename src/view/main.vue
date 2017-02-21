@@ -14,7 +14,7 @@
               <a :href="'http://localhost:' + port + item.url" target="_blank">{{item.url}}</a>
             </div>
 
-            <md-button class="md-icon-button md-list-action">
+            <md-button class="md-icon-button md-list-action" @click.native="findApi($event, item)">
               <md-icon>reorder</md-icon>
             </md-button>
           </md-list-item>
@@ -52,58 +52,68 @@
 <script>
   export default {
     name: 'main',
-    data: function(){
+    data: function () {
       return {
         runningProject: [],
         hideRight: true,
         urlList: [],
+        selection: {
+          proj: '',
+        },
         port: 80,
       }
     },
     computed: {
-      
+
     },
-    mounted: function(){
+    mounted: function () {
       this.app = this.$resource('', {}, {
         get: {
           method: 'GET',
-          url: '/mock/getAppStatus'
+          url: '/mock/getAppStatus',
         },
         start: {
           method: 'PUT',
-          url: '/mock/startAppProject'
+          url: '/mock/startAppProject',
         },
-      });
+      })
       this.getAppStatus()
     },
     methods: {
-      getAppStatus: function(){
-        this.app.get({}).then(function(json){
-          var data = json.data;
-          if(!data.code) {
+      getAppStatus: function () {
+        this.app.get({}).then(function (json) {
+          var data = json.data
+          if (!data.code) {
             this.runningProject = data.data.runningProject
           }
         })
       },
-      startProject: function(ids) {
+      startProject: function (ids) {
         var param = {
           id: ids,
-          force: true
-        };
-        return this.app.start(param).then(function(){
+          force: true,
+        }
+        return this.app.start(param).then(function () {
           this.getAppStatus()
-        });
+        })
       },
-      restartProj: function(e, id){
+      restartProj: function (e, id) {
         this.startProject(id)
       },
       showList: function (e, proj) {
         this.hideRight = false
         this.urlList = proj.procInfo.urls || []
         this.port = proj.procInfo.port
+        this.selection.proj = proj.procInfo._id
+      },
+      findApi: function (e, item) {
+        var apis = item.apisconsole.log(item)
+        if (apis && apis.length) {
+          this.$router.push({name: 'api-list', params: {id: this.selection.proj}, query: {name: apis.join(',')}})
+        }
       },
       closePanel: function () {
-        this.hideRight = true;
+        this.hideRight = true
         console.log('ss')
       },
     },

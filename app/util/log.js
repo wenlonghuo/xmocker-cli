@@ -132,7 +132,7 @@ function childLog (data) {
       }
     } else {
       if (data._type === 'console') {
-        console.log(data)
+        console.log(data.data)
       }
     }
   } else {

@@ -9,15 +9,18 @@
         <md-icon>search</md-icon>
         <md-tooltip md-direction="top">搜索</md-tooltip>
       </md-button>
-      <md-button class="md-fab md-primary" href="/#/apiAdd">
+      <md-button class="md-fab md-primary" href="/#/apiAdd" >
         <md-icon>add</md-icon>
         <md-tooltip md-direction="top">添加API</md-tooltip>
       </md-button>
-      <md-button class="md-fab md-primary" @click.native="buttonNav($event, -1)">
+      <md-button class="md-fab md-primary" @click.native="buttonNav($event, -1)" md-theme="rightbar">
         <md-icon>navigate_before</md-icon>
         <md-tooltip md-direction="top">上一页</md-tooltip>
       </md-button>
-      <md-button class="md-fab md-primary" @click.native="buttonNav($event, 1)">
+      <md-button class="md-fab md-warn" md-theme="rightbar">
+        {{pageInfo.pageNo + 1}}/{{pageInfo.pageNum}}
+      </md-button>
+      <md-button class="md-fab md-primary" @click.native="buttonNav($event, 1)" md-theme="rightbar">
         <md-icon>navigate_next</md-icon>
         <md-tooltip md-direction="top">下一页</md-tooltip>
       </md-button>
@@ -167,10 +170,10 @@
 <script>
   export default {
     name: 'api-list',
-    data: function(){
+    data: function () {
       return {
         selection: {
-          proj:'',
+          proj: '',
           projName: '',
           deleteId: '',
           copyApi: [],
@@ -190,200 +193,213 @@
           total: 0,
           pageNo: 0,
           pageSize: 10,
+          pageNum: 0,
         },
         confirm: {
           title: '删除api',
           contentHtml: ' ',
-          type: 'delete'
+          type: 'delete',
         },
         alertInfo: {
           content: ' ',
         },
       }
     },
-    computed: {
-      
+    watch: {
+      '$route.path': function () {
+        this.pageInfo.pageNo = 0
+        this.getApiList()
+      },
     },
-    mounted: function(){
+    computed: {
+
+    },
+    mounted: function () {
       this.app = this.$resource('', {}, {
         get: {
           method: 'GET',
-          url: '/mock/getApiBase'
+          url: '/mock/getApiBase',
         },
         search: {
           method: 'GET',
-          url: '/mock/searchApiBase'
+          url: '/mock/searchApiBase',
         },
         delete: {
           method: 'DELETE',
-          url: '/mock/deleteApiBase'
+          url: '/mock/deleteApiBase',
         },
         copyApi: {
           method: 'PUT',
-          url: '/mock/copyApi'
+          url: '/mock/copyApi',
         },
         getProj: {
           method: 'GET',
-          url: '/mock/getAppProject'
+          url: '/mock/getAppProject',
         },
         setApi: {
           method: 'PUT',
-          url: '/mock/setApiStatus'
-        }
-      });
+          url: '/mock/setApiStatus',
+        },
+      })
+      this.pageInfo.pageNo = (parseInt(this.$route.query.pageNo) - 1) || 0
       this.getProjectList()
     },
-    methods:{
-      getProjectList: function(){
+    methods: {
+      getProjectList: function () {
         var param = {
           pageSize: 2000,
-          pageNo: 0
-        };
-        return this.app.getProj(param).then(function(data){
-          data = data.data;
+          pageNo: 0,
+        }
+        return this.app.getProj(param).then(function (data) {
+          data = data.data
           if (data.code) {
-            this.alert(data.err);
-            return;
+            this.alert(data.err)
+            return
           }
           // 设置到数据中
-          this.projList = data.data.list;
+          this.projList = data.data.list
           var id = this.$route.params.id || window.localStorage.getItem('api-list-proj-id') || this.projList[0]._id
-          this.selection.proj = id;
-          var proj = this.projList.find(function(p){return p._id === id});
-          if(proj)this.selection.projName = proj.name
-          if(this.selection.proj)this.getApiList();
-        });
+          this.selection.proj = id
+          var proj = this.projList.find(function (p) { return p._id === id })
+          if (proj) this.selection.projName = proj.name
+          if (this.selection.proj) this.getApiList()
+        })
       },
 
-      getApiList: function(){
+      getApiList: function () {
         var param = {
           project: this.selection.proj,
           pageSize: this.pageInfo.pageSize,
-          pageNo: this.pageInfo.pageNo
-        };
-        var q =  this.$route.query || {};
+          pageNo: this.pageInfo.pageNo,
+        }
+        var q = this.$route.query || {}
         if (q.name) {
           param.name = q.name
         }
-        return this.app.get(param).then(function(data){
-          data = data.data;
+        return this.app.get(param).then(function (data) {
+          data = data.data
           if (data.code) {
-            this.alert(data.err);
-            return;
+            this.alert(data.err)
+            return
           }
           // 设置到数据中
-          this.apiList = data.data.list;
-          this.pageInfo.total = data.data.pagination.total;
-        });
+          this.apiList = data.data.list
+          this.pageInfo.total = data.data.pagination.total
+          this.pageInfo.pageNum = data.data.pagination.pageNum
+        })
       },
 
-      searchApi: function(words){
+      searchApi: function (words) {
         var param = {
           project: this.selection.proj,
           words: words,
           pageSize: 2000,
-          pageNo: 0
-        };
-        if(!words) {
-          this.getApiList()
-          return;
+          pageNo: 0,
         }
-        return this.app.search(param).then(function(data){
-          data = data.data;
+        if (!words) {
+          this.getApiList()
+          return
+        }
+        return this.app.search(param).then(function (data) {
+          data = data.data
           if (data.code) {
-            this.alert(data.err);
-            return;
+            this.alert(data.err)
+            return
           }
           // 设置到数据中
-          this.apiList = data.data.list;
-        });
+          this.apiList = data.data.list
+        })
       },
 
       // 删除项目
-      deleteModel: function(ids) {
+      deleteModel: function (ids) {
         var param = {
-          id: ids
-        };
-        return this.app.delete(param).then(function(data){
-          data = data.data;
-          this.alert(data.err || data.data.tip);
+          id: ids,
+        }
+        return this.app.delete(param).then(function (data) {
+          data = data.data
+          this.alert(data.err || data.data.tip)
           this.getApiList()
-        });
+        })
       },
 
       // 删除项目
-      copyApi: function() {
-        var from = [];
-        for(var key in this.selection.copyApi){
+      copyApi: function () {
+        var from = []
+        var key
+        for (key in this.selection.copyApi) {
           from.push(this.selection.copyApi[key]._id)
         }
-        var to = [];
-        for(var key in this.selection.copyProj){
+        var to = []
+        for (key in this.selection.copyProj) {
           to.push(this.selection.copyProj[key]._id)
         }
         var param = {
           from: from.join(','),
           to: to.join(','),
-        };
-        return this.app.copyApi(param).then(function(data){
-          data = data.data;
-          this.alert(data.err || data.data.tip);
+        }
+        return this.app.copyApi(param).then(function (data) {
+          data = data.data
+          this.alert(data.err || data.data.tip)
           this.getApiList()
-        });
+        })
       },
 
-      buttonNav: function(e, type){
-        var pageInfo = this.pageInfo;
-        pageInfo.pageNo += ~~type;
-        if(pageInfo.pageNo < 0){
-          pageInfo.pageNo = 0;
-          return;
+      buttonNav: function (e, type) {
+        var pageInfo = this.pageInfo
+        pageInfo.pageNo += ~~type
+        if (pageInfo.pageNo < 0) {
+          pageInfo.pageNo = 0
+          return
         }
-        if(pageInfo.total > (pageInfo.pageNo * pageInfo.pageSize)){
+        if (pageInfo.total > (pageInfo.pageNo * pageInfo.pageSize)) {
+          var query = {pageNo: pageInfo.pageNo + 1}
+          query.name = this.$route.query.name
+          this.$router.replace({name: 'api-list', params: this.$route.params, query: query})
           this.getApiList()
-        }else {
-          pageInfo.pageNo --;
+        } else {
+          pageInfo.pageNo --
         }
       },
-      buttonSelectProj: function(){
+      buttonSelectProj: function () {
         this.$router.replace({name: 'api-list', params: {id: this.selection.proj}})
-        this.pageInfo.pageNo = 0;
-        this.getApiList();
+        this.pageInfo.pageNo = 0
+        this.getApiList()
       },
 
-      buttondeleteApi: function(e, item){
-        this.selection.deleteId = item._id;
+      buttondeleteApi: function (e, item) {
+        this.selection.deleteId = item._id
         this.confirm.title = '删除api'
         this.confirm.type = 'delete'
-        this.confirm.contentHtml = '是否删除api ' + item.name + ', id:' + item._id;
-        this.$refs['confirmDiag'].open();
+        this.confirm.contentHtml = '是否删除api ' + item.name + ', id:' + item._id
+        this.$refs['confirmDiag'].open()
       },
-      buttonEditApi: function(e, id){
+      buttonEditApi: function (e, id) {
         this.$router.push({name: 'api-add', params: {id: id}})
       },
 
-      buttonCopyApi: function(e, id){
-        this.show.copy = true;
+      buttonCopyApi: function (e, id) {
+        this.show.copy = true
         console.log(id)
       },
 
-      buttonSubmitCopy: function(e){
+      buttonSubmitCopy: function (e) {
         this.confirm.title = '复制api'
         this.confirm.type = 'copy'
-        this.confirm.contentHtml = '是否复制api到项目中';
-        this.$refs['confirmDiag'].open();
+        this.confirm.contentHtml = '是否复制api到项目中'
+        this.$refs['confirmDiag'].open()
       },
 
-      buttonCloseCopy: function(){
-        this.show.copy = false;
+      buttonCloseCopy: function () {
+        this.show.copy = false
       },
 
-      buttonSetApi: function(e, id, type){
+      buttonSetApi: function (e, id, type) {
         this.app.setApi({type: type, id: id}).then(function (data) {
-          data = data.data;
+          data = data.data
           if (data.code) {
-            this.alert(data.err);
-            return;
+            this.alert(data.err)
+            return
           }
         })
       },
@@ -392,17 +408,17 @@
         this.show.search = !this.show.search
       },
 
-      inputSearch: function(e){
+      inputSearch: function (e) {
         this.searchApi(e)
       },
       chooseProj: function () {
         this.show.proj = true
       },
 
-      setSelectionVal: function(e){
+      setSelectionVal: function (e) {
         var item = this.getParentNode(e.target, 'm-api-list-selection')
         var id = item.getAttribute('data-id')
-        if(id) {
+        if (id) {
           this.selection.proj = id
           this.selection.projName = item.getAttribute('data-name')
           window.localStorage.setItem('api-list-proj-id', id)
@@ -414,39 +430,39 @@
       getParentNode: function (node, cname) {
         var p = node
         var classname = p.className
-        while(p && classname.indexOf(cname) < 0) {
+        while (p && classname.indexOf(cname) < 0) {
           p = p.parentNode
-          classname  = p.className || ''
+          classname = p.className || ''
         }
         return p
       },
 
        // 提示
-      alert: function(msg) {
-        this.$set(this.alertInfo, 'content', msg);
+      alert: function (msg) {
+        this.$set(this.alertInfo, 'content', msg)
         // this.alertInfo.content = msg
-        this.$refs['alertInfo'].open();
+        this.$refs['alertInfo'].open()
       },
-     
-      confirmClose: function(e){
-        if(e == 'ok'){
-          if(this.confirm.type === 'delete'){
-            if(this.selection.deleteId)this.deleteModel(this.selection.deleteId);
-          }else {
-            this.copyApi();
+
+      confirmClose: function (e) {
+        if (e === 'ok') {
+          if (this.confirm.type === 'delete') {
+            if (this.selection.deleteId) this.deleteModel(this.selection.deleteId)
+          } else {
+            this.copyApi()
           }
         }
       },
-      catchError: function(data) {
-        this.alert('网络错误，请稍后重试');
+      catchError: function (data) {
+        this.alert('网络错误，请稍后重试')
       },
 
-      selectApi: function(e){
-        this.selection.copyApi = e;
+      selectApi: function (e) {
+        this.selection.copyApi = e
       },
-      selectProj: function(e){
-        this.selection.copyProj = e;
-      }
+      selectProj: function (e) {
+        this.selection.copyProj = e
+      },
     },
   }
 </script>
@@ -524,9 +540,9 @@
   position: fixed;
   top: 50%;
   right: 10px;
-  margin-top: -150px;
+  margin-top: -200px;
   width: 80px;
-  height: 300px;
+  height: 400px;
   z-index: 2;
 }
 .m-api-list-choose-proj {

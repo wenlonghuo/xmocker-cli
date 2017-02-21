@@ -20,6 +20,8 @@ import syncProj from '../view/sync-proj.vue'
 
 import syncApi from '../view/sync-api.vue'
 
+import tips from '../view/tips.vue'
+
 var router = new VueRouter({
   routes: [
     {name: 'index', path: '/', component: main},
@@ -30,8 +32,9 @@ var router = new VueRouter({
     {name: 'log', path: '/log/', component: log},
     {name: 'sync-proj', path: '/sync-proj/', component: syncProj},
     {name: 'sync-api', path: '/sync-proj/:id', component: syncApi},
-    {name: 'about', path: '/about', component: about}
-  ]
+    {name: 'about', path: '/about', component: about},
+    {name: 'tips', path: '/tips', component: tips},
+  ],
 })
 
 export default router

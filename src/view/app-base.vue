@@ -62,18 +62,18 @@
   export default {
     name: 'projectList',
     components: {
-      tbPagination: tbPagination
+      tbPagination: tbPagination,
     },
-    data: function() {
+    data: function () {
       return {
         selection: {
-          proj:'',
-          deleteId: ''
+          proj: '',
+          deleteId: '',
         },
         confirm: {
           title: '删除项目',
           contentHtml: ' ',
-          type: 'delete'
+          type: 'delete',
         },
         alertInfo: {
           content: ' ',
@@ -85,112 +85,109 @@
           managePort: '',
           defaultProject: '',
         },
-        
-        projList:[]
-      };
+        projList: [],
+      }
     },
-    created: function() {
+    created: function () {
       this.app = this.$resource('', {}, {
         getProj: {
           method: 'GET',
-          url: '/mock/getAppProject'
+          url: '/mock/getAppProject',
         },
         getAppBase: {
           method: 'GET',
-          url: '/mock/getAppBase'
+          url: '/mock/getAppBase',
         },
         editBase: {
           method: 'PUT',
-          url: '/mock/editAppBase'
+          url: '/mock/editAppBase',
         },
-      });
+      })
     },
-    mounted: function() {
-      this.getProjectList().then(function(){
-        this.getAppInfo();
+    mounted: function () {
+      this.getProjectList().then(function () {
+        this.getAppInfo()
       })
     },
     methods: {
       // 服务器交互
-      getProjectList: function(){
+      getProjectList: function () {
         var param = {
           pageSize: 2000,
-          pageNo: 0
-        };
-        return this.app.getProj(param).then(function(data){
-          data = data.data;
+          pageNo: 0,
+        }
+        return this.app.getProj(param).then(function (data) {
+          data = data.data
           if (data.code) {
-            this.alert(data.err);
-            return;
+            this.alert(data.err)
+            return
           }
           // 设置到数据中
-          this.projList = data.data.list;
-        });
+          this.projList = data.data.list
+        })
       },
       // 获取信息
-      getAppInfo: function(option){
-        return this.app.getAppBase().then(function(r){
-          var data =  r.data;
+      getAppInfo: function (option) {
+        return this.app.getAppBase().then(function (r) {
+          var data = r.data
           if (data.code) {
-            this.alert(data.err);
-            return;
+            this.alert(data.err)
+            return
           }
-          if(data.data.result ){
+          if (data.data.result) {
             this.copyObj(this.model, data.data.result)
           }
-
-        });
+        })
       },
-      submitAppBase: function(){
-        var param = this.model;
-        let req = this.app.editBase(param);
-        req.then((res)=>{
-          var data = res.data;
-          if(data.code){
-            this.alert(data.err);
-            return;
+      submitAppBase: function () {
+        var param = this.model
+        let req = this.app.editBase(param)
+        req.then((res) => {
+          var data = res.data
+          if (data.code) {
+            this.alert(data.err)
+            return
           }
-          data = data.data;
-          
+          data = data.data
+
           this.copyObj(this.model, data.result)
-          if(data.tip)this.alert(data.tip);
-        });
-        return req;
+          if (data.tip) this.alert(data.tip)
+        })
+        return req
       },
-      
+
       //
-      buttonSubmit: function(e, mIndex){
-        this.confirm.contentHtml = "是否提交app基础信息？" 
-        this.confirm.title = "提交api基础信息"
-        this.$refs['confirmDiag'].open();
+      buttonSubmit: function (e, mIndex) {
+        this.confirm.contentHtml = '是否提交app基础信息？'
+        this.confirm.title = '提交api基础信息'
+        this.$refs['confirmDiag'].open()
       },
       // 提示
-      alert: function(msg) {
-        this.$set(this.alertInfo, 'content', msg);
+      alert: function (msg) {
+        this.$set(this.alertInfo, 'content', msg)
         // this.alertInfo.content = msg
-        this.$refs['alertInfo'].open();
+        this.$refs['alertInfo'].open()
       },
 
-      closeDialog: function(ref) {
-        this.$refs[ref].close();
+      closeDialog: function (ref) {
+        this.$refs[ref].close()
       },
-     
-      confirmClose: function(e){
-        if(e == 'ok'){
-          this.submitAppBase();
+
+      confirmClose: function (e) {
+        if (e === 'ok') {
+          this.submitAppBase()
         }
       },
-      catchError: function(data) {
-        this.alert('网络错误，请稍后重试');
+      catchError: function (data) {
+        this.alert('网络错误，请稍后重试')
       },
-      copyObj: function(to, from){
-        for(var f in from){
-          to[f] = typeof f === 'object'?
-            this.copyObj(to[f] || {}, from[f]): from[f]
+      copyObj: function (to, from) {
+        for (var f in from) {
+          to[f] = typeof f === 'object' ? this.copyObj(to[f] || {}, from[f]) : from[f]
         }
-        return to;
-      },      
-    }
+        return to
+      },
+    },
   }
 </script>
 

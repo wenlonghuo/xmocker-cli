@@ -178,7 +178,7 @@
 <script>
   export default {
     name: 'sync-proj',
-    data: function(){
+    data: function () {
       return {
         selection: {},
         show: {
@@ -194,7 +194,7 @@
         confirm: {
           title: '删除api',
           contentHtml: ' ',
-          type: 'delete'
+          type: 'delete',
         },
         alertInfo: {
           content: ' ',
@@ -202,113 +202,113 @@
       }
     },
     computed: {
-      
+
     },
-    mounted: function(){
+    mounted: function () {
       this.app = this.$resource('', {}, {
         get: {
           method: 'GET',
-          url: '/mock/clientGetProjDiff'
+          url: '/mock/clientGetProjDiff',
         },
         downBase: {
           method: 'PUT',
-          url: '/mock/clientDownLoadProjBase'
+          url: '/mock/clientDownLoadProjBase',
         },
         downAll: {
           method: 'PUT',
-          url: '/mock/clientDownLoadProj'
-        }
-      });
+          url: '/mock/clientDownLoadProj',
+        },
+      })
       this.getProjectList()
     },
-    methods:{
-      getProjectList: function(){
+    methods: {
+      getProjectList: function () {
         var param = {
 
-        };
-        return this.app.get(param).then(function(data){
-          data = data.data;
+        }
+        return this.app.get(param).then(function (data) {
+          data = data.data
           if (data.code) {
-            this.alert(data.err);
-            return;
+            this.alert(data.err)
+            return
           }
           // 设置到数据中
-          this.projList = data.data;
-        });
+          this.projList = data.data
+        })
       },
 
-      downLoadBase: function(){
+      downLoadBase: function () {
         var param = {
-          id: this.selection.client._uid
-        };
-        return this.app.downBase(param).then(function(data){
-          data = data.data;
+          id: this.selection.client._uid,
+        }
+        return this.app.downBase(param).then(function (data) {
+          data = data.data
           if (data.code) {
-            this.alert(data.err);
-            return;
+            this.alert(data.err)
+            return
           }
-          this.alert(data.data.tips);
-        });
+          this.alert(data.data.tips)
+        })
       },
 
-      downLoadAll: function(e, server){
+      downLoadAll: function (e, server) {
         var param = {
-          id: this.selection.client._uid
-        };
-        return this.app.downAll(param).then(function(data){
-          data = data.data;
+          id: this.selection.client._uid,
+        }
+        return this.app.downAll(param).then(function (data) {
+          data = data.data
           if (data.code) {
-            this.alert(data.err);
-            return;
+            this.alert(data.err)
+            return
           }
-          this.alert(data.data.tips);
-        });
+          this.alert(data.data.tips)
+        })
       },
 
-      buttonUpload: function(e, clientInfo){
+      buttonUpload: function (e, clientInfo) {
 
       },
 
-      buttonEditApi: function(e, clientInfo){
-        this.$router.push({name: 'sync-api', params: {id: clientInfo._uid},query:{name: clientInfo.name}})
+      buttonEditApi: function (e, clientInfo) {
+        this.$router.push({name: 'sync-api', params: {id: clientInfo._uid}, query: {name: clientInfo.name}})
       },
 
-      buttonDownLoadBase: function(e, client){console.log('downBase');
-        this.selection.client = client;
-        this.confirm.title = '下载项目基础信息';
-        this.confirm.func = 'downLoadBase';
-        this.confirm.contentHtml = '是否从服务端下载项目： ' + client.name + ', id:' + client._id;
-        this.$refs['confirmDiag'].open();
+      buttonDownLoadBase: function (e, client) {
+        this.selection.client = client
+        this.confirm.title = '下载项目基础信息'
+        this.confirm.func = 'downLoadBase'
+        this.confirm.contentHtml = '是否从服务端下载项目： ' + client.name + ', id:' + client._id
+        this.$refs['confirmDiag'].open()
       },
 
-      buttonDownLoadAll: function(e, client){console.log('downAll');
-        this.selection.client = client;
-        this.confirm.title = '下载服务器项目';
-        this.confirm.func = 'downLoadAll';
-        this.confirm.contentHtml = '是否从服务端下载项目： ' + client.name + ', id:' + client._id;
-        this.$refs['confirmDiag'].open();
+      buttonDownLoadAll: function (e, client) {
+        this.selection.client = client
+        this.confirm.title = '下载服务器项目'
+        this.confirm.func = 'downLoadAll'
+        this.confirm.contentHtml = '是否从服务端下载项目： ' + client.name + ', id:' + client._id
+        this.$refs['confirmDiag'].open()
       },
 
-      buttonOpen: function(e){
+      buttonOpen: function (e) {
 
       },
 
        // 提示
-      alert: function(msg) {
-        this.$set(this.alertInfo, 'content', msg);
+      alert: function (msg) {
+        this.$set(this.alertInfo, 'content', msg)
         // this.alertInfo.content = msg
-        this.$refs['alertInfo'].open();
+        this.$refs['alertInfo'].open()
       },
-     
-      confirmClose: function(e){
-        if(e == 'ok'){
-          if(this[this.confirm.func]){
-            this[this.confirm.func]();
+
+      confirmClose: function (e) {
+        if (e === 'ok') {
+          if (this[this.confirm.func]) {
+            this[this.confirm.func]()
           }
         }
       },
-      catchError: function(data) {
-        this.alert('网络错误，请稍后重试');
+      catchError: function (data) {
+        this.alert('网络错误，请稍后重试')
       },
     },
   }

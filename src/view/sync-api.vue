@@ -158,7 +158,7 @@
 <script>
   export default {
     name: 'sync-api',
-    data: function(){
+    data: function () {
       return {
         selection: {},
 
@@ -167,7 +167,7 @@
         confirm: {
           title: '删除api',
           contentHtml: ' ',
-          type: 'delete'
+          type: 'delete',
         },
         alertInfo: {
           content: ' ',
@@ -175,104 +175,101 @@
       }
     },
     computed: {
-      projName: function(){
+      projName: function () {
         return this.$route.query.name
-      }
+      },
     },
-    mounted: function(){
+    mounted: function () {
       this.app = this.$resource('', {}, {
         getApi: {
           method: 'GET',
-          url: '/mock/clientGetApiDiff'
+          url: '/mock/clientGetApiDiff',
         },
         downApi: {
           method: 'PUT',
-          url: '/mock/clientDownLoadApi'
+          url: '/mock/clientDownLoadApi',
         },
-      });
+      })
       this.getApiList()
     },
-    methods:{
-      getApiList: function(){
-        let id = this.$route.params.id;
+    methods: {
+      getApiList: function () {
+        let id = this.$route.params.id
         var param = {
-          id: id
-        };
-        return this.app.getApi(param).then(function(data){
-          data = data.data;
+          id: id,
+        }
+        return this.app.getApi(param).then(function (data) {
+          data = data.data
           if (data.code) {
-            this.alert(data.err);
-            return;
+            this.alert(data.err)
+            return
           }
           // 设置到数据中
-          this.apiList = data.data;
-        });
+          this.apiList = data.data
+        })
       },
 
       // 下载api
-      downloadApi: function() {
-        let apis = this.selection.list;
-        apis = apis.map(function(a){return a.base._uid}).join(',');
-        let id = this.$route.params.id;
+      downloadApi: function () {
+        let apis = this.selection.list
+        apis = apis.map(function (a) { return a.base._uid }).join(',')
+        let id = this.$route.params.id
         var param = {
           ids: apis,
           project: id,
-        };
-        return this.app.downApi(param).then(function(data){
-          data = data.data;
-          this.alert(data.err || data.data.tips);
-        });
+        }
+        return this.app.downApi(param).then(function (data) {
+          data = data.data
+          this.alert(data.err || data.data.tips)
+        })
       },
 
-      selectApi: function(e, name){
-        this.selection[name] = e;
+      selectApi: function (e, name) {
+        this.selection[name] = e
       },
 
-      buttonDownload: function(e){
-        this.setList();
+      buttonDownload: function (e) {
+        this.setList()
         this.confirm.title = '下载api'
-        this.confirm.type = "download"
-        this.confirm.contentHtml = '是否下载api ' + this.selection.list.map(function(a){return a.base.name + ', uid:' + a.base._uid}).join('<br/>');
-        this.$refs['confirmDiag'].open();
+        this.confirm.type = 'download'
+        this.confirm.contentHtml = '是否下载api ' + this.selection.list.map(function (a) { return a.base.name + ', uid:' + a.base._uid }).join('<br/>')
+        this.$refs['confirmDiag'].open()
       },
 
-       buttonUpload: function(e){
-        
+      buttonUpload: function (e) {
       },
 
-      setList: function(){
-        var list = ['behind', 'server', 'ahead', 'unchanged', 'untaged'];
-        var selection = this.selection;
-        selection.list = [];
-        list.forEach(function(tag){
-          var data = selection[tag] || [];
-          for(var index in data) {
-            selection.list.push(data[index]);
+      setList: function () {
+        var list = ['behind', 'server', 'ahead', 'unchanged', 'untaged']
+        var selection = this.selection
+        selection.list = []
+        list.forEach(function (tag) {
+          var data = selection[tag] || []
+          for (var index in data) {
+            selection.list.push(data[index])
           }
         })
       },
   
-
        // 提示
-      alert: function(msg) {
-        this.$set(this.alertInfo, 'content', msg);
+      alert: function (msg) {
+        this.$set(this.alertInfo, 'content', msg)
         // this.alertInfo.content = msg
-        this.$refs['alertInfo'].open();
+        this.$refs['alertInfo'].open()
       },
-     
-      confirmClose: function(e){
-        if(e == 'ok'){
-          if(this.confirm.type === 'download'){
-            this.downloadApi();
-          }else if(this.confirm.type === 'upload'){
+
+      confirmClose: function (e) {
+        if (e === 'ok') {
+          if (this.confirm.type === 'download') {
+            this.downloadApi()
+          } else if (this.confirm.type === 'upload') {
 
           }
         }
       },
-      catchError: function(data) {
-        this.alert('网络错误，请稍后重试');
+      catchError: function (data) {
+        this.alert('网络错误，请稍后重试')
       },
-
     },
   }
 </script>
