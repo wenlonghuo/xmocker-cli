@@ -107,7 +107,7 @@
         this.selection.proj = proj.procInfo._id
       },
       findApi: function (e, item) {
-        var apis = item.apisconsole.log(item)
+        var apis = item.apis
         if (apis && apis.length) {
           this.$router.push({name: 'api-list', params: {id: this.selection.proj}, query: {name: apis.join(',')}})
         }
