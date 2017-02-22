@@ -31,7 +31,7 @@ let apiList
 let apiStatus = {}
 // 获取当前项目所有的api列表，存储到内存中
 async function getProjectApiList (ctx, next) {
-  if (!ctx.is('application/x-www-form-urlencoded')) return next()
+  if (!ctx.is('application/x-www-form-urlencoded') && ctx.headers['x-requested-with'] !== 'XMLHttpRequest') return next()
 
   let api
   if (!apiList) {
@@ -88,7 +88,7 @@ async function getProjectApiList (ctx, next) {
 
 // 通用函数
 async function sendApiData (ctx, next) {
-  if (!ctx.is('application/x-www-form-urlencoded')) return next()
+  if (!ctx.is('application/x-www-form-urlencoded') && ctx.headers['x-requested-with'] !== 'XMLHttpRequest') return next()
 
   let apiInfo = ctx.apiInfo || {}
   let reqApiModel = apiInfo.apiModel

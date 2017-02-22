@@ -520,7 +520,7 @@
   text-align: center;
   justify-content: center;
   align-items: center;
-  z-index: 10;
+  z-index: 6;
 }
 
 .m-api-move-module-box {

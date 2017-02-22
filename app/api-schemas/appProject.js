@@ -58,6 +58,9 @@ module.exports.addAppProject = {
       apis: {
         type: 'array',
       },
+      list: {
+        type: 'array',
+      },
     },
   },
   gulp: {
@@ -164,6 +167,9 @@ module.exports.editAppProject = {
         cname: '链接路径',
       },
       apis: {
+        type: 'array',
+      },
+      list: {
         type: 'array',
       },
     },
