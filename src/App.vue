@@ -1,7 +1,9 @@
 <template>
   <div id="app">
     <nav-bar></nav-bar>
-    <router-view id="main-router-view"></router-view>
+    <transition name="slide-left" mode="out-in">
+      <router-view id="main-router-view" class="aaa"></router-view>
+    </transition>
   </div>
 </template>
 
@@ -9,7 +11,6 @@
   var Vue = require('vue')
   var VueMaterial = require('vue-material')
   require('vue-material/dist/vue-material.css')
-
   Vue.use(VueMaterial)
 
   import VueResource from 'vue-resource'
@@ -107,7 +108,7 @@
         return this.app.get({}).then(function (r) {
           var data = r.data
           if (!data.code) {
-            this.appBase = data.data.result
+            this.appBase = data.data.result || {}
           }
         })
       },
@@ -128,4 +129,37 @@
 
 <style>
 
+::-webkit-scrollbar {  
+  width: 4px; 
+}
+
+/*定义滚动条轨道 内阴影+圆角*/  
+::-webkit-scrollbar-track {  
+  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);  
+  border-radius: 10px;
+}  
+
+/*定义滑块 内阴影+圆角*/  
+::-webkit-scrollbar-thumb {  
+  border-radius: 10px;  
+  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,.3);
+}
+
+/*.slide-left-enter, .slide-left-leave-active {
+  transform: translate3d(100%, 0, 0);
+}
+.slide-left-enter-active, .slide-left-leave {
+  transition: transform 1s;
+}*/
+.aaa {
+  transition: all .2s cubic-bezier(.55, 0, .11, 1);
+}
+.slide-left-enter, .slide-right-leave-active{
+    opacity: 0;
+    transform: translate(30px, 0);
+}
+.slide-left-leave-active, .slide-right-enter{
+    opacity: 0;
+    transform: translate(-30px, 0);
+}
 </style>

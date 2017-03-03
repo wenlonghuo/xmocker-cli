@@ -1,19 +1,23 @@
 'use strict'
-const minimist = require('minimist')
+const extname = require('path').extname
 const faker = require('faker')
+const thenify = require('thenify')
+const proxy = require('http-proxy').createProxyServer()
 
 const db = require('../db')
 const util = require('../util')
 const common = require('../util/common')
-const argv = minimist(process.argv.slice(2))
+
+proxy.web = thenify(proxy.web.bind(proxy))
+
+const proj = require('./index').proj
 
 const apiModel = db.apiModel
 const apiBase = db.apiBase
 const formatEntranceParam = util.formatEntranceParam
 const getDeepVal = common.getDeepVal
 const randomCode = common.randomCode
-
-const repeatTime = argv.repeatTime || 1
+const repeatTime = proj.repeatTime || 1
 
 module.exports = {
   getApi: sendApiData,
@@ -24,14 +28,33 @@ module.exports = {
   reloadDatabase: reloadDatabase,
   setApiStatus: setApiStatus,
   getValStatus: getValStatus,
+  proxyTo: proxyTo,
 }
 
-let projectId = argv.projectId || ''
+let projectId = proj._id || ''
 let apiList
 let apiStatus = {}
+// 代理
+let proxyReg = []
+let proxyTable = proj.proxyTable || []
+proxyTable.forEach(function (p) {
+  proxyReg.push({reg: new RegExp(p.api), target: p.target})
+})
+
+proxy.on('proxyReq', function (proxyReq, req, res, options) {
+  if (req.body) {
+    let bodyData = JSON.stringify(req.body)
+    // incase if content-type is application/x-www-form-urlencoded -> we need to change to application/json
+    proxyReq.setHeader('Content-Type', 'application/json')
+    proxyReq.setHeader('Content-Length', Buffer.byteLength(bodyData))
+    // stream the content
+    proxyReq.write(bodyData)
+  }
+})
+
 // 获取当前项目所有的api列表，存储到内存中
 async function getProjectApiList (ctx, next) {
-  if (!ctx.is('application/x-www-form-urlencoded') && ctx.headers['x-requested-with'] !== 'XMLHttpRequest') return next()
+  if (!isXHR(ctx)) return next()
 
   let api
   if (!apiList) {
@@ -50,11 +73,22 @@ async function getProjectApiList (ctx, next) {
   if (apiList.length) {
     for (let i = 0; i < apiList.length; i++) {
       api = apiList[i]
-      // 判断 url 和 method 是否相等
-      if (api.url !== url || api.method.toUpperCase() !== method) continue
+      let matchResult
+      // 判断  method 是否相等
+      if (api.method.toUpperCase() !== method) continue
+      // 判断 url 是否相等
+
+      if (/\/:/.test(api.url)) {
+        matchResult = testUrl(api.url, url)
+        if (!matchResult) continue
+        Object.assign(params, matchResult)
+      } else if (api.url !== url) {
+        continue
+      }
+
       // api 的path不存在，当名称和url相等时自动判断为当前url
       if (!api.path) {
-        if (api.name === url) {
+        if (matchResult || api.name === url) {
           apiItem = api
           break
         }
@@ -75,8 +109,8 @@ async function getProjectApiList (ctx, next) {
       return resError(ctx, '后台错误')
     }
     ctx.apiInfo = {
-      apiBase: apiItem,
-      apiModel: conditionList,
+      reqApiBase: apiItem,
+      reqApiModel: conditionList,
       params: params,
     }
   } else {
@@ -88,12 +122,10 @@ async function getProjectApiList (ctx, next) {
 
 // 通用函数
 async function sendApiData (ctx, next) {
-  if (!ctx.is('application/x-www-form-urlencoded') && ctx.headers['x-requested-with'] !== 'XMLHttpRequest') return next()
+  if (!isXHR(ctx)) return next()
 
   let apiInfo = ctx.apiInfo || {}
-  let reqApiModel = apiInfo.apiModel
-  let reqApiBase = apiInfo.apiBase
-  let params = apiInfo.params
+  let { reqApiBase, reqApiModel, params } = apiInfo
   let data
 
   // 特殊状态查询
@@ -107,76 +139,42 @@ async function sendApiData (ctx, next) {
     }
   }
 
-  let defaultModel, i, model, noData
-  let conditionFunction, result, dealedParams
-  let paramsArr = []
+  let i, model, targetModel
+  let result, dealedParams
 
   // 获取不同条件的api
   for (i = 0; i < reqApiModel.length; i++) {
     model = reqApiModel[i]
     let condition = model.condition || ''
     // 条件为空时设置为默认值
+    // 格式化输入参数
+    dealedParams = formatEntranceParam(params, model.inputParam)
+    if (dealedParams._err) return resError(ctx, dealedParams._err)
+
     if (condition === '') {
-      defaultModel = model
+      targetModel = model
       continue
     }
 
-    try {
-      if (condition.indexOf('return') < 0) condition = 'return ' + condition
+    result = execFunction(ctx, condition, dealedParams)
 
-      // 格式化输入参数
-      dealedParams = formatEntranceParam(params, model.inputParam)
-      if (dealedParams._err) return resError(ctx, dealedParams._err)
-
-      let keys = Object.keys(dealedParams)
-      keys.forEach(function (key) {
-        paramsArr.push(dealedParams[key])
-      })
-
-      keys.push(condition)
-
-      conditionFunction = new Function(...keys)
-    } catch (e) {
-      sendErrorMsg(ctx, 'api分支判断条件函数不合法：' + condition, {
+    if (result.error) {
+      sendErrorMsg(ctx, result.message, {
         base: reqApiBase,
         model: model,
         params: params,
         dealedParams: dealedParams,
-        e: e,
+        e: result.error,
       })
       continue
     }
 
-    // 调用函数
-    try {
-      result = conditionFunction.apply(ctx, paramsArr)
-    } catch (e) {
-      sendErrorMsg(ctx, 'api分支执行判断条件的函数时出现错误：' + condition, {
-        base: reqApiBase,
-        model: model,
-        params: params,
-        dealedParams: dealedParams,
-        e: e,
-      })
-      continue
-    }
-
-    if (result) {
-      data = Array.isArray(model.data) ? model.data[0] : model.data
-      break
-    }
+    targetModel = model
+    break
   }
 
-  if (i >= reqApiModel.length && defaultModel) {
-    model = defaultModel || {}
-    if (!dealedParams) {
-      dealedParams = formatEntranceParam(params, model.inputParam)
-      if (dealedParams._err) return resError(ctx, dealedParams._err)
-    }
-    let apiData = model.data || []
-    data = (Array.isArray(apiData) ? apiData[0] : apiData) || {}
-  } else if (i >= reqApiModel.length && !defaultModel) {
-    noData = true
+  if (targetModel) {
+    data = Array.isArray(targetModel.data) ? targetModel.data[0] : targetModel.data
   }
 
   if (cApiStatus && cApiStatus.code === 1) {
@@ -194,28 +192,92 @@ async function sendApiData (ctx, next) {
     }
   }
 
+  let hisDetail = {
+    base: reqApiBase,
+    model: targetModel,
+    params: params,
+    dealedParams: dealedParams,
+    res: data,
+  }
   // 保存至历史记录
-  if (!noData) {
-    sendHisData(ctx, '获取api数据成功：' + reqApiBase.name, {
-      base: reqApiBase,
-      model: model,
-      params: params,
-      dealedParams: dealedParams,
-      res: data,
-    })
+  if (targetModel) {
+    sendHisData(ctx, '获取api数据成功：' + reqApiBase.name, hisDetail)
   } else {
-    sendHisData(ctx, '获取api数据失败：' + reqApiBase.name, {
-      base: reqApiBase,
-      model: model,
-      params: params,
-      dealedParams: dealedParams,
-      res: data,
-    })
+    sendHisData(ctx, '获取api数据失败：' + reqApiBase.name, hisDetail)
   }
 
   if (!data) return resError(ctx, '无数据')
   ctx.body = data
   return next()
+}
+
+// 代理中间件
+async function proxyTo (ctx, next) {
+  for (let i = 0; i < proxyReg.length; i++) {
+    if (proxyReg[i].reg.test(ctx.path)) {
+      ctx.req.body = ctx.request.body
+      await proxy.web(ctx.req, ctx.res, {target: proxyReg[i].target}).catch(function (d) {
+        return resError(ctx, '抱歉，代理失败' + String(d))
+      })
+      return
+    }
+  }
+  return resError('抱歉，代理失败')
+}
+
+// 执行函数
+function execFunction (ctx, condition = '', dealedParams = {}) {
+  let paramsArr = []
+  if (condition.indexOf('return') < 0) condition = 'return ' + condition
+
+  let keys = Object.keys(dealedParams)
+  let cdFunction, result
+
+  keys.forEach(function (key) {
+    paramsArr.push(dealedParams[key])
+  })
+  keys.push(condition)
+  try {
+    cdFunction = new Function(...keys)
+  } catch (e) {
+    return {error: e, message: 'api分支判断条件函数不合法：' + condition}
+  }
+
+  // 调用函数
+  try {
+    result = cdFunction.apply(ctx, paramsArr)
+  } catch (e) {
+    return {error: e, message: 'api分支执行判断条件的函数时出现错误：' + condition}
+  }
+
+  return {result: result}
+}
+
+// 判断是否是xhr请求
+function isXHR (ctx) {
+  if (ctx.headers['content-type'] !== 'application/x-www-form-urlencoded' && ctx.headers['x-requested-with'] !== 'XMLHttpRequest') {
+    if (ctx.headers['accept'] && ctx.headers['accept'].indexOf('application/json') < 0) {
+      return
+    } else if (extname(ctx.path).length < 5) {
+      return
+    }
+  }
+  return true
+}
+
+// 检测url是否匹配
+function testUrl (str, url) {
+  if (typeof str !== 'string' || typeof url !== 'string') return
+  let cStr = str.replace(/\/:[^/]*\/?/, '/([^/]*)')
+  let key = str.match(/\/:[^/]*\/?/)
+  if (!key) return
+  key = key[0].slice(2).replace('/', '')
+  let reg = new RegExp(cStr, 'g')
+  let r = reg.exec(url)
+  if (!r) return
+  let result = {}
+  result[key] = r[1]
+  return result
 }
 
 // 设置模板值
@@ -302,11 +364,11 @@ function sendErrorMsg (ctx, data, option = {}) {
     _type: 'error',
     time: +new Date(),
     args: {
-      port: argv.port,
-      fsPath: argv.fileServerPath,
+      port: proj.port,
+      fsPath: proj.path,
     },
-    projectId: argv.projectId,
-    project: argv.projectName,
+    projectId: proj._id,
+    project: proj.name,
     data: data,
     level: 6,
     apiId: base._id,
@@ -337,11 +399,11 @@ function sendHisData (ctx, data, option = {}) {
     _type: 'his',
     time: +new Date(),
     args: {
-      port: argv.port,
-      fsPath: argv.fileServerPath,
+      port: proj.port,
+      fsPath: proj.path,
     },
-    projectId: argv.projectId,
-    project: argv.projectName,
+    projectId: proj._id,
+    project: proj.name,
     data: data,
     level: 8,
     apiId: base._id,
@@ -360,7 +422,7 @@ function sendHisData (ctx, data, option = {}) {
   process.send(msg)
 }
 
-let errorModel = argv.errorModel || '{"code": -1, "codeDesc":"${msg}", "codeDescUser":"${msg}"}'
+let errorModel = JSON.stringify(proj.error) || '{"code": -1, "codeDesc":"${msg}", "codeDescUser":"${msg}"}'
 let errorExp = /\$\{msg\}/gi
 function resError (ctx, msg) {
   sendErrorMsg(ctx, msg)

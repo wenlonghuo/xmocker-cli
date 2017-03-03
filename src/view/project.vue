@@ -65,7 +65,7 @@
         :md-page="pageInfo.pageNo"
         md-label="每页条数"
         md-separator="of"
-        :md-page-options="[5, 10, 25, 50]"
+        :md-page-options="[10, 25, 50]"
         @pagination="getProject"
       ></tb-pagination>
     </md-table-card>
@@ -110,6 +110,11 @@
         <md-input-container>
           <label>随机值重复次数</label>
           <md-input v-model="proj.model.repeatTime"></md-input>
+        </md-input-container>
+
+        <md-input-container>
+          <label>代理</label>
+          <md-textarea v-model="proj.model.proxyTable"></md-textarea>
         </md-input-container>
 
         <md-input-container>
@@ -187,6 +192,7 @@
             port: '',
             error: errorMsg,
             repeatTime: 5,
+            proxyTable: [],
             urls: [],
             gulp: '',
             webpack: '',
@@ -202,7 +208,7 @@
         pageInfo: {
           total: 0,
           pageNo: 1,
-          pageSize: 5,
+          pageSize: 10,
         },
       }
     },
@@ -274,6 +280,7 @@
         var webpack = this.formatJSONString(model.webpack)
         var error = this.formatJSONString(model.error)
         var urls = this.formatJSONString(model.urls)
+        var proxyTable = this.formatJSONString(model.proxyTable)
 
         if (!gulp) {
           this.alert('gulp配置格式不正确')
@@ -289,6 +296,7 @@
         param.webpack = webpack
         param.error = error
         param.urls = urls
+        param.proxyTable = proxyTable
 
         return this.app.add(param)
       },
@@ -300,6 +308,7 @@
         var webpack = this.formatJSONString(model.webpack)
         var error = this.formatJSONString(model.error)
         var urls = this.formatJSONString(model.urls)
+        var proxyTable = this.formatJSONString(model.proxyTable)
 
         if (!gulp) {
           this.alert('gulp配置格式不正确')
@@ -315,6 +324,7 @@
         param.webpack = webpack
         param.error = error
         param.urls = urls
+        param.proxyTable = proxyTable
         param.id = param._id
         return this.app.edit(param)
       },
@@ -505,6 +515,7 @@
           model.gulp = this.prettyJSON(model.gulp)
           model.webpack = this.prettyJSON(model.webpack)
           model.urls = this.prettyJSON(model.urls)
+          model.proxyTable = this.prettyJSON(model.proxyTable)
           model.error = this.prettyJSON(model.error) || errorMsg
         })
       },

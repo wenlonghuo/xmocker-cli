@@ -9,7 +9,7 @@
       <div class="app-project-show-form">
         <md-input-container>
           <label>所属项目</label>
-          <md-select name="proj" id="proj" v-model="formModel.apiBase.project">
+          <md-select name="proj" id="proj" v-model="formModel.apiBase.project" @change="projSelect">
             <md-option v-for="proj in projList" :value="proj._id">{{proj.name}}</md-option>
           </md-select>
           <md-tooltip md-direction="bottom">选择项目后将为该项目添加API, 必选</md-tooltip>
@@ -132,9 +132,9 @@
             _id: '',
             name: '主干',
             condition: '',
-            inputParam: '',
-            outputParam: '',
-            data: '[]',
+            inputParam: '{}',
+            outputParam: '{}',
+            data: '{}',
           }],
           currentIndex: 0,
           type: 'base',
@@ -216,7 +216,14 @@
           }
           // 设置到数据中
           this.projList = data.data.list
+          let last = window.localStorage.getItem('api-select-proj')
+          if (last && data.data.list.find((p) => { return p._id === last })) {
+            this.formModel.apiBase.project = last
+          }
         })
+      },
+      projSelect: function (e) {
+        window.localStorage.setItem('api-select-proj', e)
       },
       // 获取信息
       getApiInfo: function (option) {

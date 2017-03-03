@@ -9,10 +9,10 @@ let sysTime = new Date()
 
 if (version < 7) {
   args = ['./app/lower-start.js']
-} else if (version === 7) {
-  args = ['--harmony-async-await', './app/index.js']
-} else {
+} else if (version >= 7.6) {
   args = ['./app/index.js']
+} else {
+  args = ['--harmony-async-await', './app/index.js']
 }
 
 function startServer () {
@@ -45,8 +45,8 @@ function startServer () {
 }
 
 function nodeVersion () {
-  let nv = process.versions.node || ''
-  return ~~nv.split('.')[0]
+  let nv = (process.versions.node || '').split('.')
+  return ~~(nv[0] + '.' + nv[1])
 }
 
 startServer()

@@ -108,6 +108,15 @@
       this.getProjectList().then(function () {
         this.getAppInfo()
       })
+      document.onkeydown = (e) => {
+        if (e.ctrlKey && e.keyCode === 83) {
+          this.buttonSubmit()
+          return false
+        }
+      }
+    },
+    destroyed () {
+      document.onkeydown = null
     },
     methods: {
       // 服务器交互

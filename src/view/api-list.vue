@@ -13,6 +13,10 @@
         <md-icon>add</md-icon>
         <md-tooltip md-direction="top">添加API</md-tooltip>
       </md-button>
+      <md-button class="md-fab md-primary" @click.native="buttonCopyAllApi">
+        <md-icon>content_copy</md-icon>
+        <md-tooltip md-direction="top">复制所有API</md-tooltip>
+      </md-button>
       <md-button class="md-fab md-primary" @click.native="buttonNav($event, -1)" md-theme="rightbar">
         <md-icon>navigate_before</md-icon>
         <md-tooltip md-direction="top">上一页</md-tooltip>
@@ -47,56 +51,57 @@
         </md-list>
       </div>
     </div>
-
     <div class="m-api-card-list">
       <h1 class="md-title app-toolbar-title">API列表 -- {{selection.projName}}</h1>
-      <md-card md-with-hover v-for="item in apiList" class="m-api-list">
-        <md-card-header>
-          <md-card-header-text>
-            <div class="md-title">{{item.name}}</div>
-            <div class="md-subhead">{{item.method.toUpperCase()}} --> {{item.url}}</div>
-          </md-card-header-text>
-        </md-card-header>
-        <md-card-area md-inset>
+      
+        <md-card md-with-hover v-for="item in apiList" class="m-api-list" :key="item._id">
+          <md-card-header>
+            <md-card-header-text>
+              <div class="md-title" :style="{'font-size': getFontSize(item.name)}">{{item.name}}</div>
+              <div class="md-subhead">{{item.method.toUpperCase()}} --> {{item.url}}</div>
+            </md-card-header-text>
+          </md-card-header>
+          <md-card-area md-inset>
 
-          <md-card-content>
-            {{item.description}}
+            <md-card-content>
+              {{item.description}}
+            </md-card-content>
+          </md-card-area>
+          <md-card-content class="m-api-card-list-buttons">
+            <md-icon class="darkIcon">settings</md-icon>
+            <md-button-toggle md-single class="md-button-group">
+              <md-button @click.native="buttonSetApi($event, item._id, 'clear')">
+                清除
+                <md-tooltip md-direction="top">清除设置api的默认项，如错误、随机和固定值</md-tooltip>
+              </md-button>
+              <md-button @click.native="buttonSetApi($event, item._id, 'error')">
+                错误
+                <md-tooltip md-direction="top">设置api当前值为错误值</md-tooltip>
+              </md-button>
+              <md-button @click.native="buttonSetApi($event, item._id, 'random')">
+                随机
+                <md-tooltip md-direction="top">设置api当前值为随机值</md-tooltip>
+              </md-button>
+            </md-button-toggle>
           </md-card-content>
-        </md-card-area>
-        <md-card-content class="m-api-card-list-buttons">
-          <md-icon class="darkIcon">settings</md-icon>
-          <md-button-toggle md-single class="md-button-group">
-            <md-button @click.native="buttonSetApi($event, item._id, 'clear')">
-              清除
-              <md-tooltip md-direction="top">清除设置api的默认项，如错误、随机和固定值</md-tooltip>
-            </md-button>
-            <md-button @click.native="buttonSetApi($event, item._id, 'error')">
-              错误
-              <md-tooltip md-direction="top">设置api当前值为错误值</md-tooltip>
-            </md-button>
-            <md-button @click.native="buttonSetApi($event, item._id, 'random')">
-              随机
-              <md-tooltip md-direction="top">设置api当前值为随机值</md-tooltip>
-            </md-button>
-          </md-button-toggle>
-        </md-card-content>
 
-        <md-card-actions>
-          
-          <md-button class="md-icon-button" @click.native="buttonCopyApi($event, item._id)">
-            <md-icon>content_copy</md-icon>
-            <md-tooltip md-direction="top">复制到其他项目</md-tooltip>
-          </md-button>
-          <md-button class="md-icon-button" @click.native="buttondeleteApi($event, item)">
-            <md-icon>delete</md-icon>
-            <md-tooltip md-direction="top">删除</md-tooltip>
-          </md-button>
-          <md-button class="md-icon-button" @click.native="buttonEditApi($event, item._id)">
-            <md-icon>mode_edit</md-icon>
-            <md-tooltip md-direction="top">编辑</md-tooltip>
-          </md-button>
-        </md-card-actions>
-      </md-card>
+          <md-card-actions>
+            
+            <md-button class="md-icon-button" @click.native="buttonCopyApi($event, item._id)">
+              <md-icon>content_copy</md-icon>
+              <md-tooltip md-direction="top">复制到其他项目</md-tooltip>
+            </md-button>
+            <md-button class="md-icon-button" @click.native="buttondeleteApi($event, item)">
+              <md-icon>delete</md-icon>
+              <md-tooltip md-direction="top">删除</md-tooltip>
+            </md-button>
+            <md-button class="md-icon-button" @click.native="buttonEditApi($event, item._id)">
+              <md-icon>mode_edit</md-icon>
+              <md-tooltip md-direction="top">编辑</md-tooltip>
+            </md-button>
+          </md-card-actions>
+        </md-card>
+      
     </div>
     <div class="m-api-move-module" v-if="show.copy">
       <md-whiteframe md-elevation="5" class="m-api-move-module-box">
@@ -241,6 +246,16 @@
           url: '/mock/setApiStatus',
         },
       })
+      // 调整每页显示个数
+      var contentWidth = document.documentElement.clientWidth - 100
+      var contentHeight = document.documentElement.clientHeight - 150
+      if (contentWidth > 0) {
+        var colNum = Math.floor(contentWidth / 390)
+        var rowNum = Math.floor(contentHeight / 290)
+        var cardNum = colNum * rowNum
+        this.pageInfo.pageSize = cardNum < 6 ? 6 : cardNum
+      }
+
       this.pageInfo.pageNo = (parseInt(this.$route.query.pageNo) - 1) || 0
       this.getProjectList()
     },
@@ -286,6 +301,22 @@
           this.apiList = data.data.list
           this.pageInfo.total = data.data.pagination.total
           this.pageInfo.pageNum = data.data.pagination.pageNum
+        })
+      },
+      getFullApiList: function () {
+        var param = {
+          project: this.selection.proj,
+          pageSize: 2000,
+          pageNo: 0,
+        }
+        return this.app.get(param).then(function (data) {
+          data = data.data
+          if (data.code) {
+            this.alert(data.err)
+            return
+          }
+          // 设置到数据中
+          this.apiList = data.data.list
         })
       },
 
@@ -379,8 +410,15 @@
       },
 
       buttonCopyApi: function (e, id) {
+        this.backApi = this.apiList
         this.show.copy = true
-        console.log(id)
+      },
+
+      buttonCopyAllApi: function (e, id) {
+        this.backApi = this.apiList
+        this.getFullApiList().then(function () {
+          this.show.copy = true
+        })
       },
 
       buttonSubmitCopy: function (e) {
@@ -391,6 +429,7 @@
       },
 
       buttonCloseCopy: function () {
+        this.apiList = this.backApi
         this.show.copy = false
       },
 
@@ -463,6 +502,15 @@
       selectProj: function (e) {
         this.selection.copyProj = e
       },
+      getFontSize (name) {
+        var len = name.length
+        var ft = 318 / len * 2
+        if (ft > 24) {
+          return '24px'
+        } else {
+          return ft + 'px'
+        }
+      },
     },
   }
 </script>
@@ -496,7 +544,7 @@
 .m-api-list {
   display: inline-block;
   min-width: 350px;
-  max-width: 500px;
+  max-width: 350px;
   max-height: 400px; 
   overflow: hidden;
   margin: 20px;
@@ -540,9 +588,9 @@
   position: fixed;
   top: 50%;
   right: 10px;
-  margin-top: -200px;
+  margin-top: -240px;
   width: 80px;
-  height: 400px;
+  height: 480px;
   z-index: 2;
 }
 .m-api-list-choose-proj {
@@ -587,5 +635,8 @@
 .darkIcon {
   margin: 8px;
   color: rgba(0, 0, 0, .54) !important;
+}
+.smaller-size {
+  font-size: 18px !important;
 }
 </style>

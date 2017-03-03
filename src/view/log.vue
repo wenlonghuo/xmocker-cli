@@ -47,7 +47,10 @@
 
         <md-card-area md-inset v-if="detail.req">
           <md-card-header>
-            <h2 class="md-subheading">请求参数</h2>
+            <h2 class="md-subheading">
+              <span>请求参数</span>
+              <md-icon class="m-log-btn-copy" @click.native="copyResult($event, detail.req)">content_copy</md-icon>
+            </h2>
           </md-card-header>
 
           <md-card-content>
@@ -57,7 +60,10 @@
 
         <md-card-area md-inset  v-if="detail.reqParsed">
           <md-card-header>
-            <h3 class="md-subheading">转换后参数</h3>
+            <h3 class="md-subheading">
+              <span>转换后参数</span>
+              <md-icon class="m-log-btn-copy" @click.native="copyResult($event, detail.reqParsed)">content_copy</md-icon>
+            </h3>
           </md-card-header>
           <md-card-content>
             <pre><code lang="json">{{formatStr(detail.reqParsed)}}</code></pre>
@@ -67,7 +73,10 @@
 
         <md-card-area md-inset  v-if="detail.res">
           <md-card-header>
-            <h3 class="md-subheading">输出结果</h3>
+            <h3 class="md-subheading">
+            <span>输出结果</span>
+            <md-icon class="m-log-btn-copy" @click.native="copyResult($event, detail.res)">content_copy</md-icon>
+            </h3>
           </md-card-header>
           
           <md-card-content>
@@ -263,6 +272,20 @@
         }
         if (p && p.className === cssName) return p
       },
+      copyResult (e, item) {
+        this.copy2Clipboard(JSON.stringify(item, null, 2))
+      },
+      copy2Clipboard (content) {
+        var a = document.createElement('textarea')
+        a.value = content
+        a.style.width = 0
+        a.style.height = 0
+        a.style.opacity = 0
+        document.body.appendChild(a)
+        a.select()
+        document.execCommand('Copy')
+        document.body.removeChild(a)
+      },
     },
   }
 </script>
@@ -340,4 +363,7 @@ pre {
   overflow-x: auto;
 }
 
+.m-log-btn-copy {
+  cursor: pointer;
+}
 </style>

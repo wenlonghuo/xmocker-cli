@@ -2,39 +2,43 @@
   <div class="p-main">
     <h1>HELLO</h1>
     <div class="m-main-box">
-      <div class="m-main-urls" v-if="!hideRight">
-        <md-icon class="md-warn m-main-url-clear" @click.native="closePanel">clear</md-icon>
-        <h3>常用链接列表</h3>
-        <md-list class="md-double-line" v-for="item in urlList">
-          <md-list-item>
-            <md-icon class="md-primary">{{item.list?'folder':'language'}}</md-icon>
-            <span v-if="item.list">{{item.name}}</span>
-            <div class="md-list-text-container" v-if="!item.list">
-              <span>{{item.name}}</span>
-              <a :href="'http://localhost:' + port + item.url" target="_blank">{{item.url}}</a>
-            </div>
+      <transition name="fly-left" mode="in-out">
+        <div class="m-main-urls" v-if="!hideRight">
+          <md-icon class="md-warn m-main-url-clear" @click.native="closePanel">clear</md-icon>
+          <h3>常用链接列表</h3>
+          <md-list class="md-double-line" v-for="item in urlList">
+            <transition-group>
+              <md-list-item :key="item.name">
+                <md-icon class="md-primary">{{item.list?'folder':'language'}}</md-icon>
+                <span v-if="item.list">{{item.name}}</span>
+                <div class="md-list-text-container" v-if="!item.list">
+                  <span>{{item.name}}</span>
+                  <a :href="'http://localhost:' + port + item.url" target="_blank">{{item.url}}</a>
+                </div>
 
-            <md-button class="md-icon-button md-list-action" @click.native="findApi($event, item)" v-if="!item.list">
-              <md-icon>search</md-icon>
-            </md-button>
-            <!-- 二级菜单 -->
-            <md-list-expand v-if="item.list">
-              <md-list class="md-double-line">
-                <md-list-item v-for="subItem in item.list">
-                  <md-icon class="md-primary">language</md-icon>
-                  <div class="md-list-text-container">
-                    <span>{{subItem.name}}</span>
-                    <a :href="'http://localhost:' + port + subItem.url" target="_blank">{{subItem.url}}</a>
-                  </div>
-                  <md-button class="md-icon-button md-list-action" @click.native="findApi($event, subItem)">
-                    <md-icon>search</md-icon>
-                  </md-button>
-                </md-list-item>
-              </md-list>
-            </md-list-expand>
-          </md-list-item>
-        </md-list>
-      </div>
+                <md-button class="md-icon-button md-list-action" @click.native="findApi($event, item)" v-if="!item.list">
+                  <md-icon>search</md-icon>
+                </md-button>
+                <!-- 二级菜单 -->
+                <md-list-expand v-if="item.list">
+                  <md-list class="md-double-line">
+                    <md-list-item v-for="subItem in item.list">
+                      <md-icon class="md-primary">language</md-icon>
+                      <div class="md-list-text-container">
+                        <span>{{subItem.name}}</span>
+                        <a :href="'http://localhost:' + port + subItem.url" target="_blank">{{subItem.url}}</a>
+                      </div>
+                      <md-button class="md-icon-button md-list-action" @click.native="findApi($event, subItem)">
+                        <md-icon>search</md-icon>
+                      </md-button>
+                    </md-list-item>
+                  </md-list>
+                </md-list-expand>
+              </md-list-item>
+            </transition-group>              
+          </md-list>
+        </div>
+      </transition>
       <div class="m-main-card-list" :class="{'show-list': !hideRight}">
         <md-card md-with-hover v-for="item in runningProject" class="m-api-list">
           <md-card-header>
@@ -148,6 +152,7 @@
   width: 100%;
   overflow: auto;
   text-align: center;
+  transition: padding .1s linear;
 }
 .m-main-box .show-list{
   padding-right: 350px;
@@ -166,5 +171,15 @@
   float: right;
   z-index: 2;
   cursor: pointer;
+}
+
+/*.fly-left-enter {
+  transform: scale(.5);
+}*/
+.fly-left-enter, .fly-left-leave-active{
+  transform: translate3d(400px, 0, 0) !important;
+}
+.fly-left-enter-active, .fly-left-leave-active {
+  transition: all .3s linear;
 }
 </style>

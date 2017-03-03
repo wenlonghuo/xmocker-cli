@@ -163,21 +163,15 @@ function startMockServer (proc, option) {
   if (proc.gulp && proc.gulp.buildPath) {
     fPath = path.join(fPath, proc.gulp.buildPath)
   }
-  param.push('--fileServerPath="' + convertCode(fPath) + '"')
 
   param.push('--projectId="' + (proc._id || '') + '"')
-
-  param.push('--projectName="' + (proc.name || '') + '"')
-
-  param.push('--repeatTime=' + (proc.repeatTime || '0') + '')
-
-  let error = JSON.stringify(proc.error) || ''
-  param.push('--errorModel="' + convertCode(error) + '"')
 
   // 服务器
   let startArgs = ['--harmony-async-await', '"' + path.join(__dirname, '../mockapp') + '"', ...param]
   if (nv < 7) {
     startArgs = ['"' + path.join(__dirname, '../mockapp/lower-start') + '"', ...param]
+  } else if (nv >= 7.6) {
+    startArgs = ['"' + path.join(__dirname, '../mockapp') + '"', ...param]
   }
   const server = spawn('node', startArgs, {
     stdio: ['pipe', 'ipc', 'pipe'],
@@ -286,8 +280,8 @@ function startGulp (proc, option = { force: false }) {
 }
 
 function nodeVersion () {
-  let nv = process.versions.node || ''
-  return ~~nv.split('.')[0]
+  let nv = (process.versions.node || '').split('.')
+  return ~~(nv[0] + '.' + nv[1])
 }
 
 function sendMsg (id, msg) {

@@ -42,6 +42,20 @@ module.exports.addAppProject = {
     type: 'number',
     cname: '重复次数',
   },
+  proxyTable: {
+    type: 'array',
+    cname: '代理',
+    child: {
+      api: {
+        type: 'string',
+        required: true,
+      },
+      target: {
+        type: 'string',
+        reuqired: true,
+      },
+    },
+  },
   urls: {
     type: 'array',
     cname: '常用url',
@@ -152,6 +166,20 @@ module.exports.editAppProject = {
   repeatTime: {
     type: 'number',
     cname: '重复次数',
+  },
+  proxyTable: {
+    type: 'array',
+    cname: '代理',
+    child: {
+      api: {
+        type: 'string',
+        required: true,
+      },
+      target: {
+        type: 'string',
+        reuqired: true,
+      },
+    },
   },
   urls: {
     type: 'array',
