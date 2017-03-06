@@ -56,6 +56,10 @@ module.exports.addAppProject = {
       },
     },
   },
+  staticPath: {
+    type: 'array',
+    cname: '静态资源路径',
+  },
   urls: {
     type: 'array',
     cname: '常用url',
@@ -180,6 +184,10 @@ module.exports.editAppProject = {
         reuqired: true,
       },
     },
+  },
+  staticPath: {
+    type: 'array',
+    cname: '静态资源路径',
   },
   urls: {
     type: 'array',

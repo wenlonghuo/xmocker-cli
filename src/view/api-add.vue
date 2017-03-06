@@ -400,25 +400,6 @@
       catchError: function (data) {
         this.alert('网络错误，请稍后重试')
       },
-      copyObj: function (to, from) {
-        for (var f in from) {
-          to[f] = typeof f === 'object' ? this.copyObj(to[f] || {}, from[f]) : from[f]
-        }
-        return to
-      },
-      formatJSONString: function (str) {
-        var obj
-        try {
-          obj = new Function('return ' + str + '')()
-        } catch (e) {
-          console.log(e)
-          return
-        }
-        return JSON.stringify(obj)
-      },
-      prettyJSON: function (obj) {
-        return JSON.stringify(obj, null, 4)
-      },
       dealModelResult: function (models) {
         if (Object.prototype.toString.call(models) !== '[object Array]') {
           models = [models]

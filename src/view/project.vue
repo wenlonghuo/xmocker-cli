@@ -123,6 +123,11 @@
         </md-input-container>
 
         <md-input-container>
+          <label>静态资源路径</label>
+          <md-textarea v-model="proj.model.staticPath"></md-textarea>
+        </md-input-container>
+
+        <md-input-container>
           <label>gulp配置</label>
           <md-textarea v-model="proj.model.gulp"></md-textarea>
         </md-input-container>
@@ -168,6 +173,24 @@
 
   var errorMsg = JSON.stringify({code: -1, codeDesc: '${msg}', codeDescUser: '${msg}'}, null, 2)
 
+  var jsonKeys = ['gulp', 'webpack', 'error', 'urls', 'proxyTable', 'staticPath']
+
+  function projItem () {
+    return {
+      name: '',
+      member: '',
+      path: '',
+      port: '',
+      error: errorMsg,
+      repeatTime: 2,
+      proxyTable: '[]',
+      staticPath: '[]',
+      urls: '[]',
+      gulp: '{}',
+      webpack: '{}',
+    }
+  }
+
   export default {
     name: 'projectList',
     components: {
@@ -186,16 +209,7 @@
           title: '新增项目',
           model: {
             _id: '',
-            name: '',
-            member: '',
-            path: '',
-            port: '',
-            error: errorMsg,
-            repeatTime: 5,
-            proxyTable: [],
-            urls: [],
-            gulp: '',
-            webpack: '',
+            ...projItem(),
           },
         },
         deleteInfo: {
@@ -275,56 +289,16 @@
       // 添加项目
       addProject: function () {
         var param = this.copyObj({}, this.proj.model)
-        var model = this.proj.model
-        var gulp = this.formatJSONString(model.gulp)
-        var webpack = this.formatJSONString(model.webpack)
-        var error = this.formatJSONString(model.error)
-        var urls = this.formatJSONString(model.urls)
-        var proxyTable = this.formatJSONString(model.proxyTable)
-
-        if (!gulp) {
-          this.alert('gulp配置格式不正确')
-          return
-        } else if (!webpack) {
-          this.alert('webpack配置格式不正确')
-          return
-        } else if (!error) {
-          error = undefined
-        }
-
-        param.gulp = gulp
-        param.webpack = webpack
-        param.error = error
-        param.urls = urls
-        param.proxyTable = proxyTable
-
+        this.formatEachKey(param, this.formatJSONString, jsonKeys)
+        if (this.alertKeys(param)) return
         return this.app.add(param)
       },
       // 编辑项目
       editProject: function () {
         var param = this.copyObj({}, this.proj.model)
-        var model = this.proj.model
-        var gulp = this.formatJSONString(model.gulp)
-        var webpack = this.formatJSONString(model.webpack)
-        var error = this.formatJSONString(model.error)
-        var urls = this.formatJSONString(model.urls)
-        var proxyTable = this.formatJSONString(model.proxyTable)
-
-        if (!gulp) {
-          this.alert('gulp配置格式不正确')
-          return
-        } else if (!webpack) {
-          this.alert('webpack配置格式不正确')
-          return
-        } else if (!error) {
-          error = undefined
-        }
-
-        param.gulp = gulp
-        param.webpack = webpack
-        param.error = error
-        param.urls = urls
-        param.proxyTable = proxyTable
+        this.formatEachKey(param, this.formatJSONString, jsonKeys)
+        if (this.alertKeys(param)) return
+        param.error = param.error || undefined
         param.id = param._id
         return this.app.edit(param)
       },
@@ -354,7 +328,16 @@
         // this.alertInfo.content = msg
         this.$refs['alertInfo'].open()
       },
-
+      alertKeys (param) {
+        var names = []
+        jsonKeys.forEach((key) => {
+          if (!param[key]) names.push(key)
+        })
+        if (names.length) {
+          this.alert(names.join(',') + '必须为对象或数组格式')
+          return true
+        }
+      },
       selectTable: function (e) {
 
       },
@@ -417,16 +400,7 @@
         if (type === 'add') {
           this.$set(this.proj, 'type', 'add')
           this.$set(this.proj, 'title', '新增项目')
-          this.proj.model = {
-            id: '',
-            name: '',
-            member: '',
-            path: '',
-            port: '',
-            error: errorMsg,
-            gulp: {},
-            webpack: {},
-          }
+          this.proj.model = projItem()
         } else if (type === 'edit') {
           this.$set(this.proj, 'type', 'edit')
           this.$set(this.proj, 'title', '编辑项目')
@@ -488,35 +462,18 @@
         return inlineItems
       },
 
-      copyObj: function (to, from) {
-        for (var f in from) {
-          to[f] = typeof f === 'object' ? this.copyObj(to[f] || {}, from[f]) : from[f]
-        }
-        return to
-      },
-      formatJSONString: function (str) {
-        str = str || '{}'
-        var obj
-        try {
-          obj = new Function('return ' + str + '')()
-        } catch (e) {
-          return
-        }
-        return JSON.stringify(obj)
-      },
-      prettyJSON: function (obj) {
-        return JSON.stringify(obj, null, 4)
-      },
       dealModelResult: function (models) {
         if (Object.prototype.toString.call(models) !== '[object Array]') {
           models = [models]
         }
         models.forEach((model) => {
-          model.gulp = this.prettyJSON(model.gulp)
-          model.webpack = this.prettyJSON(model.webpack)
-          model.urls = this.prettyJSON(model.urls)
-          model.proxyTable = this.prettyJSON(model.proxyTable)
-          model.error = this.prettyJSON(model.error) || errorMsg
+          this.formatEachKey(model, this.prettyJSON, jsonKeys)
+          model.error = model.error || errorMsg
+        })
+      },
+      formatEachKey (obj, func, keys) {
+        keys.forEach((key) => {
+          obj[key] = func.call(this, obj[key])
         })
       },
     },

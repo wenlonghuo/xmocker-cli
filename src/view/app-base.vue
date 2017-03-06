@@ -190,12 +190,6 @@
       catchError: function (data) {
         this.alert('网络错误，请稍后重试')
       },
-      copyObj: function (to, from) {
-        for (var f in from) {
-          to[f] = typeof f === 'object' ? this.copyObj(to[f] || {}, from[f]) : from[f]
-        }
-        return to
-      },
     },
   }
 </script>

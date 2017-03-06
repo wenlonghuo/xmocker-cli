@@ -41,17 +41,6 @@ proxyTable.forEach(function (p) {
   proxyReg.push({reg: new RegExp(p.api), target: p.target})
 })
 
-proxy.on('proxyReq', function (proxyReq, req, res, options) {
-  if (req.body) {
-    let bodyData = JSON.stringify(req.body)
-    // incase if content-type is application/x-www-form-urlencoded -> we need to change to application/json
-    proxyReq.setHeader('Content-Type', 'application/json')
-    proxyReq.setHeader('Content-Length', Buffer.byteLength(bodyData))
-    // stream the content
-    proxyReq.write(bodyData)
-  }
-})
-
 // 获取当前项目所有的api列表，存储到内存中
 async function getProjectApiList (ctx, next) {
   if (!isXHR(ctx)) return next()
@@ -122,7 +111,7 @@ async function getProjectApiList (ctx, next) {
 
 // 通用函数
 async function sendApiData (ctx, next) {
-  if (!isXHR(ctx)) return next()
+  if (!isXHR(ctx) || !ctx.apiInfo) return next()
 
   let apiInfo = ctx.apiInfo || {}
   let { reqApiBase, reqApiModel, params } = apiInfo

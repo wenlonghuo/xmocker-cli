@@ -54,21 +54,33 @@ db.appProject.cfindOne({_id: projectId}).exec().then(function (proj) {
   app.proxy = true
   // sessions
 
-  // body parser
-  const bodyParser = require('koa-bodyparser')
-  app.use(bodyParser())
   // 调用路由
   // 静态服务器 添加默认为Index.html
+
+  let staticPath = proj.staticPath
+
+  if (staticPath && staticPath.length) {
+    staticPath.forEach((sp) => {
+      let abPath = sp
+      if (!path.isAbsolute(sp)) {
+        abPath = path.join(proj.path, sp)
+      }
+
+      app.use(async function (ctx, next) {
+        return next().then(sendFile(ctx, ctx.path, {root: abPath, index: 'index.html'}))
+      })
+    })
+  }
+
   app.use(async function (ctx, next) {
     return next().then(sendFile(ctx, ctx.path, {root: fileServerPath, index: 'index.html'}))
   })
-  // log(projectDir)
-  let router = require('./router.js')
+
+
 
   const controller = require('./controller')
 
   app.use(require('./router.js').routes())
-
 
   // 建立是的监听及server
   const httpServer = http.createServer(app.callback())
@@ -91,5 +103,3 @@ db.appProject.cfindOne({_id: projectId}).exec().then(function (proj) {
     }
   })
 })
-
-

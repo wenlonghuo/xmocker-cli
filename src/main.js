@@ -5,6 +5,31 @@ import App from './App'
 import router from './router'
 import store from './store'
 
+Vue.mixin({
+  methods: {
+    copyObj: function (to, from) {
+      for (var f in from) {
+        to[f] = typeof f === 'object' ? this.copyObj(to[f] || {}, from[f]) : from[f]
+      }
+      return to
+    },
+    formatJSONString: function (str) {
+      str = str || ''
+      var obj
+      try {
+        obj = new Function('return ' + str + '')()
+      } catch (e) {
+        console.log(e)
+        return null
+      }
+      return JSON.stringify(obj)
+    },
+    prettyJSON: function (obj) {
+      return JSON.stringify(obj, null, 4)
+    },
+  },
+})
+
 /* eslint-disable no-new */
 new Vue({
   el: '#app',
