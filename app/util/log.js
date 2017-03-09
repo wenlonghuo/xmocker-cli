@@ -1,5 +1,6 @@
 'use strict'
 let through2 = require('through2')
+const path = require('path')
 const Datastore = require('../db/promiseNeDb')
 // 日志有效时间
 let td = +new Date() - 1000 * 60 * 60 * 24 * 5
@@ -7,14 +8,14 @@ let ws, wss
 let logLevel = 10
 
 // 初始化数据库
-const ErrStore = new Datastore({filename: 'db/log/err',
+const ErrStore = new Datastore({filename: path.join(__dirname, '../../db/log/err'),
   autoload: true,
   onload: function () {
     ErrStore.remove({time: {$lte: td}}, {multi: true}).catch(function (e) { console.log(e) })
   },
 })
 // api 基础数据
-const HisStore = new Datastore({filename: 'db/log/his',
+const HisStore = new Datastore({filename: path.join(__dirname, '../../db/log/his'),
   autoload: true,
   onload: function () {
     HisStore.remove({time: {$lte: td}}, {multi: true}).catch(function (e) { console.log(e) })

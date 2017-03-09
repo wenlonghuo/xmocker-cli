@@ -11,6 +11,7 @@ var rev = require('gulp-rev');
 var revCollector = require('gulp-rev-collector');
 var minimist = require('minimist');
 var path = require('path');
+var plumber = require('gulp-plumber');
 const colors = require('colors');
 
 const dealOption = require('./setGulpOption')
@@ -23,121 +24,123 @@ var cacheFiles = {
 
 var args = minimist(process.argv.slice(2));
 
-var option = Object.assign({} ,args);
+var option = Object.assign({}, args);
 
-for(var key in option){
-  if(typeof option[key] === 'string')option[key] = option[key].split(',')
+for (var key in option) {
+  if (typeof option[key] === 'string') option[key] = option[key].split(',')
 }
 option = dealOption(option)
-option.buildPath =option.buildPath[0]
-option.root =option.root[0]
-// console.log(option);
+option.buildPath = option.buildPath[0]
+option.root = option.root[0]
+
 // 清除打包目录
-gulp.task('clean-code', function () {
-  return del([option.buildPath + '/**/*'], {force: true})
+gulp.task('clean-code', function() {
+  return del([option.buildPath + '/**/*'], { force: true })
 });
 
 // push image
-gulp.task('image-copy', function () {
-  
-  return gulp.src([...option.image], {base: option.root})
+gulp.task('image-copy', function() {
+
+  return gulp.src([...option.image], { base: option.root })
     .pipe(gulp.dest(option.buildPath));
 });
 
 // CSS
 // 压缩代码
 // 合并import
-gulp.task('css', function () {
-  return gulp.src(option.css, {base: option.root})
+gulp.task('css', function() {
+  return gulp.src(option.css, { base: option.root })
     .pipe(minify({
       "advanced": false, // set as 'clean-css' configuration API
       "keepBreaks": true,
       "root": option.root,
-      "target": option.root,// 必加，否则会出现路径错误
+      "target": option.root, // 必加，否则会出现路径错误
       // "relativeTo":  path.join(process.cwd(), '../style/common'),
     }))
     .pipe(rev())
     .pipe(gulp.dest(option.buildPath))
     .pipe(rev.manifest())
     .pipe(gulp.dest(option.buildPath + '/rev/css'))
-    
+
 });
 
 // html 引用变更
 // 压缩html
-gulp.task('rev-html', function (cb) {
-  
-  return  gulp.src([option.buildPath + '/rev/**/*.json',...option.html], {base: option.root})
+gulp.task('rev-html', function(cb) {
+
+  return gulp.src([option.buildPath + '/rev/**/*.json', ...option.html], { base: option.root })
     .pipe(revCollector({
-    	replaceReved: true
+      replaceReved: true
     }))
     .pipe(gulp.dest(option.buildPath))
-    
+
 });
 
 // js压缩任务
-gulp.task('scripts', function () {
-  
-    // gulp.src(option.js, {read: false,base: option.root}), // 不需要读取文件内容，browserify 会处理这个问题
-   return gulp.src((cacheFiles.inited ? cacheFiles.js : option.js), {read: false, base: option.root}) // 不需要读取文件内容，browserify 会处理这个问题
+gulp.task('scripts', function() {
 
-    // 使用 gulp-tap 转换文件内容
-    .pipe(tap(function (file) {
-      if (!cacheFiles.inited)readRelation(file.path);
-      file.contents = browserify(file.path, {debug: true}).bundle();
-    }))
+  // gulp.src(option.js, {read: false,base: option.root}), // 不需要读取文件内容，browserify 会处理这个问题
+  return gulp.src((cacheFiles.inited ? cacheFiles.js : option.js), { read: false, base: option.root }) // 不需要读取文件内容，browserify 会处理这个问题
+  .pipe(plumber())
+  // 使用 gulp-tap 转换文件内容
+  .pipe(tap(function(file) {
+    if (!cacheFiles.inited) readRelation(file.path);
+    file.contents = browserify(file.path, { debug: true }).bundle();
+  }))
 
-    // 转换 stram 内容为 buff 内容（因为 gulp-sourcemaps 不支持 stream 形式的内容）
-    .pipe(buffer())
+  // 转换 stram 内容为 buff 内容（因为 gulp-sourcemaps 不支持 stream 形式的内容）
+  .pipe(buffer())
     .pipe(rev())
     .pipe(gulp.dest(option.buildPath))
 
-    .pipe(rev.manifest({
+  .pipe(rev.manifest({
       path: option.buildPath + '/rev/js/rev-manifest.json',
       merge: true // merge with the existing manifest if one exists
     }))
-    .pipe(rename('rev-manifest.json'))// 必须有，不然生成的文件名带有路，无法复制到文件中
+    .pipe(rename('rev-manifest.json')) // 必须有，不然生成的文件名带有路，无法复制到文件中
     .pipe(gulp.dest(option.buildPath + 'rev/js'))
 });
 
 // 建立自动处理的任务
-gulp.task('script-change', gulp.series('scripts', 'rev-html', function (cb) {
+gulp.task('script-change', gulp.series('scripts', 'rev-html', function(cb) {
   cb();
 }));
 
-gulp.task('style-change', gulp.series('css', 'rev-html', function (cb) {
+gulp.task('style-change', gulp.series('css', 'rev-html', function(cb) {
   cb();
 }));
 
-gulp.task('html-change', gulp.series('rev-html', function (cb) {
+gulp.task('html-change', gulp.series('rev-html', function(cb) {
   cb();
 }));
 
-gulp.task('image-change', gulp.series('image-copy', function (cb) {
-  cb();
-})); 
-
-gulp.task('scriptAndStyle-change', gulp.series('scripts', 'css', 'rev-html', function (cb) {
+gulp.task('image-change', gulp.series('image-copy', function(cb) {
   cb();
 }));
 
-gulp.task('init', gulp.series('clean-code', 'image-copy', 'css', 'scripts', 'rev-html', function (cb) {
+gulp.task('scriptAndStyle-change', gulp.series('scripts', 'css', 'rev-html', function(cb) {
+  cb();
+}));
+
+gulp.task('init', gulp.series('clean-code', 'image-copy', 'css', 'scripts', 'rev-html', function(cb) {
   cb();
 }));
 
 // 监听文件变化任务，自定义
 gulp.task('dev', gulp.series('init', function watchingTask(re) {
-  var fileList = [], tmpFileList = [], timeHd, isRunning, runningHd;
+  var fileList = [],
+    tmpFileList = [],
+    timeHd, isRunning, runningHd;
   // 初始化缓存文档
   cacheFiles.inited = true;
   cacheFiles.js = [];
 
   var fileHash = {};
-  var watcherjs = gulp.watch([...option.js,...option.css, ...option.html, ...option.image], function(re){
-    
-  }); 
+  var watcherjs = gulp.watch([...option.js, ...option.css, ...option.html, ...option.image], function(re) {
+
+  });
   // 监视与 scripts 任务中同样的文件
-  watcherjs.on('change', function (event) {
+  watcherjs.on('change', function(event) {
     if (isRunning) {
       tmpFileList.push(event);
     } else {
@@ -150,23 +153,24 @@ gulp.task('dev', gulp.series('init', function watchingTask(re) {
   gutil.log((' 启动监听，目录为: \njs:\n	' +
     option.js.join('\n	') + '\ncss:\n	' +
     option.css.join('\n	') + '\nhtml:\n	' +
-    option.html.join('\n	') +'\nimage:\n  '+
-    option.image.join('\n   ')).yellow
-  );
+    option.html.join('\n	') + '\nimage:\n  ' +
+    option.image.join('\n   ')).yellow);
 
   function setTask() {
-    var ctype = {}, task = '', rchanged = false;
+    var ctype = {},
+      task = '',
+      rchanged = false;
     gutil.log((' ———— 监听到文件变动，检测md5中....').yellow);
-    fileList.forEach(function (f) {
+    fileList.forEach(function(f) {
       var file = f;
       try {
         var str = fs.readFileSync(file);
       } catch (e) {
         console.log('读取文件失败，' + file);
-        if(f.type !== 'deleted')return;
+        if (f.type !== 'deleted') return;
       }
 
-      if(str){
+      if (str) {
         let md5 = crypto.createHash('md5').update(str).digest('hex');
         if (fileHash[file] !== md5) {
           fileHash[file] = md5;
@@ -174,17 +178,17 @@ gulp.task('dev', gulp.series('init', function watchingTask(re) {
         }
       }
 
-      if(f.type == 'deleted'){
+      if (f.type == 'deleted') {
         rchanged = true;
       }
-      
+
       var tp = path.extname(file).slice(1);
-      if(/jpg|png|gif|webp/.test(tp)){
+      if (/jpg|png|gif|webp/.test(tp)) {
         ctype.image = true;
-      }else{
+      } else {
         ctype[tp] = true;
       }
-    
+
       if (tp === 'js') {
         readRelation(file);
       }
@@ -197,7 +201,7 @@ gulp.task('dev', gulp.series('init', function watchingTask(re) {
 
     // 设置队列
     if (ctype.js) {
-      setFileList(fileList);// console.log(cacheFiles.relation,cacheFiles.js);
+      setFileList(fileList); // console.log(cacheFiles.relation,cacheFiles.js);
       gutil.log(('js重构建：\n 	' + cacheFiles.js.join('\n 	')).blue);
       delExistFile();
     }
@@ -219,14 +223,14 @@ gulp.task('dev', gulp.series('init', function watchingTask(re) {
   function doTask() {
     if (isRunning) { // 正在运行则等1秒后再检查
       clearTimeout(runningHd);
-      runningHd = setTimeout(function () {
+      runningHd = setTimeout(function() {
         doTask()
       }, 1000);
       return;
     }
 
     clearTimeout(timeHd);
-    timeHd = setTimeout(function () {
+    timeHd = setTimeout(function() {
       isRunning = true;
       var taskname = setTask();
       if (!taskname) {
@@ -234,9 +238,9 @@ gulp.task('dev', gulp.series('init', function watchingTask(re) {
         isRunning = false;
         return;
       }
-      var task = gulp.series(taskname, function(cb){cb()});
+      var task = gulp.series(taskname, function(cb) { cb() });
 
-      task.call(null, function () {
+      task.call(null, function() {
         fileList = [];
         isRunning = false;
         gutil.log((' ———— 任务执行完毕，继续监听...').yellow);
@@ -255,13 +259,13 @@ function setFileList(filearr) {
     tmpList = [],
     fileList = filearr;
 
-  fileList.forEach(function (item) { // todo: 复杂层次引用会导致数组过大
+  fileList.forEach(function(item) { // todo: 复杂层次引用会导致数组过大
     var arr = findParentFile(item, cacheFiles.relation),
       childList;
     tmpList = tmpList.concat(arr);
     while (arr.length) {
       childList = [];
-      arr.forEach(function (f) {
+      arr.forEach(function(f) {
         var farr = findParentFile(item, cacheFiles.relation);
         childList = childList.concat();
       });
@@ -271,7 +275,7 @@ function setFileList(filearr) {
   });
   fileList = fileList.concat(tmpList);
 
-  fileList.forEach(function (item) {
+  fileList.forEach(function(item) {
     if (!nosame[item]) {
       cacheFiles.js.push(item);
       nosame[item] = true;
@@ -290,7 +294,7 @@ function setFileList(filearr) {
 
   function existInArr(arr, item) {
     for (var i = 0; i < arr.length; i++) {
-      if (fs.realpathSync(arr[i]) === fs.realpathSync(item))return true;
+      if (fs.realpathSync(arr[i]) === fs.realpathSync(item)) return true;
     }
   }
 }
@@ -305,9 +309,9 @@ function delExistFile() {
 
   }
   var abs = fs.realpathSync(option.root);
-  filearr.forEach(function (file) {
+  filearr.forEach(function(file) {
     var name = path.relative(abs, file);
-    if (!name)return;
+    if (!name) return;
     name = name.replace(/\\/g, '/');
     if (revjson[name]) {
       try {
@@ -323,23 +327,22 @@ function delExistFile() {
 // 读取文件关系
 function readRelation(file) {
   var filepath;
-  try{filepath = fs.realpathSync(file);}
-  catch(e){
+  try { filepath = fs.realpathSync(file); } catch (e) {
     return;
   }
   if (!cacheFiles.relation[filepath]) {
     cacheFiles.relation[filepath] = {};
   }
-  fs.readFile(filepath, function(err, data){
-  	if(err) throw err;
-	  var reg = /require\([\'\"]([^\(\)]*)[\'\"]\)/g;
-	  var result = reg.exec(data);
-	  while (result) {
-	    var rfile = getFilePath(filepath, result[1]);
-	    cacheFiles.relation[filepath][rfile] = true;
-	    result = reg.exec(data);
-	  }
-	});
+  fs.readFile(filepath, function(err, data) {
+    if (err) throw err;
+    var reg = /require\([\'\"]([^\(\)]*)[\'\"]\)/g;
+    var result = reg.exec(data);
+    while (result) {
+      var rfile = getFilePath(filepath, result[1]);
+      cacheFiles.relation[filepath][rfile] = true;
+      result = reg.exec(data);
+    }
+  });
 
   function getFilePath(file, relation) {
     if (/^(\.\/|\.\.\/)/.test(relation)) {
@@ -354,3 +357,10 @@ function readRelation(file) {
     }
   }
 }
+
+process.stdin.on('data', function (d) {
+  let word = new Buffer(d).toString()
+  if (word === 'kill') {
+    process.exit(1)
+  }
+})

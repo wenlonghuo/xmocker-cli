@@ -1,11 +1,15 @@
 {
   "name": "fe-mock-server",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "description": "a server to provide api data for fe",
   "main": "index.js",
   "scripts": {
+    "start": "node bin",
     "dev": "node build/dev-server.js",
     "build": "node build/build.js"
+  },
+  "bin": {
+    "mocker": "./bin/index.js"
   },
   "keywords": [
     "mock"
@@ -23,6 +27,7 @@
     "babel-runtime": "^6.22.0",
     "debug": "^2.6.0",
     "faker": "^3.1.0",
+    "gulp-plumber": "^1.1.0",
     "http-proxy": "^1.16.2",
     "koa": "^2.0.0",
     "koa-bodyparser": "^3.2.0",

@@ -5,6 +5,10 @@ const controller = require('../controller/appBase')
 let util = require('../util')
 let formatParam = util.formatParam
 
+router.get('/mock/online', controller.online)
+
+router.get('/mock/reloadDatabase', controller.reloadDatabase)
+
 router.get('/mock/getAppBase', formatParam, controller.getAppBase)
 
 router.put('/mock/editAppBase', formatParam, controller.editAppBase)

@@ -3,121 +3,118 @@ const spawn = require('child_process').spawn
 const path = require('path')
 const _ = require('lodash')
 const log = require('../util/log')
+const killPID = require('../util/common').killPID
+const killPort = require('../util/common').killPort
 
 let nv = nodeVersion()
 let ostype = process.platform
-let processList = []
+let procList = []
 let gulpList = []
-let procTeam = []
-let restartRunning
 
-function EmptyProm () {
-  return new Promise(function (resolve) {
-    resolve(null)
-  })
-}
+let executor = new Promise((resolve) => { resolve() })
+let handleTeam = []
 
 /**
  * addNewProcess
  * @param  {} option 传入的project对象
  */
-function addNewProcess (proc, option = {force: false}) {
-  if (!proc) return EmptyProm()
-  let existSamePort = processList.find(function (p) {
-    return p.proc && p.proc.port === p.port && p.status
-  })
-  if (existSamePort) return EmptyProm()
-  if (!proc.port) return EmptyProm()
-
-  let index = processList.findIndex(function (p) { return p.id === proc._id })
-  if (index >= 0) {
-    processList.splice(index, 1)
-  }
-  return startMockServer(proc, option)
-}
-
-function restartProcess (proc, option = {force: false}) {
+function addNewProcess (proj, option = {force: false}) {
   return new Promise(function (resolve) {
-    let procIndex = procTeam.findIndex(function (p) { return p.proc._id === proc._id })
-    if (procIndex >= 0) {
-      let targetProc = procTeam[procIndex]
-      targetProc.proc = proc
-      targetProc.cb.push(resolve)
-    } else {
-      procTeam.push({proc: proc, cb: [resolve]})
-    }
-
-    if (!restartRunning) execEachProc(option)
+    if (!proj || !proj.port) return
+    // 端口相同且还在开启则不进行
+    if (procList.find(function (p) { return p.proj && p.proj.port === proj.port && p.status })) return
+    let index = procList.findIndex(function (p) { return p.id === proj._id })
+    if (index >= 0) procList.splice(index, 1)
+    return startMockServer(proj, option).then(resolve)
   })
 }
 
-function execEachProc (option) {
-  let procItem = procTeam.shift()
-  if (!procItem) {
-    restartRunning = false
-    return
-  }
-  restartRunning = true
-  let proc = procItem.proc
-
-  return killProcess(proc).then(function (processInfo) {
-    if (processInfo) {
-      let index = processList.findIndex(function (p) { return p.id === proc._id })
-      if (index >= 0) {
-        processList.splice(index, 1)
-      }
+function restartProcess (proj, option = {force: false}) {
+  return new Promise(function (resolve) {
+    if (!proj) return
+    let index = handleTeam.findIndex(function (p) { return p.proj._id === proj._id })
+    if (index >= 0) {
+      let info = handleTeam[index]
+      info.proj = proj
+      info.cb.push(resolve)
+    } else {
+      handleTeam.push({proj: proj, cb: [{resolve: resolve, option: option}]})
+      executor = executor.then(execCommand)
     }
-    return addNewProcess(proc, option).then(function (proc) {
-      let cb = procItem.cb
+  })
+}
+
+function execCommand () {
+  let handle = handleTeam.shift()
+  let proj = handle.proj
+  let force = !!handle.cb.find((hd) => { return hd.option.force === true })
+  let option = {force: force}
+  // 先杀掉进程
+  return killProcess(proj, option).then(function (p) {
+    // 再重启进程
+    return addNewProcess(proj, option).then(function (p) {
+      let cb = handle.cb
       cb.forEach(function (c) {
-        c(proc)
+        c.resolve(p)
       })
-      return process.nextTick(function () { execEachProc(option) })
     })
   })
 }
 
-function killProcess (proc, option = {force: false}) {
-  let id = proc._id
-  let processInfo = processList.find(function (proc) { return proc.id === id })
-  if (!processInfo || !processInfo.status) {
-    console.log('项目尚未启动：[' + proc.name + '] ' + ', 端口号: ' + proc.port)
-    return new Promise(function (resolve) { resolve() })
-  }
-
-  let server = processInfo.server
-  let hasResolved
-  let gulpServer = processInfo.gulpServer
-
-  if (option.force && gulpServer) {
-    try {
-      gulpServer.kill(0)
-    } catch (e) {
-      console.log('结束gulpServer出错')
-    }
-  }
-
+function killProcess (proj, option = {force: false}) {
   return new Promise(function (resolve) {
-    processInfo.closeEvents.push(function (server) {
-      if (!hasResolved) {
-        hasResolved = true
-        resolve(processInfo)
+    let id = proj._id
+    let index = procList.findIndex(function (proc) { return proc.id === id })
+    let proc
+    if (index >= 0) {
+      if (option.force) {
+        proc = procList.splice(index, 1)[0]
+      } else {
+        proc = procList[index]
       }
-    })
+    }
 
-    if (processInfo.status) {
-      server.send({_type: 'process', data: 'kill'})
-      setTimeout(function () {
-        if (!hasResolved) {
-          hasResolved = true
-          resolve(null)
-        }
-      }, 10000)
-    } else {
-      if (!hasResolved) {
-        hasResolved = true
-        resolve(null)
+    if (!proc || !proc.status) {
+      console.log('项目尚未启动：[' + proj.name + '] ' + ', 端口号: ' + proj.port)
+      return resolve()
+    }
+
+    let server = proc.server
+    let gulpServer = proc.gulpServer
+
+    // 杀掉gulp进程
+    if (option.force && gulpServer) {
+      try {
+        gulpServer.stdin.write('kill')
+      } catch (e) {
+        console.log(e)
+        console.log('结束gulpServer出错')
       }
+    }
+
+    if (server.connected) {
+      let resolved
+      proc.closeEvents.push(function (server) {
+        if (!resolved) {
+          killPort(proj.port).then(function () {
+            resolved = true
+            resolve(proc)
+          })
+        }
+      })
+
+      server.send({_type: 'process', data: 'kill'})
+
+      setTimeout(() => {
+        if (!resolved) {
+          resolved = true
+          resolve()
+        }
+      }, 30000)
+    } else {
+      killPort(proj.port).then(function () {
+        resolve()
+      })
     }
   })
 }
@@ -152,75 +149,69 @@ function setEventForObj (obj) {
  * 启动子服务进程
  * @param  {} proc proc的详细信息
  */
-function startMockServer (proc, option) {
-  if (!proc) return new Promise(function (resolve) { resolve() })
-  let processInfo
-
-  let param = []
-  param.push('--port=' + (proc.port || 6000))
-
-  let fPath = proc.path
-  if (proc.gulp && proc.gulp.buildPath) {
-    fPath = path.join(fPath, proc.gulp.buildPath)
-  }
-
-  param.push('--projectId="' + (proc._id || '') + '"')
-
-  // 服务器
-  let startArgs = ['--harmony-async-await', '"' + path.join(__dirname, '../mockapp') + '"', ...param]
-  if (nv < 7) {
-    startArgs = ['"' + path.join(__dirname, '../mockapp/lower-start') + '"', ...param]
-  } else if (nv >= 7.6) {
-    startArgs = ['"' + path.join(__dirname, '../mockapp') + '"', ...param]
-  }
-  const server = spawn('node', startArgs, {
-    stdio: ['pipe', 'ipc', 'pipe'],
-    shell: true,
-  })
-
-  server.stderr.pipe(log.errStream)
-
-  let gulpServer = startGulp(proc, option)
-
-  processInfo = {
-    id: proc._id,
-    proc: proc,
-    server: server,
-    gulpServer: gulpServer,
-    createdTime: new Date(),
-    pid: server.pid,
-  }
-  setEventForObj(processInfo)
-  processInfo.status = 2// 等待状态
-  processList.push(processInfo)
-  let hasResolved
-
+function startMockServer (proj, option) {
   return new Promise(function (resolve) {
-    server.on('exit', function () {
-      console.log('项目退出：[' + processInfo.proc.name + '] , 进程id：' + server.pid +
-      ', 端口号: ' + processInfo.proc.port)
-      processInfo.status = 0
+    if (!proj) return resolve()
+    let proc
+
+    let param = []
+    param.push('--port=' + (proj.port || 6000))
+    param.push('--projectId="' + (proj._id || '') + '"')
+
+    let dir = '../mockapp'
+    if (nv < 7) dir = '../mockapp/lower-start'
+    let startArgs = ['"' + path.join(__dirname, dir) + '"', ...param]
+
+    if (nv >= 7 && nv < 7.6) {
+      startArgs.unshift('--harmony-async-await')
+    }
+
+    const server = spawn('node', startArgs, {
+      stdio: ['pipe', 'ipc', 'pipe'],
+      shell: true,
     })
 
-    processInfo.openEvents.push(function (server) {
+    server.stderr.pipe(log.errStream)
+
+    let gulpServer = startGulp(proj, option)
+
+    proc = {
+      id: proj._id,
+      proj: proj,
+      server: server,
+      gulpServer: gulpServer,
+      createdTime: new Date(),
+    }
+    setEventForObj(proc)
+    proc.status = 2// 等待状态
+    procList.push(proc)
+    let hasResolved
+
+    proc.openEvents.push(function (server) {
       if (!hasResolved) {
         hasResolved = true
-        resolve(processInfo)
+        resolve(proc)
       }
     })
 
-    processInfo.closeEvents.push(function (server) {
+    proc.closeEvents.push(function (server) {
       if (!hasResolved) {
         hasResolved = true
         resolve()
       }
     })
 
+    server.on('exit', function () {
+      console.log('项目退出：[' + proj.name + '] , 进程id：' + server.pid +
+      ', 端口号: ' + proj.port)
+      proc.status = 0
+    })
+
     server.on('message', function (msg) {
       if (msg._type === 'process') {
         if (msg.data === 'finished') {
-          console.log('项目启动成功: [' + proc.name + '] , 进程id： ' + server.pid + ', 端口号：' + proc.port)
-          processInfo.status = 1
+          console.log('项目启动成功: [' + proj.name + '] , 进程id： ' + server.pid + ', 端口号：' + proj.port)
+          proc.status = 1
         }
       } else {
         log.childLog(msg)
@@ -230,7 +221,7 @@ function startMockServer (proc, option) {
     setTimeout(function () {
       if (!hasResolved) {
         hasResolved = true
-        resolve(processInfo)
+        resolve(proc)
       }
     }, 10000)
   })
@@ -285,7 +276,7 @@ function nodeVersion () {
 }
 
 function sendMsg (id, msg) {
-  let proj = processList.find((p) => { return p.id === id })
+  let proj = procList.find((p) => { return p.id === id })
   if (proj && proj.server && proj.server.connected) {
     proj.server.send(msg)
   }
@@ -300,6 +291,6 @@ module.exports = {
   addNewProcess: addNewProcess,
   restartProcess: restartProcess,
   killProcess: killProcess,
-  processList: processList,
+  procList: procList,
   sendMsg: sendMsg,
 }

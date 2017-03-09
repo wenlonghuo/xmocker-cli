@@ -7,7 +7,7 @@ const appProject = db.appProject
 // const util = require('../util')
 
 const processControl = require('./processControl')
-const procList = processControl.processList
+const procList = processControl.procList
 
 module.exports = {
   restartBackground: restartBackground,
@@ -16,7 +16,7 @@ module.exports = {
 }
 
 let restartSe = getSeTeam(function (info) {
-  processControl.restartProcess(info.proc)
+  processControl.restartProcess(info.proj)
 })
 
 let reloadSe = getSeTeam(function (info) {
@@ -66,7 +66,7 @@ function getSeTeam (cb) {
     appProject.cfindOne({_id: id}).exec().then(function (doc) {
       if (doc) {
         if (procList.find(function (p) { return p.id === doc._id && p.status })) {
-          info.proc = doc
+          info.proj = doc
           cb(info)
         }
         process.nextTick(drainList)

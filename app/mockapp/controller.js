@@ -2,7 +2,7 @@
 const extname = require('path').extname
 const faker = require('faker')
 const thenify = require('thenify')
-const proxy = require('http-proxy').createProxyServer()
+const proxy = require('http-proxy').createProxyServer({changeOrigin: true})
 
 const db = require('../db')
 const util = require('../util')

@@ -8,7 +8,7 @@ const util = require('../util')
 const uid = require('../util/common').uid()
 const setError = util.setError
 const processControl = require('./processControl')
-const processList = processControl.processList
+const processList = processControl.procList
 
 const restartBackground = require('./communication').restartBackground
 
@@ -188,7 +188,7 @@ async function stopAppProject (ctx, next) {
   }
   let procNum = 0
   for (let i = 0; i < data.length; i++) {
-    let procInfo = await processControl.killProcess(data[i])
+    let procInfo = await processControl.killProcess(data[i], {force: finalParams.force})
     if (procInfo) procNum++
   }
   ctx.body = {

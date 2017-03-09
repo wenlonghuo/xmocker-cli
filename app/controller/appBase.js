@@ -6,12 +6,34 @@ const AppBase = db.appBase
 const util = require('../util')
 const setError = util.setError
 const processControl = require('./processControl')
-const processList = processControl.processList
+const processList = processControl.procList
 
 module.exports = {
   getAppBase: getAppBase,
   editAppBase: editAppBase,
   getAppStatus: getAppStatus,
+  online: online,
+  reloadDatabase: reloadDatabase,
+}
+
+async function online (ctx, next) {
+  ctx.body = {
+    code: 0,
+    data: 'online',
+  }
+  return next()
+}
+
+async function reloadDatabase (ctx, next) {
+  Object.keys(db).forEach(function (name) {
+    if (db[name].loadDatabase) {
+      db[name].loadDatabase()
+    }
+  })
+  ctx.body = {
+    code: 0,
+    data: '重载成功'
+  }
 }
 
 async function getAppStatus (ctx, next) {
@@ -19,7 +41,7 @@ async function getAppStatus (ctx, next) {
   let procInfo = []
   processList.forEach(function (proc) {
     procInfo.push({
-      procInfo: proc.proc,
+      procInfo: proc.proj,
       createdTime: proc.createdTime,
       pid: proc.pid,
       status: proc.status,

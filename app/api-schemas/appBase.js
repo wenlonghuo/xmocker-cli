@@ -1,4 +1,5 @@
-
+module.exports.online = {
+}
 
 module.exports.getAppBase = {
 

@@ -80,9 +80,14 @@
       </md-toolbar>
 
       <div class="app-project-show-form">
-         <md-input-container>
+        <md-input-container>
           <label>项目名称</label>
           <md-input type="text" v-model="proj.model.name"></md-input>
+        </md-input-container>
+
+        <md-input-container>
+          <label>简称</label>
+          <md-input type="text" v-model="proj.model.shortcut"></md-input>
         </md-input-container>
 
         <md-input-container>
@@ -178,6 +183,7 @@
   function projItem () {
     return {
       name: '',
+      shortcut: '',
       member: '',
       path: '',
       port: '',

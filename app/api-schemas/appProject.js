@@ -1,5 +1,4 @@
 
-
 module.exports.getAppProject = {
   pageSize: {
     type: 'number',
@@ -17,6 +16,11 @@ module.exports.addAppProject = {
     required: true,
     noEmpty: true,
     cname: '项目名称',
+  },
+  shortcut: {
+    type: 'string',
+    noEmpty: true,
+    cname: '项目简称，用于快捷启动',
   },
   member: {
     type: 'string',
@@ -146,6 +150,11 @@ module.exports.editAppProject = {
     required: true,
     noEmpty: true,
     cname: '项目名称',
+  },
+  shortcut: {
+    type: 'string',
+    noEmpty: true,
+    cname: '项目简称，用于快捷启动',
   },
   member: {
     type: 'string',

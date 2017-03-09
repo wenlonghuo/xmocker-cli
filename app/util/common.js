@@ -23,6 +23,7 @@ function killPort (port) {
         return
       }
       let lines = stdout.split('\n')
+
       for (let i = 0; i < lines.length; i++) {
         let line = lines[i]
         let p = line.trim().split(/\s+/)
@@ -35,11 +36,21 @@ function killPort (port) {
               resolve(msg)
             })
             rd = true
-            break
           }
         }
       }
       if (!rd) resolve('成功杀掉进程')
+    })
+  })
+}
+
+function killPID (pid) {
+  let exec = require('child_process').exec
+
+  return new Promise(function (resolve) {
+    exec('taskkill /F /pid ' + pid, function (err, stdout, stderr) {
+      let msg = err ? '释放指定端口失败！！' : '占用指定端口的程序被成功杀掉！' + pid
+      resolve(msg)
     })
   })
 }
@@ -113,6 +124,7 @@ function randomCode (len = 10, type = ['letter', 'chinese', 'number', 'punctuati
 module.exports = {
   uid: uid,
   killPort: killPort,
+  killPID: killPID,
   getDeepVal: getDeepVal,
   randomCode: randomCode,
 }
