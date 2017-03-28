@@ -19,6 +19,7 @@ let handleTeam = []
  * @param  {} option 传入的project对象
  */
 function addNewProcess (proj, option = {force: false}) {
+  option = option || {}
   return new Promise(function (resolve) {
     if (!proj || !proj.port) return
     // 端口相同且还在开启则不进行
@@ -30,6 +31,7 @@ function addNewProcess (proj, option = {force: false}) {
 }
 
 function restartProcess (proj, option = {force: false}) {
+  option = option || {}
   return new Promise(function (resolve) {
     if (!proj) return
     let index = handleTeam.findIndex(function (p) { return p.proj._id === proj._id })
@@ -62,6 +64,7 @@ function execCommand () {
 }
 
 function killProcess (proj, option = {force: false}) {
+  option = option || {}
   return new Promise(function (resolve) {
     let id = proj._id
     let index = procList.findIndex(function (proc) { return proc.id === id })

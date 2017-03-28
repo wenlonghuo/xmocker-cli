@@ -62,7 +62,6 @@
           <label>Mock 数据</label>
           <md-textarea v-model="model.data"></md-textarea>
         </md-input-container>
-
       </div>
        
       <md-button class="md-primary" @click.native="buttonSubmit($event, mIndex)">提交</md-button>     

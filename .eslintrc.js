@@ -23,6 +23,7 @@ module.exports = {
     'no-debugger': process.env.NODE_ENV === 'production' ? 2 : 0
   },
   globals: {
-    "WebSocket": true
+    "WebSocket": true,
+    "JSONEditor": true
   }
 }

@@ -5,7 +5,12 @@ import App from './App'
 import router from './router'
 import store from './store'
 
+import jsonEditor from './components/json-editor.vue'
+
 Vue.mixin({
+  components: {
+    'json-editor': jsonEditor,
+  },
   methods: {
     copyObj: function (to, from) {
       for (var f in from) {
