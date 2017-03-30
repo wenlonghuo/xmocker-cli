@@ -43,7 +43,7 @@ proxyTable.forEach(function (p) {
 
 // 获取当前项目所有的api列表，存储到内存中
 async function getProjectApiList (ctx, next) {
-  if (!isXHR(ctx)) return next()
+  // if (!isXHR(ctx)) return next()
 
   let api
   if (!apiList) {
@@ -103,7 +103,7 @@ async function getProjectApiList (ctx, next) {
       params: params,
     }
   } else {
-    return resError(ctx, '不存在api信息，请添加相关信息')
+    return next()
   }
 
   return next()
@@ -111,7 +111,7 @@ async function getProjectApiList (ctx, next) {
 
 // 通用函数
 async function sendApiData (ctx, next) {
-  if (!isXHR(ctx) || !ctx.apiInfo) return next()
+  if (!ctx.apiInfo) return next()
 
   let apiInfo = ctx.apiInfo || {}
   let { reqApiBase, reqApiModel, params } = apiInfo
