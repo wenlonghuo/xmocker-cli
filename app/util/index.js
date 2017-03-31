@@ -91,6 +91,8 @@ function checkParam (ctx, params, schema, option) {
 
 // 格式化代码
 function formatEntranceParam (params, schema, option = {}) {
+  if (typeof schema !== 'object') return {_err: '该API输入参数模板未定义'}
+  params = params || {}
   let keys = Object.keys(schema)
   let key, param, cname
   let oriParam = {}
