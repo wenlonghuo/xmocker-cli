@@ -158,8 +158,10 @@ async function sendApiData (ctx, next) {
       continue
     }
 
-    targetModel = model
-    break
+    if (result.result) {
+      targetModel = model
+      break
+    }
   }
 
   if (targetModel) {
