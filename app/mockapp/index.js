@@ -5,7 +5,7 @@ const app = new Koa()
 const path = require('path')
 const http = require('http')
 const minimist = require('minimist')
-const sendFile = require('../util/file-server.js')
+const sendFile = require('./fServer')
 const db = require('../db')
 // const spawn = require('child_process').spawn
 // 全局变量定义区，待后续可改为配置
@@ -58,6 +58,7 @@ db.appProject.cfindOne({_id: projectId}).exec().then(function (proj) {
   // 静态服务器 添加默认为Index.html
 
   let staticPath = proj.staticPath
+  let autoRefresh = proj.gulp && proj.gulp.autoRefresh
 
   if (staticPath && staticPath.length) {
     staticPath.forEach((sp) => {
@@ -67,16 +68,14 @@ db.appProject.cfindOne({_id: projectId}).exec().then(function (proj) {
       }
 
       app.use(async function (ctx, next) {
-        return next().then(sendFile(ctx, ctx.path, {root: abPath, index: 'index.html'}))
+        return next().then(sendFile(ctx, ctx.path, {root: abPath, index: 'index.html', autoRefresh: autoRefresh, port: proj.port}))
       })
     })
   }
 
   app.use(async function (ctx, next) {
-    return next().then(sendFile(ctx, ctx.path, {root: fileServerPath, index: 'index.html'}))
+    return next().then(sendFile(ctx, ctx.path, {root: fileServerPath, index: 'index.html', autoRefresh: autoRefresh, port: proj.port}))
   })
-
-
 
   const controller = require('./controller')
 
@@ -84,6 +83,14 @@ db.appProject.cfindOne({_id: projectId}).exec().then(function (proj) {
 
   // 建立是的监听及server
   const httpServer = http.createServer(app.callback())
+
+  if (autoRefresh) {
+    const WebSocket = require('ws')
+      // 建立 websocket 服务
+    const wss = new WebSocket.Server({server: httpServer})
+    const wsctrl = require('./wsctrl.js')
+    wsctrl.broad(wss)
+  }
 
   httpServer.listen(apiPORT, function (e) {
     process.send({_type: 'process', data: 'finished'})
@@ -102,4 +109,8 @@ db.appProject.cfindOne({_id: projectId}).exec().then(function (proj) {
       }
     }
   })
+})
+
+process.on('unhandledRejection', function (e) {
+  console.log(e)
 })

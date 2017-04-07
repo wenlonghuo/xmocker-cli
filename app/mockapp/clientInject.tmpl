@@ -1,0 +1,32 @@
+<script>
+  (function () {
+    if (WebSocket) {
+      function initSocket () {
+        var socket = new WebSocket('ws://' + location.host)
+        socket.onopen = function (event) {
+          socket.onmessage = function (msg) {
+            try {
+              var data = JSON.parse(msg.data)
+            } catch (e) {
+
+            }
+            if (!data) return
+            if (data._cmd === 'reload') {
+              if (window) {
+                window.location.reload()
+              }
+            }
+          }
+        }
+
+        socket.onclose = function (event) {
+          setTimeout(initSocket, 5000)
+        }
+
+        socket.onerror = function (event) {
+        }
+      }
+      initSocket()
+    }
+  })()
+</script>

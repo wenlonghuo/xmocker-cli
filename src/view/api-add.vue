@@ -333,7 +333,7 @@
         if (!data) return
         try {
           data = JSON.parse(data)
-          data = data[0]
+          if (Object.prototype.toString.call(data) === '[Ojbect Array]')data = data[0]
         } catch (e) {
           return
         }

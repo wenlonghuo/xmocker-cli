@@ -121,6 +121,10 @@ module.exports.addAppProject = {
         type: 'string',
         cname: 'js文件夹路径',
       },
+      autoRefresh: {
+        type: 'boolean',
+        cname: '自动刷新',
+      },
     },
   },
   webpack: {
@@ -254,6 +258,10 @@ module.exports.editAppProject = {
       image: {
         type: 'string',
         cname: 'js文件夹路径',
+      },
+      autoRefresh: {
+        type: 'boolean',
+        cname: '自动刷新',
       },
     },
   },

@@ -252,10 +252,12 @@ function startGulp (proc, option = { force: false }) {
   if (!gOption.html) return
   let params = []
   for (let key in gOption) {
+    if (typeof gOption[key] !== "string") continue
     params.push('--' + key + '="' + convertCode(gOption[key]) + '"')
   }
 
   params.push('--root="' + convertCode(proc.path) + '"')
+  params.push('--otherOption="' + convertCode(JSON.stringify({autoRefresh: gOption.autoRefresh, port: proc.port})) + '"')
 
   let gulpPath = gOption.path || path.join(__dirname, '../../tools/gulp')
   gulpPath = path.join(gulpPath, './node_modules/.bin')

@@ -13,6 +13,7 @@ var minimist = require('minimist');
 var path = require('path');
 var plumber = require('gulp-plumber');
 const colors = require('colors');
+const request = require('superagent')
 
 const dealOption = require('./setGulpOption')
 
@@ -23,6 +24,8 @@ var cacheFiles = {
 };
 
 var args = minimist(process.argv.slice(2));
+var otherOption = args.otherOption || '{}'
+otherOption = JSON.parse(otherOption)
 
 var option = Object.assign({}, args);
 
@@ -225,7 +228,7 @@ gulp.task('dev', gulp.series('init', function watchingTask(re) {
       clearTimeout(runningHd);
       runningHd = setTimeout(function() {
         doTask()
-      }, 1000);
+      }, 300);
       return;
     }
 
@@ -244,9 +247,17 @@ gulp.task('dev', gulp.series('init', function watchingTask(re) {
         fileList = [];
         isRunning = false;
         gutil.log((' ———— 任务执行完毕，继续监听...').yellow);
+        // 自动刷新功能
+        if (otherOption.autoRefresh) {
+          request.get(`http://localhost:${otherOption.port}/_refreshPage`)
+            .query({})
+            .end(function (err, res) {
+              if (err) console.log(err)
+            })
+        }
       });
 
-    }, 1000);
+    }, 300);
   }
 
 }));
