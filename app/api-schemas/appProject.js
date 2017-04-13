@@ -83,6 +83,13 @@ module.exports.addAppProject = {
       list: {
         type: 'array',
       },
+      path: {
+        type: 'string',
+        cname: '链接路径',
+      },
+      params: {
+        type: 'object',
+      },
     },
   },
   gulp: {
@@ -220,6 +227,13 @@ module.exports.editAppProject = {
       },
       list: {
         type: 'array',
+      },
+      path: {
+        type: 'string',
+        cname: '链接路径',
+      },
+      params: {
+        type: 'object',
       },
     },
   },

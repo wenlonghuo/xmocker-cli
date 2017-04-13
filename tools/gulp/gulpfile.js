@@ -9,6 +9,8 @@ var del = require('del')
 var minify = require('gulp-clean-css');
 var rev = require('gulp-rev');
 var revCollector = require('gulp-rev-collector');
+var autoprefixer = require('gulp-autoprefixer')
+var notify = require("gulp-notify");
 var minimist = require('minimist');
 var path = require('path');
 var plumber = require('gulp-plumber');
@@ -20,14 +22,28 @@ const dealOption = require('./setGulpOption')
 var fs = require('fs');
 const crypto = require('crypto');
 var cacheFiles = {
-  relation: {}
+  relation: {},
 };
+
+var htmlList = []
 
 var args = minimist(process.argv.slice(2));
 var otherOption = args.otherOption || '{}'
 otherOption = JSON.parse(otherOption)
 
 var option = Object.assign({}, args);
+
+var hdErr = function(){
+
+  var args = Array.prototype.slice.call(arguments);
+
+  notify.onError({
+      title: 'compile error',
+      message: '<%=error.message %>'
+  }).apply(this, args);//替换为当前对象
+
+  this.emit();//提交
+}
 
 for (var key in option) {
   if (typeof option[key] === 'string') option[key] = option[key].split(',')
@@ -53,13 +69,20 @@ gulp.task('image-copy', function() {
 // 合并import
 gulp.task('css', function() {
   return gulp.src(option.css, { base: option.root })
+    .pipe(autoprefixer({
+      "browsers": [
+        "> 5%",
+        "last 4 versions"
+      ]
+    }))
+    .on('error', hdErr)
     .pipe(minify({
       "advanced": false, // set as 'clean-css' configuration API
       "keepBreaks": true,
       "root": option.root,
       "target": option.root, // 必加，否则会出现路径错误
       // "relativeTo":  path.join(process.cwd(), '../style/common'),
-    }))
+    }).on('error', hdErr))
     .pipe(rev())
     .pipe(gulp.dest(option.buildPath))
     .pipe(rev.manifest())
@@ -70,13 +93,17 @@ gulp.task('css', function() {
 // html 引用变更
 // 压缩html
 gulp.task('rev-html', function(cb) {
-
+  htmlList = []
   return gulp.src([option.buildPath + '/rev/**/*.json', ...option.html], { base: option.root })
     .pipe(revCollector({
       replaceReved: true
     }))
+    .pipe(tap(function (file) {
+      var str = '/' + path.relative(option.root, file.path)
+      str = str.replace(/\\/g, '/')
+      htmlList.push(str)
+    }))
     .pipe(gulp.dest(option.buildPath))
-
 });
 
 // js压缩任务
@@ -88,8 +115,9 @@ gulp.task('scripts', function() {
   // 使用 gulp-tap 转换文件内容
   .pipe(tap(function(file) {
     if (!cacheFiles.inited) readRelation(file.path);
-    file.contents = browserify(file.path, { debug: true }).bundle();
+    file.contents = browserify(file.path, { debug: true }).bundle()
   }))
+  .on('error', hdErr)
 
   // 转换 stram 内容为 buff 内容（因为 gulp-sourcemaps 不支持 stream 形式的内容）
   .pipe(buffer())
@@ -131,6 +159,11 @@ gulp.task('init', gulp.series('clean-code', 'image-copy', 'css', 'scripts', 'rev
 
 // 监听文件变化任务，自定义
 gulp.task('dev', gulp.series('init', function watchingTask(re) {
+  request.post(`http://localhost:${otherOption.port}/_setPageList`)
+          .send({html: htmlList})
+          .end(function (err, res) {
+            if (err) console.log(err)
+          })
   var fileList = [],
     tmpFileList = [],
     timeHd, isRunning, runningHd;
@@ -255,6 +288,11 @@ gulp.task('dev', gulp.series('init', function watchingTask(re) {
               if (err) console.log(err)
             })
         }
+        request.post(`http://localhost:${otherOption.port}/_setPageList`)
+          .send({html: htmlList})
+          .end(function (err, res) {
+            if (err) console.log(err)
+          })
       });
 
     }, 300);
@@ -364,7 +402,12 @@ function readRelation(file) {
       return fs.realpathSync(tpath);
     } else {
       let tpath = path.join(option.root, relation);
-      return fs.realpathSync(tpath);
+      try {
+        var p = fs.realpathSync(tpath);
+      } catch (e) {
+        return +new Date()
+      }
+      return p
     }
   }
 }

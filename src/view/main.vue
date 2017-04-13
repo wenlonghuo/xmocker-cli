@@ -6,6 +6,7 @@
         <div class="m-main-urls" v-if="!hideRight">
           <md-icon class="md-warn m-main-url-clear" @click.native="closePanel">clear</md-icon>
           <h3>常用链接列表</h3>
+          <a :href="'http://localhost:' + port + '/_link?type=1'" target="_blank">查看项目下所有链接</a>
           <md-list class="md-double-line" v-for="item in urlList">
             <transition-group>
               <md-list-item :key="item.name">
