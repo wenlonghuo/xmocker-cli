@@ -55,7 +55,7 @@ urlList.forEach((item) => {
     Object.keys(params).forEach((key) => {
       arr.push(key + '=' + params[key])
     })
-    item._url = item.path + '/?' + arr.join('&')
+    item._url = item.path + '?' + arr.join('&')
   } else {
     item._url = item.url
   }

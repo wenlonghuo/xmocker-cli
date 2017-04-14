@@ -82,7 +82,6 @@ function send(ctx, path, opts) {
     // stat
     try {
       var stats = await fs.stat(path);
-      
       // Format the path to serve static file servers
       // and not require a trailing slash for directories,
       // so that you can do both `/directory` and `/directory/`
@@ -108,7 +107,7 @@ function send(ctx, path, opts) {
 
     // 设置etag
     ctx.status = 200
-    ctx.set('ETag', 't' + +stats.mtime)
+    ctx.set('ETag', 't' + +stats.mtime + stats.size + '')
     if (ctx.fresh) {
       ctx.status = 304
       return;

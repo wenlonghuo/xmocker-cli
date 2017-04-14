@@ -1,62 +1,82 @@
+'use strict'
+const path = require('path')
+const fs = require('fs')
+const join = path.join
 var defaultOption = {
   root: '../',
-  build: '/build/',
+  buildPath: '/build/',
   js: '/{script,general}/',
   css: '/{general,style}/',
   html: '/{general,html}/',
   image: '/{general,image}/',
 }
 
-var aft = {
+var ext = {
   js: '/*.js',
   css: '/*.css',
   html: '/*.html',
   image: '/*.{jpg,png,gif,webp}',
 }
+var sourceList = ['html', 'js', 'css', 'image']
+var specialReg = /\/!\((\w*)\)\$\/?$/
 
-function fixPath(option, aft) {
-  var pre = option.root;
-  var rootList = option.withRoot;
-  for (key of Object.keys(option)) {
-    if (key === 'root' || key === 'withRoot')continue;
-    if (!isArr(option[key])) {
-      option[key] = [option[key] || './'];
-    }
-    option[key].forEach(function (item, index) {
-      option[key][index] = pre + item;
-      var pathStr = option[key][index];
-      if (aft[key]) {
-        if (!/(\/\*\..+)$/.test(pathStr)) { // 没有后缀名
-          var reg = /(\/!\(\w*\)\$\/?)$/;// 匹配某个目录下非某个文件夹所有文件
-          if (reg.test(pathStr)) {
-            var fstr = reg.exec(pathStr)[0].slice(1).replace('$', '') + '/**' + aft[key];
-            option[key][index] = pathStr.replace(reg, '/{' + aft[key].slice(1) + ',' + fstr + '}');
-          } else {
-            option[key][index] += '/**' + aft[key];
-          }
+function formatPath (option) {
+  var root = option.root
+  keysToArr(option, sourceList)
+  sourceList.forEach((name) => {
+    option[name] = arrRealPath(root, option[name], ext[name])
+  })
+
+  option.buildPath = join(root, option.buildPath)
+  return option
+}
+// 所有键值转数组
+function keysToArr (obj, list) {
+  list.forEach((key) => {
+    obj[key] = toArr(obj[key])
+  })
+}
+// 转数组
+function toArr (str) {
+  if (typeof str !== 'string' && typeof str !== 'object') return []
+  var arr = Array.isArray(str) ? str : str.split(',')
+  return arr
+}
+// 转为实体路径
+function arrRealPath (base, arr, extStr) {
+  if (!Array.isArray(arr)) arr = [arr]
+  var result = []
+  arr.forEach((p) => {
+    if (specialReg.test(p)) {
+      var contentName = p.match(specialReg)
+      contentName = contentName && contentName[1]
+      // result.push(addExt(join(base, p), '/**' + extStr))
+      p = p.replace(specialReg, '')
+
+      result.push(addExt(join(base, p), extStr))
+
+      var list = fs.readdirSync(join(base, p))
+      list.forEach((content) => {
+        if (!path.extname(content) && content !== contentName) {
+          var pathStr = addExt(join(base, p, content), '/**' + extStr)
+          result.push(pathStr)
         }
-      }
-    });
-  }
-  option.build = option.build[0];
-  return option;
+      })
+    } else {
+      result.push(addExt(join(base, p), '/**' + extStr))
+    }
+  })
+  return result
 }
 
-function isArr(a) {
-  return Object.prototype.toString.call(a) === '[object Array]'
+function addExt (str, extStr) {
+  return (str.replace(/[/\\]$/, '') + extStr).replace(/\\/g, '/')
 }
 
 module.exports = function (buildOption) {
-  buildOption = Object.assign(defaultOption, buildOption);
+  buildOption = Object.assign(defaultOption, buildOption)
 
-  // 为路径自动添加根路径
-  buildOption.withRoot = buildOption.withRoot || [];
-  if (typeof buildOption.withRoot === 'string') {
-    buildOption.withRoot = ['build', 'js', 'css', 'html', 'image'];
-  }
-  if (isArr(buildOption.withRoot)) {
-    buildOption = fixPath(buildOption, aft);
-  }
-  // clo = Object.assign(clo, buildOption);
-  return buildOption;
+  buildOption = formatPath(buildOption, ext)
+  // clo = Object.assign(clo, buildOption)
+  return buildOption
 }
