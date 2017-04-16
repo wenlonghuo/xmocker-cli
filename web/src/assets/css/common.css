@@ -1,0 +1,67 @@
+.left-info {
+  width: 300px;
+  float: left;
+  margin-right: 15px;
+  height: 100%;
+  overflow-y: auto;
+}
+.right-container {
+  overflow-x: hidden;
+  overflow-y: auto;
+  width: auto;
+  /*max-width: calc(100vw - 347px);*/
+}
+.right-container> div.ivu-card-body {
+  height: calc(100% - 51px);
+  overflow-y: auto;
+}
+.right-list {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.right-list-item, .flex-fill {
+  flex-basis: 350px;
+  /*flex-grow: 1;*/
+  margin: 8px;
+}
+.flex-fill {
+  margin: 0 8px;
+  padding: 0;
+}
+.card-color {
+  background-color: ~color;
+}
+
+.cus-action-link {
+  font-size: 14px;
+}
+.cus-page-info {
+  display: inline-block;
+  text-align: center;
+  color: #657180;
+  padding: 0 5px;
+}
+
+.cus-card-left-bar {
+  position: absolute;
+  left: 110px;
+  top: 10px;
+}
+
+.list-card>div.ivu-card-body {
+  height: 100%;
+}
+
+/*
+  loading bar
+*/
+.spin-icon-load{
+    animation: ani-demo-spin 1s linear infinite;
+}
+@keyframes ani-demo-spin {
+    from { transform: rotate(0deg);}
+    50%  { transform: rotate(180deg);}
+    to   { transform: rotate(360deg);}
+}
+
