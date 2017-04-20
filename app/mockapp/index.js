@@ -37,6 +37,11 @@ let proc = {
   proj: {},
 }
 
+db.appBase.cfindOne({}).exec().then(function (doc) {
+  doc = doc || {}
+  proc.managePort = doc.managePort || 6001
+})
+
 module.exports = proc
 
 db.appProject.cfindOne({_id: projectId}).exec().then(function (proj) {
@@ -68,13 +73,13 @@ db.appProject.cfindOne({_id: projectId}).exec().then(function (proj) {
       }
 
       app.use(async function (ctx, next) {
-        return next().then(sendFile(ctx, ctx.path, {root: abPath, index: 'index.html', autoRefresh: autoRefresh, port: proj.port}))
+        return next().then(sendFile(ctx, ctx.path, {root: abPath, index: 'index.html', autoRefresh: autoRefresh, port: proj.port, managePort: proc.managePort}))
       })
     })
   }
 
   app.use(async function (ctx, next) {
-    return next().then(sendFile(ctx, ctx.path, {root: fileServerPath, index: 'index.html', autoRefresh: autoRefresh, port: proj.port}))
+    return next().then(sendFile(ctx, ctx.path, {root: fileServerPath, index: 'index.html', autoRefresh: autoRefresh, port: proj.port, managePort: proc.managePort}))
   })
 
   const controller = require('./controller')

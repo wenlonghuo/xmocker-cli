@@ -23,6 +23,10 @@ app.use(bodyParser())
 
 // 静态服务器 添加默认为Index.html
 app.use(async function (ctx, next) {
+  ctx.set({
+    'Access-Control-Allow-Origin': '*',
+    'Access-Control-Allow-Methods' : 'PUT, POST, GET, DELETE, OPTIONS',
+  })
   return next().then(sendFile(ctx, ctx.path, {root: path.join(__dirname, '../dist/'), index: 'index.html'}))
 })
 

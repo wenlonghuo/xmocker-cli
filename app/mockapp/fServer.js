@@ -21,6 +21,25 @@ const clientInject = fs.readFileSync(__dirname + '/clientInject.tmpl', {encoding
 /**
  * Expose `send()`.
  */
+const os = require('os')
+let localIp = (function getIp () {
+  let netInfo = os.networkInterfaces()
+  let localIp = 'localhost'
+  if (netInfo) {
+    let keys = Object.keys(netInfo)
+    let ips = keys.filter((key) => {
+      let list = netInfo[key]
+      list.forEach((info) => {
+        if (/^[\d]{1,3}\./.test(info.address)) {
+          if (!/^127\./.test(info.address)) {
+            localIp = info.address
+          }
+        }
+      })
+    })
+  }
+  return localIp
+})()
 
 module.exports = send;
 
@@ -120,7 +139,7 @@ function send(ctx, path, opts) {
     if (extname(path) === '.html' && opts.autoRefresh) {
       let html = fs.readFileSync(path, {encoding: 'utf-8'})
       let complied = template(clientInject)
-      let inj = complied({port: opts.port})
+      let inj = complied({port: opts.port, managePort: opts.managePort, ip: localIp})
       html = html.replace('</head>', inj + '</head>')
       ctx.body = html
     } else {
