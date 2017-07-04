@@ -76,7 +76,7 @@ async function addApiModel (ctx, next) {
   } catch (e) {
     return ctx.setError({ctx: ctx, next: next, err: '添加api分支信息出错', e: e})
   }
-  reloadDatabase({ apiModel: data._id })
+  reloadDatabase({ type: 'apiModel', id: data._id })
 
   ctx.body = {
     code: 0,
