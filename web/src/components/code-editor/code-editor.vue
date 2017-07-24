@@ -63,10 +63,11 @@ export default {
     },
     minLine: {
       type: String,
-      default: 10,
+      default: '10'
     },
     editorHeight: {
       type: String,
+      default: '10'
     },
     focus: {
       type: Number,

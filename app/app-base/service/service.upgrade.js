@@ -80,8 +80,35 @@ async function upgradeApiModelFromV0 (f = {}, t = {}) {
     model.baseid = tid
     model._mt = +new Date()
     if (Array.isArray(model.data)) model.data = model.data[0]
+    model.inputParam = correctInput(model.inputParam)
 
     let query = {baseid: model.baseid, name: model.name, condition: model.condition}
     await tdb.update(query, {$set: model}, {returnUpdatedDocs: true, upsert: true})
   }
+}
+
+function correctInput (input) {
+  let obj = {
+    type: 'object',
+    properties: set2NewKey(input),
+  }
+  return obj
+}
+
+function set2NewKey (obj) {
+  let result = {}
+  Object.keys(obj).forEach(item => {
+    if (item.type !== 'object') {
+      result[item] = obj[item]
+    } else {
+      let info = result[item]
+      let nObj = info.child
+      delete info.child
+      result.title = info.cname || info.name
+      delete info.cname
+      delete info.name
+      if (nObj) info.properties = set2NewKey(nObj)
+    }
+  })
+  return result
 }

@@ -50,9 +50,11 @@ export default {
     },
     editorHeight: {
       type: String,
+      default: '10'
     },
     minLine: {
       type: String,
+      default: '10'
     },
     theme: {
       type: String,

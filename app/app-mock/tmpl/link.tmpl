@@ -126,7 +126,7 @@
         <ul>
           <% _.forEach(configList, function(item) { %>
             <li class="frame-phone">
-              <a href="<%= localAddr + item._url %>" target="_blank" class="page-title"><span><%= item.name %></span></a>
+              <a href='<%= localAddr + item._url %>' target="_blank" class="page-title"><span><%= item.name %></span></a>
               <span onclick="showDetail('<%= item._url  %>')" class="info">more...</span>
 
               <div class="frame-box" data-src="<%= localAddr + item._url %>">
@@ -165,7 +165,7 @@
         <ul>
           <% _.forEach(configNoList, function(item) { %>
             <li class="frame-phone">
-              <a href="<%= localAddr + item._url %>" target="_blank" class="page-title"><span><%= item.name %></span></a>
+              <a href='<%= localAddr + item._url %>' target="_blank" class="page-title"><span><%= item.name %></span></a>
               <span onclick="showDetail('<%= item._url  %>')" class="info">more...</span>
               <div class="frame-box" data-src="<%= localAddr + item._url %>">
                 <div class="urlInfo hide" data-url="<%= item._url  %>">
@@ -216,7 +216,7 @@
         <ul>
           <% _.forEach(configList, function(item) { %>
           <li>
-            <a href="<%= localAddr + item._url %>" target="_blank" class="page-title">
+            <a href=<%= localAddr + item._url %> target="_blank" class="page-title">
               <span class="item-pic"></span>
               <%= item.name %>
             </a>
@@ -228,7 +228,7 @@
         <ul>
           <% _.forEach(configNoList, function(item) { %>
           <li>
-            <a href="<%= localAddr + item._url %>" target="_blank" class="page-title">
+            <a href=<%= localAddr + item._url %> target="_blank" class="page-title">
               <span class="item-pic"></span>
               <span><%= item.name %></span>
             </a>

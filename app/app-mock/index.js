@@ -53,6 +53,7 @@ async function findProjectById (projectId) {
 async function startServer (projectId) {
   let appConfig = await findAppBase() || {}
   let proj = await findProjectById(projectId) || {}
+  proj.path = proj.path.trim()
   gInfo.proj = proj
   app.use(bodyParser)
   // bind error method
@@ -72,12 +73,13 @@ async function startServer (projectId) {
   const staticPath = proj.staticPath || []
   let defaultPath = proj.path
   if (defaultPath && proj.gulp && proj.gulp.buildPath) {
-    defaultPath = path.join(proj.path, proj.gulp.buildPath)
+    defaultPath = path.join(proj.path, proj.gulp.buildPath.trim())
   }
   if (defaultPath) staticPath.unshift(defaultPath)
 
   if (staticPath && staticPath.length) {
     staticPath.forEach((sp) => {
+      sp = sp.trim()
       let abPath = sp
       if (!path.isAbsolute(sp)) {
         abPath = path.join(proj.path, sp)

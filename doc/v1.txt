@@ -26,6 +26,8 @@
   // 25. 延时设置
   -- 26. 为项目添加统一前缀 api
   27. 添加eruda方便手机调试，或weinre
+  28. 搜索统一
+  29. 配合URL链接，生成类似测试的case，用于检测功能是否正常
 
 api返回数据修改模式
   新建数据表，根据指定api的定位，如 $api['get.getactlist.func'],添加 add 即新数据（参数中传入faker）， modify修改指定值，delete删除指定值。每次取数据时从表中获取
@@ -49,6 +51,12 @@ schema共用模式
 
 项目同步使用uid, 可单个配置项独立下载
 
+
+
+issue
+1. gulp同时只执行一个
+2. 有时修改api数据库没有立即更新
+3. data数据保存为object时，部分obj会报错，需要保存为string类型。
 
 
 

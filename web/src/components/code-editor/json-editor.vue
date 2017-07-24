@@ -20,7 +20,18 @@ export default {
   components: {
     jsEditor,
   },
-  props: ['value', 'editorHeight', 'minLine'],
+  props: {
+    value: {
+    },
+    editorHeight: {
+      type: String,
+      default: '10',
+    },
+    minLine: {
+      type: String,
+      default: '10',
+    },
+  },
   watch: {
     value (newval) {
       this.setModelVal()
@@ -31,7 +42,16 @@ export default {
   },
   methods: {
     setModelVal () {
-      var val = JSON.stringify(this.value, null, 2)
+      var val = this.value
+      if (typeof this.value === 'string') {
+        try {
+          val = JSON.parse(this.value)
+        } catch (e) {
+          val = this.value
+        }
+      }
+
+      val = JSON.stringify(val, null, 2)
       var editorObj
       try {
         editorObj = JSON.parse(this.jsonData)

@@ -121,6 +121,13 @@ async function filterModels (ctx, next) {
 
   let tip = targetModel ? '获取api数据成功：' : '获取api数据失败：'
   let data = targetModel && targetModel.data
+  if (typeof data === 'string') {
+    try {
+      data = JSON.parse(data)
+    } catch (e) {
+      console.log('数据转换为JSON出错', data)
+    }
+  }
   ctx.log(tip + base.name, {base, model, params, res: data})
   await delay(base.delay)
   ctx.body = data

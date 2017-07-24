@@ -189,7 +189,7 @@ async function execGulp (proj, option = {}) {
     injectHtml: proj.injectHtml,
     port: proj.port,
     gulp: proj.gulp,
-    path: proj.path,
+    path: proj.path.trim(),
   }
   let gOption = proj.gulp
 

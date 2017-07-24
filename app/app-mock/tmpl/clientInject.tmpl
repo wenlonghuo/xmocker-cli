@@ -41,7 +41,7 @@
           colno: e.colno
         }
         setTimeout(function () {
-          if ($ && $.ajax) {
+          if (typeof $ !== 'undefined' && $.ajax) {
             $.ajax({
               url: 'http://<%= ip + ':' + managePort %>/error/upload',
               type: 'POST',

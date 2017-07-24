@@ -75,7 +75,7 @@ function addExt (str, extStr) {
 
 module.exports = function (option) {
   let buildOption = Object.assign(defaultOption, option.gulp)
-  buildOption.root = option.path
+  buildOption.root = option.path.trim()
 
   buildOption = formatPath(buildOption, ext)
   return buildOption
