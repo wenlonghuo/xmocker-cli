@@ -22,7 +22,7 @@ function resolve (dir) {
 class ProjectServer {
   constructor (proj) {
     let nv = nodeVersion()
-    let dir = nv < 7 ? resolve('../../app-mock') : resolve('../../app-mock/lower-start')
+    let dir = nv >= 7 ? resolve('../../app-mock') : resolve('../../app-mock/lower-start')
     let startArgs = [`"${dir}"`, `--projectId="${proj._id}"`]
 
     if (nv >= 7 && nv < 7.6) {

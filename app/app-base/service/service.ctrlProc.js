@@ -22,8 +22,11 @@ class ExecQuene {
 const reload = new ExecQuene(async function (option) {
   let type = option.type
   let info = await getProject(option)
-  if (!info) return
-  serviceProc.sendMsg(info._id, {_type: 'func', func: 'reloadDatabase', data: [type]})
+  if (!info) {
+    console.log('[!!!!error] 获取信息信息失败，配置为:', JSON.stringify(option))
+    return
+  }
+  serviceProc.sendMsg(info._id, {type: 'func', func: 'reloadDatabase', data: [type]})
 })
 
 const restart = new ExecQuene(async function (option) {

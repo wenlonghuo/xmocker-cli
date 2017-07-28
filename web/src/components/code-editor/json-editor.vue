@@ -46,6 +46,7 @@ export default {
       if (typeof this.value === 'string') {
         try {
           val = JSON.parse(this.value)
+          this.$emit('input', val)
         } catch (e) {
           val = this.value
         }

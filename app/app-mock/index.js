@@ -11,12 +11,12 @@ const sendFile = require('../plugin/file-server')
 const htmlInject = require('./util/file-server-inject')
 const db = require('../database')
 const gInfo = require('./controller/global-info')
-const comuFunction = {
-  setApiStatus: require('./controller/controller.fixData'),
-  reloadDatabase: require('./controller/controller.reloadDatabase'),
-}
+
 const setError = require('./middleware/log')
-const fix = require('./controller/controller.fixData').fix
+const dealFunc = {
+  setApiStatus: require('./controller/controller.fixData').fix,
+  reloadDatabase: require('./controller/controller.reloadDatabase')
+}
 
 // 全局变量定义区，待后续可改为配置
 var args = minimist(process.argv.slice(2))
@@ -121,8 +121,10 @@ process.on('message', function (msg) {
   if (typeof msg !== 'object') return
   if (msg._type === 'process' && msg.data === 'kill') {
     process.exit(1)
-  } else if (msg._type === 'func') {
-    fix(msg)
+  } else if (msg.type === 'func') {
+    if (dealFunc[msg.func]) {
+      dealFunc[msg.func](msg)
+    }
   }
 })
 process.on('unhandledRejection', function (e) {
