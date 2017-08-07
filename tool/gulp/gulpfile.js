@@ -392,8 +392,3 @@ process.stdin.on('data', function (d) {
     process.exit(1)
   }
 })
-
-process.on('SIGKILL', () => {
-  console.log('killed')
-  process.exit(1)
-})
