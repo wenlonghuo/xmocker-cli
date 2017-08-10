@@ -1,14 +1,17 @@
 {
-  "name": "fe-mock-server",
+  "name": "xmocker-cli",
   "version": "1.0.0",
   "description": "a server to provide api data for fe",
+  "repository": "https://github.com/wenlonghuo/fe-mock-server",
   "main": "index.js",
   "scripts": {
-    "start": "node ./app/app-base",
-    "dev": "nodemon ./app/app-base --watch app"
+    "start": "node ./app",
+    "server": "node ./app --isServer",
+    "dev": "cross-env NODE_ENV=development nodemon ./app --watch app",
+    "build": "rimraf ./lower & babel ./app -d ./lower"
   },
   "bin": {
-    "mocker": "./bin/index.js"
+    "mocker": "./bin/mocker.js"
   },
   "keywords": [
     "mock"
@@ -16,48 +19,44 @@
   "author": "jsyaowenlong@126.com",
   "license": "MIT",
   "dependencies": {
-    "babel-core": "^6.22.1",
-    "babel-plugin-transform-runtime": "^6.0.0",
-    "babel-polyfill": "^6.22.0",
-    "babel-preset-es2015": "^6.0.0",
-    "babel-preset-stage-2": "^6.0.0",
-    "babel-register": "^6.22.0",
-    "babel-runtime": "^6.22.0",
+    "babel-runtime": "^6.25.0",
+    "chalk": "^2.1.0",
     "commander": "^2.9.0",
     "debug": "^2.6.0",
-    "faker": "^3.1.0",
     "fkill": "^5.0.0",
-    "http-proxy": "^1.16.2",
-    "json-gate": "^0.8.23",
     "koa": "^2.0.0",
     "koa-bodyparser": "^3.2.0",
-    "koa-convert": "^1.2.0",
-    "koa-generic-session": "^1.11.4",
-    "koa-passport": "^1.3.0",
     "koa-router": "^7.0.1",
     "lodash": "^4.17.4",
     "minimist": "^1.2.0",
     "mz": "^2.6.0",
-    "nedb": "^1.8.0",
+    "nedb-promise": "^2.0.1",
     "resolve-path": "^1.3.3",
-    "superagent": "^3.4.1",
-    "thenify": "^3.2.1",
+    "superagent": "^3.5.2",
     "through2": "^2.0.3",
     "ua-parser-js": "^0.7.12",
-    "ws": "^1.1.1"
+    "ws": "^1.1.1",
+    "xmocker": "^1.0.0"
   },
   "devDependencies": {
+    "babel-cli": "^6.24.1",
     "babel-eslint": "^7.0.0",
+    "babel-plugin-transform-runtime": "^6.0.0",
+    "babel-preset-es2015": "^6.0.0",
+    "babel-preset-stage-2": "^6.0.0",
+    "cross-env": "^5.0.5",
     "eslint": "^3.7.1",
     "eslint-config-standard": "^6.1.0",
     "eslint-friendly-formatter": "^2.0.5",
     "eslint-loader": "^1.5.0",
     "eslint-plugin-html": "^1.3.0",
     "eslint-plugin-promise": "^3.4.0",
-    "eslint-plugin-standard": "^2.0.1"
+    "eslint-plugin-standard": "^2.0.1",
+    "nodemon": "^1.11.0",
+    "rimraf": "^2.6.1"
   },
   "engines": {
-    "node": ">= 4.0.0",
+    "node": ">= 6.0.0",
     "npm": ">= 3.0.0"
   }
 }

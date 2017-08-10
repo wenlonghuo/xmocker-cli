@@ -305,6 +305,7 @@ function setFileList (filearr) {
   fileList = fileList.concat(tmpList)
 
   fileList.forEach(function (item) {
+    if (path.extname(item).slice(1) !== 'js') return
     if (!nosame[item]) {
       cacheFiles.js.push(item)
       nosame[item] = true

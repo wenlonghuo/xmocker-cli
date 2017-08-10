@@ -16,7 +16,7 @@
     "axios": "^0.16.1",
     "codemirror": "^5.25.2",
     "highlight.js": "^9.11.0",
-    "iview": "^2.0.0-rc.15",
+    "iview": "^2.0.0",
     "vue": "^2.2.2",
     "vue-router": "^2.3.0",
     "vuex": "^2.3.1"

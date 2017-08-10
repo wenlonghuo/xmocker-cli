@@ -10,6 +10,9 @@ export default {
     btnView () {
       this.$router.push({name: 'API详情', query: { id: this.apiInfo.id, project: this.apiInfo.project }})
     },
+    btnProject () {
+      this.$router.push({name: '项目详情', query: { id: this.apiInfo.project }})
+    },
     btnEdit () {
       this.$router.push({name: 'API编辑', query: { id: this.apiInfo.id, project: this.apiInfo.project }})
     },
@@ -24,7 +27,7 @@ export default {
     },
     afterEdit (data) {
       if (!data.code) {
-        this.$Message.success(data.data.tip)
+        this.$Message.success(data.message)
         this.$emit('delete')
       }
     }

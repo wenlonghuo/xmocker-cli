@@ -1,15 +1,16 @@
 <template>
   <Card :style="titleColor">
-    <p slot="title" @click="btnView()" class="cus-hover">
+    <p slot="title" @click="btnView()" class="cus-hover" style="max-width: 70%;" :title="name">
       <!--<Icon type="power" color="green" v-if="status"></Icon>-->
       <Icon type="monitor" color="#9ea7b4"></Icon>
       {{name}}
     </p>
     <template slot="extra">
-      <a href="javascript:void(0)" v-for="item in topBarItems" class="cus-card-tbar-btn">
+      <a href="javascript:void(0)" v-for="item in topBarItems" class="cus-card-tbar-btn" v-if="!fromSearch">
         <Icon :type="item.type" color="#9ea7b4" @click.native="btnAction(item.action)"></Icon>
       </a>
-      <Dropdown trigger="click" placement="bottom-end" style="margin-left: 10px;">
+      <a v-if="fromSearch" href="javascript:void(0)" @click="btnAction('btnView')">详情</a>
+      <Dropdown trigger="click" placement="bottom-end" style="margin-left: 10px;" v-if="!fromSearch">
         <a href="javascript:void(0)">
           <Icon type="more" color="#9ea7b4"></Icon>
         </a>
@@ -26,7 +27,7 @@
           <span>项目路径</span>
           <div class="cus-list-right">
             <span class="cus-show-value proj-path" :title="path || '暂无'">{{path || '暂无'}}</span>
-            <Poptip placement="right" width="300">
+            <Poptip placement="right" width="300" v-if="!fromSearch">
               <a href="javascript:void(0)">修改</a>
               <div class="cus-tooltip" slot="content">
                 <p class="cus-tooltip-text">项目路径用于gulp或提供静态文件服务器，修改后项目会自动重启</p>
@@ -41,7 +42,7 @@
           <div class="cus-list-right">
             <span class="cus-show-value">{{port || '暂未配置'}}</span>
             <template>
-              <Poptip placement="right" width="300">
+              <Poptip placement="right" width="300" v-if="!fromSearch">
                 <a href="javascript:void(0)">修改</a>
                 <div class="cus-tooltip" slot="content">
                   <p class="cus-tooltip-text">端口号是访问数据的端口，纯数字，修改后会自动重启</p>
@@ -58,7 +59,7 @@
           <span>404代理模式</span>
           <div class="cus-list-right">
             <span class="cus-show-value">{{proxyText}}</span>
-            <Dropdown placement="right-end" trigger="click">
+            <Dropdown placement="right-end" trigger="click" v-if="!fromSearch">
               <a href="javascript:void(0)">
                 修改
               </a>
@@ -74,7 +75,7 @@
           <span>自定义链接列表</span>
           <div class="cus-list-right">
             <span class="cus-show-value">{{(urlList && urlList.length) || 0}}个</span>
-            <Poptip placement="right" width="300">
+            <Poptip placement="right" width="300" v-if="!fromSearch">
               <a href="javascript:void(0)" v-if="(urlList && urlList.length) || 0">查看</a>
               <div class="cus-tooltip" slot="content">
                 <ul class="cus-tooltip-list">
@@ -121,7 +122,7 @@ export default {
         {name: '查看', type: 'eye', action: 'btnView'},
         {name: '编辑', type: 'edit', action: 'btnEdit'},
         {name: '删除', type: 'android-remove-circle', action: 'btnDelete'},
-        {name: '查看代理过的API', type: 'ios-cloud-download', action: 'btnViewProxy'},
+        // {name: '查看代理过的API', type: 'ios-cloud-download', action: 'btnViewProxy'},
       ],
       ModifyPath: '',
       pType: '',
@@ -168,6 +169,9 @@ export default {
     },
     proxyTable: {
       type: Array,
+    },
+    fromSearch: {
+      type: Boolean,
     },
   },
   watch: {

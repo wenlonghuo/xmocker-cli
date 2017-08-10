@@ -46,13 +46,13 @@ export default {
       return timer(val).slice(11, 23)
     },
     ip (item) {
-      return item.client && item.client.ip
+      return item.ip || (item.client && item.client.ip)
     },
     os (item) {
       return item.os && (item.os.name + '-' + item.os.version)
     },
     msg (item) {
-      return item.data + (item.err ? item.err.msg : '')
+      return item.message + (item.err ? item.err.msg : '')
     },
   },
   watch: {

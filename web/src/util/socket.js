@@ -6,7 +6,8 @@ class socket {
   }
   init ({port = 6001}) {
     let socket
-    socket = new WebSocket(`ws://${window.location.hostname}:${port}`)
+    let wsUrl = window.location.protocol === 'https:' ? `wss://${window.location.hostname}:${port}/mock` : `ws://${window.location.hostname}:${port}/mock`
+    socket = new WebSocket(wsUrl)
     socket.onopen = event => {
       this.socket = socket
       if (this.unSendList.length) {
@@ -58,6 +59,9 @@ class socket {
     let type = data.type
     let action = data.action
     this.store.commit(type + '/' + action, data)
+    if (data.logType === 'collector') {
+      this.store.commit('COLLECTOR_TOAST', data)
+    }
   }
 }
 

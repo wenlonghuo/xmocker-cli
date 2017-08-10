@@ -1,22 +1,20 @@
 <template>
   <div class="cus-api-detail">
-    <div class="left-info">
-      <Card>
-        <p slot="title">
-          {{info.name}}
-        </p>
-        <template slot="extra">
-          <a href="javascript:void(0)" v-for="item in topBarItems" :key="item.action" style="margin-right: 10px;">
-            <Icon :type="item.type" color="#9ea7b4" @click.native="btnAction(item.action)"></Icon>
-          </a>
-        </template>
-        <div class="cus-detail-list-simple" v-for="item in simpleItem" :key="item.key">
-          <span>{{item.label}}: </span>
-          <span>{{info[item.key] || '未配置'}}</span>
-        </div>
-      </Card>
-    </div>
-    <Card :bordered="false" class="right-container" style="height:calc(100vh - 112px)">
+    <Card class="left-info" bordered="bordered" dis-hover="dis-hover">
+      <p slot="title">
+        {{info.name}}
+      </p>
+      <template slot="extra">
+        <a href="javascript:void(0)" v-for="item in topBarItems" :key="item.action" style="margin-right: 10px;">
+          <Icon :type="item.type" color="#9ea7b4" @click.native="btnAction(item.action)"></Icon>
+        </a>
+      </template>
+      <div class="cus-detail-list-simple" v-for="item in simpleItem" :key="item.key">
+        <span>{{item.label}}: </span>
+        <span>{{info[item.key] || '未配置'}}</span>
+      </div>
+    </Card>
+    <Card class="right-container" bordered="bordered" dis-hover="dis-hover">
       <p slot="title">
           <Icon type="ios-film-outline"></Icon>
           API分支列表
@@ -92,5 +90,7 @@ export default {
 </script>
 
 <style lang="css">
-
+  .left-info {
+    margin-top: 0;
+  }
 </style>

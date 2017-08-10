@@ -5,7 +5,7 @@ export const axios = Axios.create({
 })
 
 axios.interceptors.response.use(function (response) {
-  if (response.data.code) Message.error(response.data.err)
+  if (response.data.code) Message.error(response.data.message)
   return response.data
 }, function (error) {
   return Promise.reject(error)
@@ -53,3 +53,9 @@ export const getBase = params => axios.request({url: '/appBase', params})
 
 // import
 export const upgrade = params => axios.put('/upgradeV0', params)
+
+// log
+export const getLog = params => axios.request({ url: '/log', params })
+
+// search
+export const search = params => axios.request({ url: '/search', params })

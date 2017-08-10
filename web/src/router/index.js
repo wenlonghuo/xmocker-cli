@@ -29,6 +29,7 @@ const index = r => require.ensure([], () => r(require('../pages/first-page.vue')
 
 // search
 const search = r => require.ensure([], () => r(require('../pages/search-list.vue')), 'list')
+const searchDetail = r => require.ensure([], () => r(require('../pages/search-detail.vue')), 'list')
 
 // about
 const about = r => require.ensure([], () => r(require('../pages/about.vue')), 'list')
@@ -43,9 +44,14 @@ const router = new Router({
       component: require('../layout/default.vue'),
       children: [
         {
-          path: '',
+          path: '/index',
           name: '首页',
           component: index,
+          meta: {
+            breadList: [
+              { name: '首页', menuName: '首页' },
+            ],
+          },
         },
         {
           path: 'apiEditor',
@@ -56,18 +62,35 @@ const router = new Router({
           path: 'apiDetail',
           name: 'API详情',
           component: apiDetail,
+          meta: {
+            breadList: [
+              { name: '项目列表', menuName: '项目列表' },
+              { name: '项目详情' },
+              { name: 'API详情' },
+            ],
+          },
         },
         {
           path: 'apiCopy',
           name: 'API复制',
           component: apiCopy,
+          meta: {
+            breadList: [
+              { name: '项目列表', menuName: '项目列表' },
+              { name: '项目详情' },
+              { name: 'API复制' },
+            ],
+          },
         },
         {
           path: 'projectList',
           name: '项目列表',
           component: projectList,
+          alias: '/',
           meta: {
-            actionBar: 'project-list-action'
+            breadList: [
+              { name: '项目列表', menuName: '项目列表' },
+            ],
           },
         },
         {
@@ -75,7 +98,10 @@ const router = new Router({
           name: '项目详情',
           component: projectDetail,
           meta: {
-            actionBar: 'project-detail-action'
+            breadList: [
+              { name: '项目列表', menuName: '项目列表' },
+              { name: '项目详情' },
+            ],
           },
         },
         {
@@ -92,31 +118,73 @@ const router = new Router({
           path: 'syncList',
           name: '同步',
           component: syncList,
+          meta: {
+            breadList: [
+              { name: '同步', menuName: '同步' },
+            ],
+          },
         },
         {
           path: 'syncApi',
           name: '同步API',
           component: syncApi,
+          meta: {
+            breadList: [
+              { name: '同步', menuName: '同步' },
+              { name: 'API' },
+            ],
+          },
         },
         {
           path: 'search',
           name: '搜索',
           component: search,
+          meta: {
+            breadList: [
+              { name: '搜索', menuName: '搜索' },
+            ],
+          },
+        },
+        {
+          path: 'search/detail',
+          name: '搜索详情',
+          component: searchDetail,
+          meta: {
+            breadList: [
+              { name: '搜索', menuName: '搜索' },
+              { name: '搜索详情' },
+            ],
+          },
         },
         {
           path: 'config',
           name: '基础配置',
           component: config,
+          meta: {
+            breadList: [
+              { name: '基础配置', menuName: '基础配置' },
+            ],
+          },
         },
         {
           path: 'log',
           name: '日志',
           component: log,
+          meta: {
+            breadList: [
+              { name: '日志', menuName: '日志' },
+            ],
+          },
         },
         {
           path: 'about',
           name: '关于',
           component: about,
+          meta: {
+            breadList: [
+              { name: '关于', menuName: '关于' },
+            ],
+          },
         },
       ],
     },

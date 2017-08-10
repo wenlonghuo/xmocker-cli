@@ -1,13 +1,15 @@
 <template>
   <Card>
-    <p slot="title">
-      <Icon type="information"></Icon>
+    <p slot="title" :title="name" style="max-width: 70%;">
+      <Icon type="at"></Icon>
       {{name}}
     </p>
     <template slot="extra">
-      <a href="javascript:void(0)" v-for="item in topBarItems" class="cus-card-tbar-btn">
+      <a href="javascript:void(0)" v-for="item in topBarItems" :key="item.name" class="cus-card-tbar-btn" v-if="!fromSearch">
         <Icon :type="item.type" color="#9ea7b4" @click.native="btnAction(item.action)"></Icon>
       </a>
+      <a v-if="fromSearch" href="javascript:void(0)" @click="btnAction('btnProject')">项目详情</a>
+      <a v-if="fromSearch" href="javascript:void(0)" @click="btnAction('btnView')">详情</a>
     </template>
     
     <ul class="cus-list-db">
@@ -15,7 +17,7 @@
         <span>URL</span>
         <div class="cus-list-right">
           <span class="cus-show-value">{{(method || url )? (method + ' -> ' + url) : '暂无'}}</span>
-          <Poptip placement="right" width="300">
+          <Poptip placement="right" width="300" v-if="!fromSearch">
             <a href="javascript:void(0)">修改</a>
             <div class="cus-tooltip" slot="content">
               <p class="cus-tooltip-text">URL地址是访问请求的url地址，以 "/" 开头，修改实时生效</p>
@@ -32,7 +34,7 @@
         <span>二级路径</span>
         <div class="cus-list-right">
           <span class="cus-show-value">{{(path || pathEqual )? (path + ' ==> ' + pathEqual) : '未开启'}}</span>
-          <Poptip placement="right" width="300">
+          <Poptip placement="right" width="300" v-if="!fromSearch">
             <a href="javascript:void(0)">修改</a>
             <div class="cus-tooltip" slot="content">
               <p class="cus-tooltip-text">指定二级路径后，会先判断URL是否符合，然后判断请求传入的参数指定字段是否和预期值相等。</p>
@@ -47,7 +49,7 @@
         <span>延时设置</span>
         <div class="cus-list-right">
           <span class="cus-show-value">{{delay || '无延时'}}</span>
-          <Poptip placement="right" width="300">
+          <Poptip placement="right" width="300" v-if="!fromSearch">
             <a href="javascript:void(0)">修改</a>
             <div class="cus-tooltip" slot="content">
               <p class="cus-tooltip-text">延时是指获取数据后延时返回，单位为ms</p>
@@ -63,7 +65,7 @@
         <span>固定数据</span>
         <div class="cus-list-right">
           <span class="cus-show-value">{{fixedText}}</span>
-          <Poptip placement="bottom-end" width="300">
+          <Poptip placement="bottom-end" width="300" v-if="!fromSearch">
             <a href="javascript:void(0)" @click="getSelection">修改</a>
             <div class="cus-tooltip" slot="content">
               <p class="cus-tooltip-text">选择要设置的固定数据</p>
@@ -193,6 +195,9 @@ export default {
     },
     pageNo: {
       type: String,
+    },
+    fromSearch: {
+      type: Boolean,
     },
   },
   watch: {

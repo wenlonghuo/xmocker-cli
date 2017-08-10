@@ -11,33 +11,36 @@
 
 * 提供文件服务器，可执行gulp类型的构建，并提供页面刷新及url展示接口
 
-注意：本版本不稳定，部分功能还未实现
 
 #### Install
 ~~~ 
-   git clone https://github.com/wenlonghuo/fe-mock-server
-   cd fe-mock-server
-   npm i
-   npm link
+   git clone https://github.com/wenlonghuo/xmocker-cli
+   cd xmocker-cli
+   npm link --production
 ~~~
 #### 使用
 打开网页 http://localhost:6001 即可访问
 在网页中添加完成项目相关的信息后，可使用命令进行启动对应的项目
 命令：mocker
 ~~~
-  Usage: mocker [options]
+  Usage: mocker [options] [command]
+
 
   Options:
 
-    -h, --help             output usage information
-    -V, --version          output the version number
-    -m, --main             只启动主进程，不启动任何项目
-    -e, --exit             退出主进程
-    -f, --free [value]     释放指定端口
-    -l, --list             列出所有项目
-    -s, --start [value]    启动指定项目
-    -k, --kill [value]     停止指定项目
-    -r, --restart [value]  重启指定项目
+    -V, --version  output the version number
+    -h, --help     output usage information
+
+  Commands:
+
+    start <proj>    启动项目
+    stop <proj>     停止项目
+    restart <proj>  重启项目
+    list            列出项目
+    exit            退出项目
+    free <port>     杀掉指定端口
+    here            在当前目录启动服务器，更多参数请使用 mocker here -h查看
+    help [cmd]      display help for [cmd]
 ~~~
 
 schema 使用的是json-gate
@@ -45,4 +48,3 @@ https://github.com/oferei/json-gate
 ##### 修改的项目
 * json-gate: https://github.com/oferei/json-gate
 * koa-send: https://github.com/koajs/send
-* promiseNedb: https://github.com/jrop/nedb-promise

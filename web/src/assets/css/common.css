@@ -1,14 +1,16 @@
 .left-info {
   width: 300px;
   float: left;
-  margin-right: 15px;
-  height: 100%;
+  margin: 10px 15px 0 0;
+  height: calc(100vh - 95px);
   overflow-y: auto;
 }
 .right-container {
   overflow-x: hidden;
   overflow-y: auto;
   width: auto;
+  height: calc(100vh - 95px);
+  margin: 10px 10px 0 0;
   /*max-width: calc(100vw - 347px);*/
 }
 .right-container> div.ivu-card-body {

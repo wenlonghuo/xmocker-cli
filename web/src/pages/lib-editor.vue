@@ -40,7 +40,7 @@ export default {
       let func = data.id ? editLib : addLib
       func(data).then((data) => {
         if (!data.code) {
-          this.$Message.success(data.data.tip)
+          this.$Message.success(data.message)
           this.$router.replace({path: this.$route.fullPath, query: {id: data.data.result._id}})
         }
       })

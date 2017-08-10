@@ -1,5 +1,5 @@
 <template>
-<Card :bordered="false" class="list-card" style="height:calc(100vh - 112px)">
+<Card class="right-container" >
   <p slot="title">
       <Icon type="ios-film-outline"></Icon>
       项目列表
@@ -34,7 +34,7 @@
         :proxyTable="item.proxyTable"
         :key="item._id"
       ></projectCard>
-      <div v-for="i in [1,2,3,4,5,6,7,8,9, 10]"></div>
+      <div v-for="i in [1,2,3,4,5,6,7,8,9, 10]" style="height: 0;margin: 0;"></div>
   </div>
 </Card>
 </template>
@@ -49,6 +49,11 @@ export default {
   },
   components: {
     projectCard: pCard,
+  },
+  breadList: {
+    name: '项目列表',
+    menuName: '项目列表',
+    href: -1,
   },
   computed: {
     projectList () {
@@ -77,9 +82,9 @@ export default {
       this.$router.push({name: '项目编辑'})
     },
     setPageSize () {
-      let rContainer = document.querySelector('.list-card').getBoundingClientRect()
-      let hVal = Math.floor((rContainer.width - 52) / 368)
-      let vVal = Math.floor((rContainer.height - 32) / 268)
+      let rContainer = document.querySelector('.right-container').getBoundingClientRect()
+      let hVal = Math.floor((rContainer.width - 32) / 370)
+      let vVal = Math.floor((rContainer.height - 32) / 220)
       let val = vVal * hVal
       this.$store.commit('project/SET_PAGE_SIZE', val < 6 ? 6 : val)
     },
@@ -99,6 +104,7 @@ export default {
 .project-list>div {
   flex-basis: 350px;
   margin: 10px 10px;
+  height: 220px;
   /*flex-grow: 1;*/
 }
 </style>

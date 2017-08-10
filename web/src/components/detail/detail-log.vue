@@ -71,7 +71,7 @@ export default {
       return new Date(val).toLocaleTimeString() + '.' + point
     },
     ip (item = {}) {
-      return item.client && item.client.ip
+      return item.ip || (item.client && item.client.ip)
     },
     os (item = {}) {
       return item.os && `${item.os.name || ''} - ${item.os.version || ''}`

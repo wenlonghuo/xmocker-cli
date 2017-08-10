@@ -140,7 +140,7 @@
           if (valid) {
             this.postProject(this.formValidate).then((data) => {
               if (!data.code) {
-                this.$Message.success(data.data.tip)
+                this.$Message.success(data.message)
                 this.freshProject()
               }
             })

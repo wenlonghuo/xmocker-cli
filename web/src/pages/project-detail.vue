@@ -1,9 +1,7 @@
 <template>
 <div class="project-detail">
-  <div class="left-info">
-    <detail-project :info="info"></detail-project>
-  </div>
-  <Card :bordered="false" class="right-container" style="height:calc(100vh - 112px)">
+  <detail-project :info="info" class="left-info"></detail-project>
+  <Card class="right-container" bordered="bordered" dis-hover="dis-hover">
     <p slot="title">
         <Icon type="ios-film-outline"></Icon>
         API列表
@@ -81,7 +79,10 @@ export default {
     searchVal (val) {
       this.pageInfo.pageNo = 0
       this.pageInfo.total = 1
-      this.getApi()
+      clearTimeout(this.delayHandle)
+      this.delayHandle = setTimeout(() => {
+        this.getApi()
+      }, 200)
     },
   },
   mounted () {
@@ -103,6 +104,7 @@ export default {
   },
   methods: {
     getApi () {
+      clearTimeout(this.delayHandle)
       this.loading = true
       let func = this.searchVal ? searchApi : getApi
       let param = {project: this.info._id, pageSize: this.pageInfo.pageSize, pageNo: this.pageInfo.pageNo}
@@ -143,10 +145,6 @@ export default {
 </script>
 <style scoped>
 .left-info {
-  width: 300px;
-  float: left;
-  height: 100%;
-  overflow-y: auto;
+  margin-top: 0;
 }
-
 </style>

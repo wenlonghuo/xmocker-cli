@@ -37,14 +37,14 @@ export default {
     handleSubmit (item) {
       return setBase(item).then((data) => {
         if (!data.code) {
-          this.$Message.success(data.data.tip)
+          this.$Message.success(data.message)
         }
       })
     },
     handleUpgrade () {
       return upgrade({}).then((data) => {
         if (!data.code) {
-          this.$Message.success(data.data.tip)
+          this.$Message.success(data.message)
         }
       })
     },

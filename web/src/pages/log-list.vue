@@ -8,21 +8,27 @@
       <Input class="search-item" type="text" v-model="search.apiModel"  placeholder="分支名称"></Input>
       <Input class="search-item" type="text" v-model="search.client.browser"  placeholder="浏览器"></Input>
       <Input class="search-item" type="text" v-model="search.client.device"  placeholder="设备"></Input>
-      <Input class="search-item" type="text" v-model="search.client.ip"  placeholder="IP地址"></Input>
+      <Input class="search-item" type="text" v-model="search.ip"  placeholder="IP地址"></Input>
       <Input class="search-item" type="text" v-model="search.client.os"  placeholder="系统"></Input>
     </div>
   </Card>
   <div class="tabs-bar">
     <Card :bordered="false" class="log-tab">
-      <Tabs value="name1" class="tabs-bar-body">
-        <Tab-pane label="错误" name="name1">
+      <Tabs v-model="logType" class="tabs-bar-body">
+        <Tab-pane label="错误" name="error">
           <logItem v-for="item in errList" :info="item" :key="item.time" @click="setDetail"></logItem>
         </Tab-pane>
-        <Tab-pane label="历史" name="name2">
+        <Tab-pane label="历史" name="his">
           <logItem v-for="item in hisList" :info="item" :key="item.time" @click="setDetail"></logItem>
         </Tab-pane>
-        <Tab-pane label="代理" name="name3">
+        <Tab-pane label="代理" name="proxy">
           <logItem v-for="item in proxyList" :info="item" :key="item.time" @click="setDetail"></logItem>
+        </Tab-pane>
+        <Tab-pane label="记录" name="record">
+          <logItem v-for="item in recordList" :info="item" :key="item.time" @click="setDetail"></logItem>
+        </Tab-pane>
+        <Tab-pane label="错误上传" name="collector">
+          <logItem v-for="item in collectorList" :info="item" :key="item.time" @click="setDetail"></logItem>
         </Tab-pane>
       </Tabs>
     </Card>
@@ -37,6 +43,7 @@ export default {
   name: 'log-list',
   data () {
     return {
+      logType: 'error',
       detail: {},
       search: {
         project: '',
@@ -45,9 +52,9 @@ export default {
         client: {
           browser: '',
           device: '',
-          ip: '',
           os: '',
         },
+        ip: '',
       },
     }
   },
@@ -57,56 +64,93 @@ export default {
   },
   computed: {
     errList () {
-      return this.$store.state.log.err
+      return this.$store.state.log.error.list
     },
     hisList () {
-      return this.$store.state.log.his
+      return this.$store.state.log.his.list
     },
     proxyList () {
-      return this.$store.state.log.proxy
+      return this.$store.state.log.proxy.list
+    },
+    recordList () {
+      return this.$store.state.log.record.list
+    },
+    collectorList () {
+      return this.$store.state.log.collector.list
     },
   },
   watch: {
     'search.project': function () {
-      this.searchLog()
+      this.searchLog(true)
     },
     'search.api': function () {
-      this.searchLog()
+      this.searchLog(true)
     },
     'search.apiModel': function () {
-      this.searchLog()
+      this.searchLog(true)
     },
     'search.client.browser': function () {
-      this.searchLog()
+      this.searchLog(true)
     },
     'search.client.device': function () {
-      this.searchLog()
+      this.searchLog(true)
     },
-    'search.client.ip': function () {
-      this.searchLog()
+    'search.ip': function () {
+      this.searchLog(true)
     },
     'search.client.os': function () {
+      this.searchLog(true)
+    },
+    logType () {
       this.searchLog()
     },
   },
-  created () {
+  destroyed () {
+    this.removeScrollEvent()
   },
   mounted () {
-    this.getLog({type: 'log'})
+    this.searchLog()
+    this.addScrollEvent()
   },
   methods: {
-    setDetail (item) {
-      this.detail = Object.assign({}, this.detail, item)
-    },
-    getLog (option) {
-      // if (this.$store.state.log.fetchTime) return
-      return this.$socket.send(option).then(data => {
-        this.$store.commit('log/SET_LOGS', data.data)
+    addScrollEvent () {
+      let doms = document.querySelectorAll('.tabs-bar-body .ivu-tabs-tabpane')
+      this.tabDoms = [].slice.call(doms)
+      this.tabDoms.forEach(item => {
+        item.addEventListener('scroll', this.scrollEvt)
       })
     },
-    searchLog () {
-      let option = { type: 'log', data: {query: this.search} }
-      return this.getLog(option)
+    removeScrollEvent () {
+      this.tabDoms.forEach(item => {
+        item.removeEventListener('scroll', this.scrollEvt)
+      })
+    },
+    scrollEvt (e) {
+      let top = e.target.scrollTop + e.target.offsetHeight
+      let height = e.target.scrollHeight
+      if (height - top > 30) return
+      if (this.isLoading) {
+        if (this.debounceScroll) return
+        clearTimeout(this.debounceScroll)
+        this.debounceScroll = null
+        this.debounceScroll = setTimeout(() => {
+          this.searchLog()
+        }, 300)
+      } else {
+        this.searchLog()
+      }
+    },
+    setDetail (item) {
+      Object.keys(this.detail).forEach(key => {
+        this.detail[key] = undefined
+      })
+      this.detail = Object.assign({}, this.detail, item)
+    },
+    searchLog (refresh) {
+      this.isLoading = true
+      return this.$store.dispatch('log/GET_LOGS', {type: this.logType, refresh, search: this.search}).then(() => {
+        this.isLoading = false
+      })
     },
   },
 }
@@ -146,12 +190,21 @@ export default {
 }
 .tabs-bar-body {
   height: 100%;
-  overflow-y: auto;
+  overflow-y: hidden;
 }
 </style>
 <style>
 .log-tab .ivu-card-body {
   height: 100%;
 }
+
+.tabs-bar-body .ivu-tabs-content {
+  height: 100%;
+}
+.tabs-bar-body .ivu-tabs-tabpane {
+  height: calc( 100% - 40px);
+  overflow-y: auto;
+}
+
 </style>
 

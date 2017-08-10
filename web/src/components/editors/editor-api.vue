@@ -1,23 +1,19 @@
 <template>
 <div class="editor-api">
-  <div class="left-info">
-    <Card>
-      <p slot="title">
-        API{{title}} - 基础信息
-      </p>
-      <editorBase @submit="submitBase" @delete="deleteApi" :info="info"></editorBase>
-    </Card>
-  </div>
-  <div class="right-container">
-    <Card :bordered="false" class="right-list-full" style="height:calc(100vh - 112px)">
-      <p slot="title">
-          <Icon type="ios-film-outline"></Icon>
-          API分支列表
-      </p>
-      <editorModel @submit="submitModel" @delete="deleteApiModel" v-for="model in (info.model || [{}])" :info="model" :key="model._id" style="margin: 8px 0;"></editorModel>
-      <Button type="primary" icon="add" @click="addNewBranch">添加新分支</Button>
-    </Card>
-  </div>
+  <Card class="left-info">
+    <p slot="title">
+      API{{title}} - 基础信息
+    </p>
+    <editorBase @submit="submitBase" @delete="deleteApi" :info="info"></editorBase>
+  </Card>
+  <Card :bordered="false" class="right-list-full right-container" style="height:calc(100vh - 112px)">
+    <p slot="title">
+        <Icon type="ios-film-outline"></Icon>
+        API分支列表
+    </p>
+    <editorModel @submit="submitModel" @delete="deleteApiModel" v-for="model in (info.model || [{}])" :info="model" :key="model._id" style="margin: 8px 0;"></editorModel>
+    <Button type="primary" icon="add" @click="addNewBranch">添加新分支</Button>
+  </Card>
 </div>
 </template>
 <script>
@@ -60,7 +56,7 @@ export default {
       func(data).then((data) => {
         if (!data.code) {
           this.baseid = data.data.result._id
-          this.$Message.success(data.data.tip)
+          this.$Message.success(data.message)
         }
       })
     },
@@ -76,14 +72,14 @@ export default {
       }
       func(data).then((data) => {
         if (!data.code) {
-          this.$Message.success(data.data.tip)
+          this.$Message.success(data.message)
         }
       })
     },
     deleteApi (data) {
       deleteApi(data).then((data) => {
         if (!data.code) {
-          this.$Message.success(data.data.tip)
+          this.$Message.success(data.message)
           this.$router.go(-1)
         }
       })
@@ -91,7 +87,7 @@ export default {
     deleteApiModel (data) {
       deleteApiModel(data).then((data) => {
         if (!data.code) {
-          this.$Message.success(data.data.tip)
+          this.$Message.success(data.message)
           this.getApiDetail({id: this.$route.query.id})
         }
       })

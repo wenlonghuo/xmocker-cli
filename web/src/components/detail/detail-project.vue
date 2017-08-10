@@ -1,5 +1,5 @@
 <template>
-  <Card :bordered="false">
+  <Card bordered="bordered" dis-hover="dis-hover">
     <p slot="title" >
       {{info.name}}
     </p>
@@ -79,7 +79,7 @@ export default {
       topDropdownItems: [
         {name: '编辑', type: 'edit', action: 'btnEdit'},
         {name: '删除', type: 'android-remove-circle', action: 'btnDelete'},
-        {name: '查看代理过的API', type: 'ios-cloud-download', action: 'btnViewProxy'},
+        // {name: '查看代理过的API', type: 'ios-cloud-download', action: 'btnViewProxy'},
       ],
       simpleItem: [
         {label: '项目名称', key: 'name'},
@@ -136,7 +136,7 @@ export default {
       editProject(obj).then(this.afterEdit)
     },
     btnEdit () {
-      this.$router.push({name: '项目编辑', query: { id: this.info._id }})
+      this.$router.push({name: '项目编辑', query: { id: this.info._id, fromDetail: true }})
     },
     initData () {
       this.projInfo.id = this.info._id

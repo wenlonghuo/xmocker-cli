@@ -9,12 +9,29 @@ Vue.use(Vuex)
 
 const debug = process.env.NODE_ENV !== 'production'
 const state = {
-  actionBar: ''
+  actionBar: '',
+  breadList: [],
+  collectorToast: [],
 }
 
 const mutations = {
   SET_ACTIONBAR: (state, val) => {
     state.actionBar = val
+  },
+  SET_BREADLIST: (state, val) => {
+    let data = val.map(item => {
+      if (typeof item === 'string') {
+        return {
+          name: item,
+          href: -1,
+        }
+      }
+      return item
+    })
+    state.breadList = data
+  },
+  COLLECTOR_TOAST: (state, val) => {
+    state.collectorToast.push(val.data)
   },
 }
 

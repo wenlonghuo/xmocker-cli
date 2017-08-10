@@ -22,8 +22,7 @@ const getters = {
     return Math.ceil(state.list.length / state.pageSize)
   },
   reachLast: (state) => {
-    let total = Math.floor(state.list.length / state.pageSize)
-    return state.pageNo >= total
+    return (state.pageNo + 1) * state.pageSize >= state.list.length
   },
   reachZero: (state) => {
     return state.pageNo <= 0

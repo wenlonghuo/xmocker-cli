@@ -63,7 +63,7 @@ export default {
       let from = this.selectedList.map(s => s._id)
       return copyApi({ to: this.id, from: from.join(',') }).then((data) => {
         if (!data.code) {
-          this.$Message.success(data.data.tip)
+          this.$Message.success(data.message)
         }
       })
     },

@@ -2,7 +2,7 @@
   <Form ref="formValidate" :model="formValidate" :rules="ruleValidate" :label-width="80">
     <Form-item v-for="item in simpleItem" :prop="item.key" :label="item.label" :key="item.label">
       <Input v-model="formValidate[item.key]" :placeholder="'请输入' + item.label" v-if="!item.type"></Input>
-      <Select v-model="formValidate[item.key]" style="width:200px" v-if="item.type === 'select'">
+      <Select v-model="formValidate[item.key]" style="width:100px" v-if="item.type === 'select'">
         <Option v-for="mItem in methodList" :value="mItem.value" :key="mItem.value">{{ mItem.label }}</Option>
       </Select>
       <Input 
@@ -26,9 +26,9 @@
       return {
         formValidate: {
           name: '',
-          method: 'GET',
-          url: '',
-          path: '',
+          method: 'POST',
+          url: '/api',
+          path: 'func',
           pathEqual: '',
           delay: 0,
           description: '',

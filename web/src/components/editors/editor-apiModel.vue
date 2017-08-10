@@ -43,7 +43,7 @@
     <Row>
       <Col span="12">
         <Form-item class="cus-form-json-editor" label="mock数据">
-          <jsonEditor v-model="formValidate.data" editorHeight="5" minLine="5"></jsonEditor>
+          <jsonEditor v-model="formValidate.data" editorHeight="10" minLine="10"></jsonEditor>
         </Form-item>
       </Col>
     </Row>
@@ -62,7 +62,7 @@
     data () {
       return {
         formValidate: {
-          name: '',
+          name: '主干',
           condition: '',
           afterFunc: '',
           inputParam: {},

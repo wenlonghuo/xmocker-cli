@@ -63,7 +63,7 @@ export default {
       let id = (item.client || item.server)._uid
       return clientDownLoadProjBase({id: id}).then((data) => {
         if (!data.code) {
-          this.$Message.success(data.data.tips)
+          this.$Message.success(data.message)
         }
       })
     },
@@ -71,7 +71,7 @@ export default {
       let id = (item.client || item.server)._uid
       return clientDownLoadProj({id: id}).then((data) => {
         if (!data.code) {
-          this.$Message.success(data.data.tips)
+          this.$Message.success(data.message)
         }
       })
     },

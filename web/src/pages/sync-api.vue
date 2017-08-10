@@ -44,7 +44,7 @@ export default {
       let ids = item.map(item => item._id)
       return clientDownLoadApi({project: this.id, ids: ids.join(',')}).then((data) => {
         if (!data.code) {
-          this.$Message.success(data.data.tips)
+          this.$Message.success(data.message)
         }
       })
     },
