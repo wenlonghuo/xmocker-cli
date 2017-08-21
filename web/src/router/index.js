@@ -57,6 +57,11 @@ const router = new Router({
           path: 'apiEditor',
           name: 'API编辑',
           component: apiEditor,
+          meta: {
+            help: {
+              name: 'api'
+            },
+          },
         },
         {
           path: 'apiDetail',
@@ -68,6 +73,9 @@ const router = new Router({
               { name: '项目详情' },
               { name: 'API详情' },
             ],
+            help: {
+              name: 'api'
+            },
           },
         },
         {
@@ -80,6 +88,9 @@ const router = new Router({
               { name: '项目详情' },
               { name: 'API复制' },
             ],
+            help: {
+              name: 'api'
+            },
           },
         },
         {
@@ -91,6 +102,9 @@ const router = new Router({
             breadList: [
               { name: '项目列表', menuName: '项目列表' },
             ],
+            help: {
+              name: 'project',
+            },
           },
         },
         {
@@ -102,12 +116,20 @@ const router = new Router({
               { name: '项目列表', menuName: '项目列表' },
               { name: '项目详情' },
             ],
+            help: {
+              name: 'project',
+            },
           },
         },
         {
           path: 'projectEditor',
           name: '项目编辑',
           component: projectEditor,
+          meta: {
+            help: {
+              name: 'project',
+            },
+          },
         },
         {
           path: 'libEditor',
@@ -122,6 +144,9 @@ const router = new Router({
             breadList: [
               { name: '同步', menuName: '同步' },
             ],
+            help: {
+              name: 'sync',
+            },
           },
         },
         {
@@ -133,6 +158,9 @@ const router = new Router({
               { name: '同步', menuName: '同步' },
               { name: 'API' },
             ],
+            help: {
+              name: 'sync',
+            },
           },
         },
         {
@@ -164,6 +192,9 @@ const router = new Router({
             breadList: [
               { name: '基础配置', menuName: '基础配置' },
             ],
+            help: {
+              name: 'config',
+            },
           },
         },
         {
@@ -174,6 +205,9 @@ const router = new Router({
             breadList: [
               { name: '日志', menuName: '日志' },
             ],
+            help: {
+              name: 'log',
+            },
           },
         },
         {

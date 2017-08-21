@@ -1,3 +1,4 @@
+
 .left-info {
   width: 300px;
   float: left;
@@ -66,4 +67,6 @@
     50%  { transform: rotate(180deg);}
     to   { transform: rotate(360deg);}
 }
+
+
 

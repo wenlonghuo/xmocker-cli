@@ -70,6 +70,7 @@ return paramsKey.type == 0
 ```
  - 调用时`this`指向 koa中的`ctx`。
 
+
  ### 输出过滤函数
   - 类型： String
   - 默认： ''

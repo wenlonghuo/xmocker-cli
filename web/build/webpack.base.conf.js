@@ -51,6 +51,14 @@ module.exports = {
         include: [resolve('src'), resolve('test')]
       },
       {
+        test: /\.md$/,
+        use: [
+          {
+            loader: 'html-loader'
+          }
+        ]
+      },
+      {
         test: /iview.src.*?js$/,
         loader: 'babel-loader',
       },
