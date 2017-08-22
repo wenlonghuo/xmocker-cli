@@ -85,7 +85,7 @@ async function editApiModel (ctx, next) {
     result = await ApiModel.update({ _id: id }, { $set: finalParams }, { returnUpdatedDocs: true })
 
     result = result[1]
-    await ApiBase.update({ _id: data.baseid }, { $set: { _mt: +new Date() } })
+    await ApiBase.update({ _id: result.baseid }, { $set: { _mt: +new Date() } })
   } catch (e) {
     return ctx.respond.error('编辑api分支信息出错', {e})
   }
