@@ -15,11 +15,7 @@ module.exports = function (apiSchema) {
     p = camelCase(p.slice(5))
 
     if (!apiSchema[method] || !apiSchema[method][p]) {
-      ctx.body = {
-        code: -1,
-        err: '接口' + p + '不存在schema',
-      }
-      return
+      return ctx.respond.error('接口' + p + '不存在schema')
     }
     let schema = apiSchema[method][p]
     let pathSchema = createSchema(schema)
@@ -36,11 +32,7 @@ module.exports = function (apiSchema) {
     try {
       pathSchema.validate(params)
     } catch (e) {
-      ctx.body = {
-        code: -1,
-        err: e.message,
-      }
-      return
+      return ctx.respond.error(e.message, {e})
     }
 
     ctx.finalParams = params

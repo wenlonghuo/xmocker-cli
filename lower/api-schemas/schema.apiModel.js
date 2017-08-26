@@ -52,20 +52,19 @@ module.exports.post.apiModel = {
       title: '识别条件'
     },
     afterFunc: {
-      type: 'string',
+      type: ['string', 'null'],
       title: '输出过滤函数'
     },
     inputParam: {
-      type: 'object',
+      type: ['object', 'null'],
       title: '输入参数schema'
     },
     outputParam: {
-      type: 'object',
+      type: ['object', 'null'],
       title: '输出参数schema'
     },
     data: {
-      type: 'object',
-      required: true,
+      type: ['object', 'null'],
       title: '样板数据'
     }
   }
@@ -93,19 +92,19 @@ module.exports.put.apiModel = {
       title: '识别条件'
     },
     afterFunc: {
-      type: 'string',
+      type: ['string', 'null'],
       title: '输出过滤函数'
     },
     inputParam: {
-      type: 'object',
+      type: ['object', 'null'],
       title: '输入参数schema'
     },
     outputParam: {
-      type: 'object',
+      type: ['object', 'null'],
       title: '输出参数schema'
     },
     data: {
-      type: 'object',
+      type: ['object', 'null'],
       title: '样板数据'
     }
   }

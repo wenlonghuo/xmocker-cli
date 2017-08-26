@@ -187,7 +187,7 @@ var editApiModel = function () {
 
             result = result[1];
             _context4.next = 13;
-            return ApiBase.update({ _id: data.baseid }, { $set: { _mt: +new Date() } });
+            return ApiBase.update({ _id: result.baseid }, { $set: { _mt: +new Date() } });
 
           case 13:
             _context4.next = 18;

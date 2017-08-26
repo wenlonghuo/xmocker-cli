@@ -1,52 +1,38 @@
 <template>
 <Card>
-  <Form ref="formValidate" :model="formValidate" :rules="ruleValidate" :label-width="80">
+  <Form ref="formValidate" :model="formValidate" :rules="ruleValidate" :label-width="90">
     <div style="text-align: right;padding: 10px;">
       <a href="javascript:void(0)" v-for="item in topBarItems" :key="item.action" style="margin-right: 10px;">
         <Icon :type="item.type" color="#9ea7b4" @click.native="btnAction(item.action)"></Icon>
       </a>
     </div>
-    <Row>
-      <Col span="12">
-        <Form-item prop="name" label="名称">
-          <Input v-model="formValidate.name" placeholder="请输入名称"></Input>
-        </Form-item>
-      </Col>
-    </Row>
+  
+    <Form-item prop="name" label="名称">
+      <Input v-model="formValidate.name" placeholder="请输入名称"></Input>
+    </Form-item>
 
-    <Row>
-      <Col span="12">
-        <Form-item class="cus-form-json-editor" label="判断条件">
-          <jsEditor v-model="formValidate.condition" editorHeight="5" minLine="5"></jsEditor>
-        </Form-item>
-      </Col>
-      <Col span="12">
-        <Form-item class="cus-form-json-editor" label="输入过滤函数">
-          <jsEditor v-model="formValidate.afterFunc" editorHeight="5" minLine="5"></jsEditor>
-        </Form-item>
-      </Col>
-    </Row>
+    <Form-item class="cus-form-json-editor" label="判断条件">
+      <jsEditor v-model="formValidate.condition" editorHeight="5" minLine="5"></jsEditor>
+    </Form-item>
+    <Form-item class="cus-form-json-editor" label="输出处理函数">
+      <jsEditor v-if="formValidate.afterFunc" v-model="formValidate.afterFunc" editorHeight="5" minLine="5"></jsEditor>
+      <Button type="ghost" size="small" v-else @click.native="addBaseData('afterFunc', ' ')">添加</Button>
+    </Form-item>
 
-    <Row>
-      <Col span="12">
-        <Form-item class="cus-form-json-editor" label="输入参数模板">
-          <jsonEditor v-model="formValidate.inputParam" editorHeight="5" minLine="5"></jsonEditor>
-        </Form-item>
-      </Col>
-      <Col span="12">
-        <Form-item class="cus-form-json-editor" label="输出参数模板">
-          <jsonEditor v-model="formValidate.outputParam" editorHeight="5" minLine="5"></jsonEditor>
-        </Form-item>
-      </Col>
-    </Row>
+    <Form-item class="cus-form-json-editor" label="输入参数模板">
+      <jsonEditor v-if="formValidate.inputParam" v-model="formValidate.inputParam" editorHeight="5" minLine="5"></jsonEditor>
+      <Button type="ghost" size="small" v-else @click.native="addBaseData('inputParam')">添加</Button>
+    </Form-item>
 
-    <Row>
-      <Col span="12">
-        <Form-item class="cus-form-json-editor" label="mock数据">
-          <jsonEditor v-model="formValidate.data" editorHeight="10" minLine="10"></jsonEditor>
-        </Form-item>
-      </Col>
-    </Row>
+    <Form-item class="cus-form-json-editor" label="输出参数模板">
+      <jsonEditor v-if="formValidate.outputParam" v-model="formValidate.outputParam" editorHeight="5" minLine="5"></jsonEditor>
+      <Button type="ghost" size="small" v-else @click.native="addBaseData('outputParam')">添加</Button>
+    </Form-item>
+
+    <Form-item class="cus-form-json-editor" label="mock数据">
+      <jsonEditor v-if="formValidate.data" v-model="formValidate.data" editorHeight="10" minLine="10"></jsonEditor>
+      <Button type="ghost" size="small" v-else @click.native="addBaseData('data')">添加</Button>
+    </Form-item>
 
     <Form-item>
       <Button type="primary" @click="handleSubmit('formValidate')">提交</Button>
@@ -64,10 +50,10 @@
         formValidate: {
           name: '主干',
           condition: '',
-          afterFunc: '',
-          inputParam: {},
-          outputParam: {},
-          data: {},
+          afterFunc: null,
+          inputParam: null,
+          outputParam: null,
+          data: null,
           baseid: '',
         },
         ruleValidate: {
@@ -121,6 +107,11 @@
             this.$emit('delete', {id: this.info._id})
           },
         })
+      },
+      addBaseData (type, defaultValue) {
+        if (this.formValidate[type] !== undefined) {
+          this.formValidate[type] = defaultValue || {}
+        }
       },
     }
   }
