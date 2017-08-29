@@ -2,7 +2,7 @@
 <div class="editor-api">
   <Card class="left-info">
     <p slot="title">
-      API{{title}} - 基础信息
+      API{{title}} - 基本信息
     </p>
     <editorBase @submit="submitBase" @delete="deleteApi" :info="info"></editorBase>
   </Card>
@@ -112,16 +112,15 @@ export default {
 <style scoped>
 .editor-api {
   display: flex;
+  min-width: 1000px;
 }
-.editor-api .base {
-  flex-basis: 300px;
-}
-.editor-api .model {
+.editor-api .right-container {
+  flex-basis: 600px;
   flex-grow: 1;
-  overflow-x: hidden;
 }
-.right-container {
-  width: calc(100% - 318px);
+.editor-api .left-info {
+  flex-basis: 600px;
+  flex-grow: 1;
 }
 </style>
 <style>

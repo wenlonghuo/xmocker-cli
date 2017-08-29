@@ -7,6 +7,7 @@ program
   .option('-p, --port <number>', '端口号')
   .option('-t, --proxyTo <http://...>', '代理api至指定的服务器')
   .option('-i, --inject <boolean>', '注入脚本至Html')
+  .option('-h, --history <boolean | string>', 'history模式')
   .parse(process.argv)
 
 dealer(program)

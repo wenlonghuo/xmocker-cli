@@ -118,6 +118,22 @@ module.exports.post.apiBase = {
     description: {
       type: 'string',
       title: '接口描述'
+    },
+    afterFunc: {
+      type: ['string', 'null'],
+      title: '输出过滤函数'
+    },
+    inputParam: {
+      type: ['object', 'null'],
+      title: '输入参数schema'
+    },
+    outputParam: {
+      type: ['object', 'null'],
+      title: '输出参数schema'
+    },
+    data: {
+      type: ['object', 'null'],
+      title: '样板数据'
     }
   }
 };
@@ -166,6 +182,22 @@ module.exports.put.apiBase = {
     description: {
       type: 'string',
       title: '接口描述'
+    },
+    afterFunc: {
+      type: ['string', 'null'],
+      title: '输出过滤函数'
+    },
+    inputParam: {
+      type: ['object', 'null'],
+      title: '输入参数schema'
+    },
+    outputParam: {
+      type: ['object', 'null'],
+      title: '输出参数schema'
+    },
+    data: {
+      type: ['object', 'null'],
+      title: '样板数据'
     }
   }
 };

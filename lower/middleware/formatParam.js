@@ -40,17 +40,13 @@ module.exports = function (apiSchema) {
               p = camelCase(p.slice(5));
 
               if (!(!apiSchema[method] || !apiSchema[method][p])) {
-                _context.next = 8;
+                _context.next = 7;
                 break;
               }
 
-              ctx.body = {
-                code: -1,
-                err: '接口' + p + '不存在schema'
-              };
-              return _context.abrupt('return');
+              return _context.abrupt('return', ctx.respond.error('接口' + p + '不存在schema'));
 
-            case 8:
+            case 7:
               schema = apiSchema[method][p];
               pathSchema = createSchema(schema);
 
@@ -62,33 +58,28 @@ module.exports = function (apiSchema) {
               });
 
               params = (0, _assign2.default)({}, query, clone(body));
-              _context.prev = 12;
+              _context.prev = 11;
 
               pathSchema.validate(params);
-              _context.next = 20;
+              _context.next = 18;
               break;
 
-            case 16:
-              _context.prev = 16;
-              _context.t0 = _context['catch'](12);
+            case 15:
+              _context.prev = 15;
+              _context.t0 = _context['catch'](11);
+              return _context.abrupt('return', ctx.respond.error(_context.t0.message, { e: _context.t0 }));
 
-              ctx.body = {
-                code: -1,
-                err: _context.t0.message
-              };
-              return _context.abrupt('return');
-
-            case 20:
+            case 18:
 
               ctx.finalParams = params;
               return _context.abrupt('return', next());
 
-            case 22:
+            case 20:
             case 'end':
               return _context.stop();
           }
         }
-      }, _callee, this, [[12, 16]]);
+      }, _callee, this, [[11, 15]]);
     }));
 
     function formatParam(_x, _x2) {
