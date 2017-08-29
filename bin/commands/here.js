@@ -17,6 +17,7 @@ module.exports = function (commander) {
     port: commander.port || 6003,
     proxy404: commander.proxyTo,
     proxyMode: 1,
+    history: commander.history,
   }
   let mocker = new Mocker(option)
   let logger = log.bind(null, commander.debug)
