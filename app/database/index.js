@@ -31,14 +31,17 @@ function initDatabase (option = {}) {
 
   const dynDB = createDb('/dynDB')
 
-  const proxyDB = createDb('/log/proxyDB')
-
   const collectorDB = createDb('/log/collectorDB')
 
   const recordDB = createDb('/log/recordDB')
 
   let td = +new Date() - 1000 * 60 * 60 * 24 * 5
 
+  const proxyDB = createDb('/log/proxyDB', {
+    onload: function () {
+      proxyDB.remove({ time: { $lte: td } }, { multi: true }).catch(function (e) { console.log(e) })
+    },
+  })
   const errorDB = createDb('/log/error', {
     onload: function () {
       errorDB.remove({ time: { $lte: td } }, { multi: true }).catch(function (e) { console.log(e) })

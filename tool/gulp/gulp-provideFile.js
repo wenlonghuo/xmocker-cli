@@ -55,13 +55,17 @@ function provide (option) {
     watch: [...sourceOption.js, ...sourceOption.css, ...sourceOption.html, ...sourceOption.image],
     fileChange,
     jsPipe () {
-      return tap(function (file) {
+      return tap((file) => {
         let filename = file.path
         if (!state.inited) {
           let data = getFileInfoSync(filename, { type: 'js', root: sourceOption.root })
           addRelation(cachedData.js, filename, data)
         }
         file.contents = browserify(filename, { debug: true }).bundle()
+        file.contents.on('error', (e) => {
+          gutil.log(e)
+          file.contents = null
+        })
       })
     },
     cssPipe () {

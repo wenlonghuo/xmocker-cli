@@ -1,10 +1,9 @@
 'use strict'
 const db = require('../database')
 const ApiModel = db.apiModel
-const ApiBase = db.apiBase
 
-const uid = require('../util/common').uid()
-const reloadDatabase = require('../service/service.ctrlProc').reload.add
+const apiGet = require('../service/api/service.get')
+const apiEdit = require('../service/api/service.edit')
 
 module.exports = {
   getApiModel: getApiModel,
@@ -29,48 +28,25 @@ async function getApiModel (ctx, next) {
 
 async function getApiModelList (ctx, next) {
   let finalParams = ctx.finalParams
-  let size = ~~finalParams.pageSize
-  let no = ~~finalParams.pageNo
-  let skip = ~~(size * no)
 
-  delete finalParams.pageSize
-  delete finalParams.pageNo
-
-  let data, total
   try {
-    total = await ApiModel.count(finalParams)
-    data = await ApiModel.cfind(finalParams).sort({name: 1}).skip(skip).limit(size).exec()
+    let data = await apiGet.getModelByQuery({baseid: finalParams.baseid}, finalParams)
+    return ctx.respond.success('获取分支列表成功', data)
   } catch (e) {
-    return ctx.respond.error('查询api基础信息出错', {e})
+    return ctx.respond.error('分支列表出错', {e})
   }
-
-  let res = {
-    list: data,
-    pagination: {
-      total: total,
-      pageCnt: Math.ceil(total / size),
-      pageNo: no,
-    },
-  }
-  ctx.respond.success('获取分支列表成功', res)
 }
 
 async function addApiModel (ctx, next) {
   let finalParams = ctx.finalParams
 
-  let result
   try {
-    finalParams._uid = uid()
-    finalParams._mt = +new Date()
-    if (finalParams.data) finalParams.data = JSON.stringify(finalParams.data)
-    await ApiBase.update({ _id: finalParams.baseid }, { $set: { _mt: +new Date() } })
-    result = await ApiModel.insert(finalParams)
+    let data = await apiEdit.addModel(finalParams, true)
+    if (data.code) return ctx.respond.error(data)
+    return ctx.respond.success('添加API分支成功', { result: data.data })
   } catch (e) {
     return ctx.respond.error('添加api分支信息出错', {e})
   }
-  reloadDatabase({ type: 'apiModel', id: result._id })
-
-  ctx.respond.success('添加api分支成功', {result})
 }
 
 async function editApiModel (ctx, next) {
@@ -78,31 +54,25 @@ async function editApiModel (ctx, next) {
 
   let id = finalParams.id
   delete finalParams.id
-  let result
+  let data
   try {
-    finalParams._mt = +new Date()
-    if (finalParams.data) finalParams.data = JSON.stringify(finalParams.data)
-    result = await ApiModel.update({ _id: id }, { $set: finalParams }, { returnUpdatedDocs: true })
-
-    result = result[1]
-    await ApiBase.update({ _id: result.baseid }, { $set: { _mt: +new Date() } })
+    data = await apiEdit.editModel(id, finalParams)
+    if (data.code) return ctx.respond.error(data)
+    return ctx.respond.success('编辑API分支成功', { result: data.data })
   } catch (e) {
     return ctx.respond.error('编辑api分支信息出错', {e})
   }
-  reloadDatabase({ type: 'apiModel', id: id })
-
-  ctx.respond.success('编辑api分支成功', { result })
 }
 
 async function deleteApiModel (ctx, next) {
   let finalParams = ctx.finalParams
 
-  let result
+  let data
   try {
-    result = await ApiModel.remove({ _id: finalParams.id }, { multi: true })
+    data = await apiEdit.deleteModel(finalParams.id)
+    if (data.code) return ctx.respond.error(data)
+    return ctx.respond.success('删除API分支成功', { result: data.data })
   } catch (e) {
     return ctx.respond.error('删除api分支信息出错', {e})
   }
-
-  ctx.respond.success('编辑api分支成功', { result })
 }

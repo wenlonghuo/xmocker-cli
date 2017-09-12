@@ -7,7 +7,10 @@ const service = require('../service')
 const getProcById = service.proc.getProcById
 const reloadDatabase = service.ctrlProc.reload.add
 const uid = require('../util/common').uid()
-const combineArray = require('../util/combineArray.js')
+
+const apiGet = require('../service/api/service.get.js')
+const apiEdit = require('../service/api/service.edit.js')
+const apiCopy = require('../service/api/service.copy.js')
 
 module.exports = {
   getApiBase,
@@ -20,97 +23,56 @@ module.exports = {
   setApiStatus,
   getApiList,
 }
-
+// 获取指定ID的API详情
 async function getApiDetail (ctx, next) {
   let finalParams = ctx.finalParams
 
-  let baseData
   try {
-    baseData = await apiBase.cfind({_id: finalParams.id}).exec()
-    let apiBases = baseData.map((api) => { return api._id })
-    let modelData = await apiModel.cfind({ baseid: {$in: apiBases} }).exec()
-    baseData = combineArray(baseData, modelData, {fromKey: 'baseid', toKey: '_id', key: 'model'})
+    if (!finalParams.id) return ctx.respond.error('请提供API的ID')
+    let result = await apiGet.getApiById(finalParams.id)
+    if (!result) return ctx.respond.error('查询的API不存在或者已删除')
+    ctx.respond.success('获取API详情成功', {result})
   } catch (e) {
     return ctx.respond.error('查询api详细信息出错', {e})
   }
-  ctx.respond.success('获取API列表成功', {result: baseData[0]})
-  return next()
 }
-
+// 获取API列表，带models
 async function getApiList (ctx, next) {
   let finalParams = ctx.finalParams
-  let size = ~~finalParams.pageSize
-  let no = ~~finalParams.pageNo
-  let skip = ~~(size * no)
 
-  delete finalParams.pageSize
-  delete finalParams.pageNo
-
-  let data, total
   try {
-    total = await apiBase.count(finalParams)
-    data = await apiBase.cfind(finalParams).sort({name: 1}).skip(skip).limit(size).exec()
-    let apiBases = data.map((api) => { return api._id })
-    let modelData = await apiModel.cfind({ baseid: {$in: apiBases} }).exec()
-    data = combineArray(data, modelData, {fromKey: 'baseid', toKey: '_id', key: 'model'})
+    if (!finalParams.project) return ctx.respond.error('请提供项目的ID')
+    let result = await apiGet.getApiByProject(finalParams.project, finalParams, true)
+    return ctx.respond.success('获取API列表成功', result)
   } catch (e) {
-    return ctx.respond.error('查询api基础信息出错', {e})
+    return ctx.respond.error('查询api列表出错', {e})
   }
-
-  let res = {
-    list: data,
-    pagination: {
-      total: total,
-      pageCnt: Math.ceil(total / size),
-      pageNo: no,
-    },
-  }
-
-  ctx.respond.success('获取api列表成功', res)
-  return next()
 }
 
+// 获取API基础列表，可根据名字进行过滤
 async function getApiBase (ctx, next) {
   let finalParams = ctx.finalParams
-  let size = ~~finalParams.pageSize
-  let no = ~~finalParams.pageNo
-  let skip = ~~(size * no)
+  let option = Object.assign({}, finalParams)
 
-  delete finalParams.pageSize
-  delete finalParams.pageNo
+  let query = {
+    project: finalParams.project,
+  }
 
   if (finalParams.name) {
-    finalParams.name = {$in: finalParams.name.split(',')}
+    query.name = {$in: finalParams.name.split(',')}
   }
 
-  let data, total
   try {
-    total = await apiBase.count(finalParams)
-    data = await apiBase.cfind(finalParams).sort({name: 1}).skip(skip).limit(size).exec()
+    let result = await apiGet.getApiByQuery(query, option)
+    return ctx.respond.success('获取API列表成功', result)
   } catch (e) {
-    return ctx.respond.error('查询api基础信息出错', {e})
+    return ctx.respond.error('查询api列表出错', {e})
   }
-
-  let res = {
-    list: data,
-    pagination: {
-      total: total,
-      pageCnt: Math.ceil(total / size),
-      pageNo: no,
-    },
-  }
-  ctx.respond.success('获取api列表成功', res)
-  return next()
 }
-
+// 搜索API，根据名称和项目ID
 async function searchApiBase (ctx, next) {
   let finalParams = ctx.finalParams
-  let size = ~~finalParams.pageSize
-  let no = ~~finalParams.pageNo
-  let skip = ~~(size * no)
-
-  delete finalParams.pageSize
-  delete finalParams.pageNo
+  let option = Object.assign({}, finalParams)
 
   let words = finalParams.words
   let project = finalParams.project
@@ -121,80 +83,52 @@ async function searchApiBase (ctx, next) {
     name: {$regex: regex},
   }
 
-  let data, total
   try {
-    total = await apiBase.count(query)
-    data = await apiBase.cfind(query).sort({name: 1}).skip(skip).limit(size).exec()
-    let apiBases = data.map((api) => { return api._id })
-    let modelData = await apiModel.cfind({ baseid: {$in: apiBases} }).exec()
-    data = combineArray(data, modelData, {fromKey: 'baseid', toKey: '_id', key: 'model'})
+    let result = await apiGet.getApiByQuery(query, option)
+    return ctx.respond.success('搜索API列表成功', result)
   } catch (e) {
     return ctx.respond.error('搜索API出错', {e})
   }
-
-  let res = {
-    list: data,
-    pagination: {
-      total: total,
-      pageCnt: Math.ceil(total / size),
-      pageNo: no,
-    },
-  }
-  ctx.respond.success('搜索api成功', res)
-  return next()
 }
 
 async function addApiBase (ctx, next) {
   let finalParams = ctx.finalParams
 
-  let data
   try {
-    finalParams._uid = uid()
-    finalParams._mt = +new Date()
-    data = await apiBase.insert(finalParams)
+    let data = await apiEdit.addApi(finalParams)
+    if (data.code) return ctx.respond.error(data)
+    return ctx.respond.success('添加api基础信息成功', { result: data.data })
   } catch (e) {
     return ctx.respond.error('添加api基础信息出错', {e})
   }
-  reloadDatabase({type: 'apiBase', id: data._id})
-
-  ctx.respond.success('添加api基础信息成功', {result: data})
-  return next()
 }
 
 async function editApiBase (ctx, next) {
   let finalParams = ctx.finalParams
 
   let id = finalParams.id
-  delete finalParams.id
+  finalParams.id = undefined
 
   let data
   try {
-    finalParams._mt = +new Date()
-    data = await apiBase.update({_id: id}, {$set: finalParams}, {returnUpdatedDocs: true})
-    data = data[1]
+    data = await apiEdit.editApi(id, finalParams)
+    if (data.code) return ctx.respond.error(data)
+    return ctx.respond.success('编辑api基础信息成功', { result: data.data })
   } catch (e) {
     return ctx.respond.error('编辑api基础信息出错', {e})
   }
-
-  reloadDatabase({type: 'apiBase', id: id})
-
-  ctx.respond.success('编辑api基础信息成功', { result: data })
-  return next()
 }
 
 async function deleteApiBase (ctx, next) {
   let finalParams = ctx.finalParams
 
-  let data
   try {
-    data = await apiBase.remove({_id: finalParams.id}, { multi: true })
-    data = await apiModel.remove({baseid: finalParams.id}, { multi: true })
+    let data = await apiEdit.deleteApi(finalParams.id)
+    if (data.code) return ctx.respond.error(data)
+    return ctx.respond.success('删除API成功', { result: data.data })
   } catch (e) {
     return ctx.respond.error('删除api基础信息出错', {e})
   }
-
-  ctx.respond.success('删除api成功', { result: data })
-  return next()
 }
 
 async function copyApi (ctx, next) {
@@ -205,46 +139,12 @@ async function copyApi (ctx, next) {
 
   // let data
   try {
-    let apiBaseList = await apiBase.cfind({_id: {$in: apiIds}}).exec()
-    let apiModelList
-    let i, j, api, proj, apiId, k
-
-    for (i = 0; i < projList.length; i++) {
-      proj = projList[i]
-      for (j = 0; j < apiBaseList.length; j++) {
-        api = apiBaseList[j]
-        if (api.project === proj) continue
-        let oriApiId = api._id
-        delete api._id
-        api.project = proj
-        if (!api._uid)api._uid = uid()
-        api._mt = +new Date()
-        let query = {path: api.path, pathEqual: api.pathEqual, url: api.url, method: api.method, project: proj}
-
-        apiId = await apiBase.update(query, {$set: api}, {returnUpdatedDocs: true, upsert: true})
-        apiId = apiId[1]
-        if (!apiId) throw new Error(`save apibase failed ${JSON.stringify(api)}`)
-
-        apiModelList = await apiModel.cfind({baseid: oriApiId}).exec()
-
-        for (k = 0; k < apiModelList.length; k++) {
-          let model = apiModelList[k]
-          delete model._id
-          model.baseid = apiId._id
-          if (!model._uid)model._uid = uid()
-          model._mt = +new Date()
-          let query = {baseid: model.baseid, name: model.name, condition: model.condition}
-          await apiModel.update(query, {$set: model}, {returnUpdatedDocs: true, upsert: true})
-        }
-      }
-      reloadDatabase({type: 'project', id: proj})
-    }
+    let result = await apiCopy.copyApi(apiIds, projList, finalParams)
+    if (result.code) return ctx.respond.error(result)
+    return ctx.respond.success('复制API成功', { result: result.data })
   } catch (e) {
     return ctx.respond.error('复制api出错', {e})
   }
-
-  ctx.respond.success('复制api成功', {result: ''})
-  return next()
 }
 
 // 设置 api状态， 包括 clear 清除状态  error 错误模式 fixed 固定模式 random 随机模式

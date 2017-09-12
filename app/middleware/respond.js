@@ -5,6 +5,10 @@
  */
 
 function logError (ctx, code, msg, option = {}) {
+  if (typeof code === 'object' && code.code != null) {
+    ctx.body = Object.assign({}, code, {message: code.msg})
+    return
+  }
   if (typeof msg === 'object' || msg == null) {
     option = msg || {}
     msg = code
@@ -14,6 +18,7 @@ function logError (ctx, code, msg, option = {}) {
   ctx.body = {
     code: code,
     message: msg,
+    data: option.data,
   }
 }
 

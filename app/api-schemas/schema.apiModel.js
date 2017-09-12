@@ -29,6 +29,12 @@ module.exports.get.apiModelList = {
       required: true,
       minLength: 1,
     },
+    order: {
+      type: 'number',
+    },
+    sortBy: {
+      type: 'string',
+    },
   },
 }
 
