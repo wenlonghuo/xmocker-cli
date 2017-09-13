@@ -30,6 +30,10 @@ async function start (proj, option = {}) {
     }
   }
 
+  if (isStarted(proj)) {
+    await stop(proj, option)
+  }
+
   let index = getProcIndex(state.proc, proj)
   if (~index) state.proc.splice(index, 1)
   return startMocker(proj, option)
@@ -93,9 +97,9 @@ async function restartExector () {
   let option = {force: force}
 
   try {
-    if (isStarted(proj)) {
-      await stop(proj, option).then()
-    }
+    // if (isStarted(proj)) {
+    //   await stop(proj, option)
+    // }
     await start(proj, option)
     execGulp(proj, option)
     list.forEach(item => {

@@ -29,9 +29,11 @@ module.exports.get.api = {
     },
     pageSize: {
       type: 'number',
+      default: 20,
     },
     pageNo: {
       type: 'number',
+      default: 0,
     },
   },
 }

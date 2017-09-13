@@ -10,6 +10,8 @@ const apiGet = require('./service.get.js')
 
 module.exports = {
   copyApi,
+  copyApiToProjectById,
+  copyApiToProjectByData,
 }
 
 /**
@@ -48,69 +50,107 @@ async function copyApiToProjectById (id, projectId, { force, forceRemove }) {
     if (!apiData) return {code: 2, msg: 'API不存在或者已删除'}
     if (apiData.project === projectId) return { code: 9, msg: '该API属于被复制的项目' }
 
-    delete apiData._id
-    apiData.project = projectId
-    // 先尝试进行插入
-    let result = await copyApiData(apiData)
     let modelList = apiData.model
+    return await copyApiToProjectByData(apiData, modelList, projectId, {force, forceRemove})
+  } catch (e) {
+    throw e
+  }
+}
+/**
+ * 根据API信息将API复制到指定项目中
+ */
+
+async function copyApiToProjectByData (apiData = {}, modelList = [], projectId, { force, forceRemove }) {
+  try {
+    let result = await copyApiAndModel(apiData, modelList, projectId)
+
     if (!result.code) {
       // 插入正常
-      let newId = result.data._id
-      for (let i = 0; i < modelList.length; i++) {
-        modelList[i].baseid = newId
-        await copyModel(modelList[i])
-      }
-      return { code: 0 }
+      return result
     }
+
     // 冲突
-    if (!force) return { code: 10, msg: 'API已经存在', data: result.data }
+    if (!force) return result
+
     // 覆盖原有API
     let conflictList = result.data.data
-    for (let j = 0; j < conflictList.length; j++) {
-      let existData = conflictList[j]
-      let existId = existData._id
-      apiData._mt = +new Date()
-      await ApiBase.update({ _id: existId }, { $set: apiData }, { returnUpdatedDocs: true })
-      if (forceRemove) {
-        // 强制删除所有的分支
-        await ApiModel.remove({ baseid: existId }, { multi: true })
-      }
-      for (let i = 0; i < modelList.length; i++) {
-        modelList[i].baseid = existId
-        await copyModel(modelList[i])
-      }
+
+    // 强制覆盖，要删除原有API
+    if (forceRemove) {
+      let rmIdArr = conflictList.map(item => item._id)
+      await ApiBase.remove({ _id: { $in: rmIdArr } }, { multi: true })
+      await ApiModel.remove({ baseid: { $in: rmIdArr } }, { multi: true })
     }
-    return { code: 0 }
+    // 再次进行强制更新
+    result = await copyApiAndModel(apiData, modelList, projectId, true)
+
+    return result
   } catch (e) {
     throw e
   }
 }
 
-async function copyApiData (params) {
+// 复制API和下面的model
+async function copyApiAndModel (params, modelList, projectId, force) {
+  let data = {model: []}
+  try {
+    // 复制API数据
+    let result = await copyApiData(params, projectId, force)
+    if (result.code) return result
+
+    let apiList = result.data
+    if (!apiList) return { code: 0, data: data }
+
+    if (!Array.isArray(apiList)) apiList = [apiList]
+
+    data.api = apiList
+
+    for (let i = 0; i < apiList.length; i++) {
+      let apiId = apiList[i]._id
+      let modelData = await copyModel(modelList[i], apiId)
+      data.model.push(modelData)
+    }
+    return {code: 0, data: data}
+  } catch (e) {
+    throw e
+  }
+}
+
+// 根据参数复制API到项目
+async function copyApiData (api, projectId, force) {
   let data
   try {
+    let params = Object.assign({}, api)
+    delete params._id
+    delete params.model
+    params.project = projectId
     let exist = await apiGet.getExistApi(params, {})
-    if (exist.data && exist.data.length) return { code: 1, msg: 'API和现有API冲突', data: exist }
+    if (exist.data && exist.data.length && !force) return { code: 10, msg: 'API和现有API冲突', data: exist }
     if (!params._uid) params._uid = uid()
     params._mt = +new Date()
-    data = await ApiBase.update(exist.query, { $set: params }, { returnUpdatedDocs: true, upsert: true })
+    data = await ApiBase.update(exist.query, { $set: params }, { returnUpdatedDocs: true, upsert: true, multi: true })
     data = data[1]
   } catch (e) {
     throw e
   }
   return { code: 0, data }
 }
-
-async function copyModel (params) {
+// 根据参数和apiId复制至数据库
+async function copyModel (model, apiId) {
   let data
   try {
-    // if (!params.condition && unique) return { code: 4, msg: '必须填写contition' }
-    delete params._id
+    let params = Object.assign({}, model)
+    params.baseid = apiId
     if (!params._uid) params._uid = uid()
+    delete params._id
     params._mt = +new Date()
-    data = await ApiModel.insert(params)
+    let query = {
+      baseid: params.baseid,
+      _uid: params._uid,
+    }
+    data = await ApiModel.update(query, { $set: params }, { returnUpdatedDocs: true, upsert: true, multi: true })
   } catch (e) {
     throw e
   }
-  return { code: 0, data }
+  return { code: 0, data: data[1] }
 }

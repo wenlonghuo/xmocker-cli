@@ -24,7 +24,7 @@ async function addApi (params) {
     if (exist.data && exist.data.length) return {code: 1, msg: 'API和现有API冲突', data: exist}
     params._uid = uid()
     params._mt = +new Date()
-    data = await ApiBase.update(exist.query, { $set: params }, { returnUpdatedDocs: true, upsert: true })
+    data = await ApiBase.update(exist.query, { $set: params }, { returnUpdatedDocs: true, upsert: true, multi: true })
     data = data[1]
   } catch (e) {
     throw e
@@ -40,7 +40,7 @@ async function editApi (id, params) {
     let exist = await apiGet.getExistApi(params, {id})
     if (exist.data && exist.data.length) return { code: 1, msg: 'API和现有API冲突', data: exist.data }
     params._mt = +new Date()
-    data = await ApiBase.update({ _id: id }, { $set: params }, { returnUpdatedDocs: true })
+    data = await ApiBase.update({ _id: id }, { $set: params }, { returnUpdatedDocs: true, multi: true, upsert: true })
     data = data[1]
   } catch (e) {
     throw e
@@ -72,7 +72,7 @@ async function addModel (params, unique) {
     params._uid = uid()
     params._mt = +new Date()
     if (params.data) params.data = JSON.stringify(params.data)
-    await ApiBase.update({ _id: params.baseid }, { $set: { _mt: +new Date() } })
+    await ApiBase.update({ _id: params.baseid }, { $set: { _mt: +new Date() } }, { returnUpdatedDocs: true, multi: true, upsert: true })
     data = await ApiModel.insert(params)
   } catch (e) {
     throw e
@@ -87,10 +87,10 @@ async function editModel (id, params) {
     if (!id) return {code: 5, msg: '请提供ID'}
     params._mt = +new Date()
     if (params.data) params.data = JSON.stringify(params.data)
-    result = await ApiModel.update({ _id: id }, { $set: params }, { returnUpdatedDocs: true })
+    result = await ApiModel.update({ _id: id }, { $set: params }, { returnUpdatedDocs: true, multi: true, upsert: true })
 
     result = result[1]
-    await ApiBase.update({ _id: result.baseid }, { $set: { _mt: +new Date() } })
+    await ApiBase.update({ _id: result.baseid }, { $set: { _mt: +new Date() } }, { returnUpdatedDocs: true, multi: true, upsert: true })
   } catch (e) {
     throw e
   }
@@ -102,7 +102,7 @@ async function editModel (id, params) {
 async function deleteModel (id) {
   let result
   try {
-    result = await ApiModel.remove({ _id: id }, { multi: true })
+    result = await ApiModel.remove({ _id: id }, { returnUpdatedDocs: true, multi: true, upsert: true })
     return result
   } catch (e) {
     throw e

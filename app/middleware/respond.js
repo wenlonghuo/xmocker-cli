@@ -3,6 +3,7 @@
  * 返回格式化模块
  * 提供 ctx.respond.success和ctx.respond.error两种方法
  */
+const version = 2
 
 function logError (ctx, code, msg, option = {}) {
   if (typeof code === 'object' && code.code != null) {
@@ -19,6 +20,7 @@ function logError (ctx, code, msg, option = {}) {
     code: code,
     message: msg,
     data: option.data,
+    version,
   }
 }
 
@@ -28,6 +30,7 @@ function success (ctx, msg, data) {
     code: 0,
     message: msg,
     data: data,
+    version,
   }
 }
 

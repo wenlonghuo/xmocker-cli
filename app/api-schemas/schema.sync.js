@@ -61,6 +61,12 @@ module.exports.put.clientDownLoadApi = {
       required: true,
       title: '项目uid',
     },
+    force: {
+      type: 'number',
+    },
+    forceRemove: {
+      type: 'number',
+    },
   },
 }
 

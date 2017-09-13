@@ -26,7 +26,12 @@ async function getApiById (id) {
     throw e
   }
 }
-
+/**
+ * 根据查询条件返回API列表
+ * @param {*} query 
+ * @param {*} param1 
+ * @param {*} showModels 
+ */
 async function getApiByQuery (query, {pageSize, pageNo, order, sortBy}, showModels) {
   let size = ~~pageSize
   let no = ~~pageNo
@@ -59,7 +64,12 @@ async function getApiByQuery (query, {pageSize, pageNo, order, sortBy}, showMode
     throw e
   }
 }
-
+/**
+ * 根据查询条件返回API列表，暂未使用
+ * @param {*} params 
+ * @param {*} {pageSize, pageNo, order, sortBy}
+ * @param {*} showModels 
+ */
 async function getApiByCondition (params, {pageSize, pageNo, order, sortBy}, showModels) {
   const query = {
     url: params.url,
@@ -79,18 +89,28 @@ async function getApiByCondition (params, {pageSize, pageNo, order, sortBy}, sho
   }
 }
 
+/**
+ * 获取 API列表
+ * @param {*} projectId 
+ * @param {*} param1 
+ * @param {*} showModels 是否返回所有分支
+ */ 
 async function getApiByProject (projectId, {pageSize, pageNo, order, sortBy}, showModels) {
   const query = {
     project: projectId,
   }
 
   try {
-    return await getApiByQuery(query, { pageSize, pageNo, order, sortBy })
+    return await getApiByQuery(query, { pageSize, pageNo, order, sortBy }, showModels)
   } catch (e) {
     throw e
   }
 }
-
+/**
+ * 获取该条件下的API是否已经存在
+ * @param {*} params 
+ * @param {*} 【id】指定ID 
+ */
 async function getExistApi (params, {id}) {
   const query = {
     url: params.url,
@@ -116,7 +136,11 @@ async function getExistApi (params, {id}) {
 }
 
 // model 系列
-
+/**
+ * 根据查询条件获取model列表
+ * @param {*} query 
+ * @param {*} param1 
+ */
 async function getModelByQuery (query, { pageSize, pageNo, order, sortBy }) {
   let size = ~~pageSize
   let no = ~~pageNo
