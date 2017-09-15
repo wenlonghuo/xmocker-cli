@@ -10,6 +10,7 @@ const apiGet = require('./service.get.js')
 
 module.exports = {
   copyApi,
+  copyModel,
   copyApiToProjectById,
   copyApiToProjectByData,
 }
@@ -92,23 +93,25 @@ async function copyApiToProjectByData (apiData = {}, modelList = [], projectId, 
 
 // 复制API和下面的model
 async function copyApiAndModel (params, modelList, projectId, force) {
-  let data = {model: []}
+  let data = []
   try {
     // 复制API数据
     let result = await copyApiData(params, projectId, force)
     if (result.code) return result
 
     let apiList = result.data
-    if (!apiList) return { code: 0, data: data }
 
     if (!Array.isArray(apiList)) apiList = [apiList]
 
-    data.api = apiList
+    data.push(...apiList)
 
-    for (let i = 0; i < apiList.length; i++) {
-      let apiId = apiList[i]._id
-      let modelData = await copyModel(modelList[i], apiId)
-      data.model.push(modelData)
+    for (let i = 0; i < data.length; i++) {
+      let apiId = data[i]._id
+      data[i].model = []
+      for (let j = 0; j < modelList.length; j++) {
+        let modelData = await copyModel(modelList[j], apiId)
+        data[i].model.push(modelData.data)
+      }
     }
     return {code: 0, data: data}
   } catch (e) {
@@ -127,7 +130,7 @@ async function copyApiData (api, projectId, force) {
     let exist = await apiGet.getExistApi(params, {})
     if (exist.data && exist.data.length && !force) return { code: 10, msg: 'API和现有API冲突', data: exist }
     if (!params._uid) params._uid = uid()
-    params._mt = +new Date()
+    if (!params._mt) params._mt = +new Date()
     data = await ApiBase.update(exist.query, { $set: params }, { returnUpdatedDocs: true, upsert: true, multi: true })
     data = data[1]
   } catch (e) {
@@ -141,9 +144,9 @@ async function copyModel (model, apiId) {
   try {
     let params = Object.assign({}, model)
     params.baseid = apiId
-    if (!params._uid) params._uid = uid()
     delete params._id
-    params._mt = +new Date()
+    if (!params._uid) params._uid = uid()
+    if (!params._mt) params._mt = +new Date()
     let query = {
       baseid: params.baseid,
       _uid: params._uid,

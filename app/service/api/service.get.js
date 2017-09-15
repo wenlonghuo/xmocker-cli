@@ -10,6 +10,7 @@ module.exports = {
   getApiByCondition,
   getApiByQuery,
   getApiById,
+  getApiDetailByQuery,
   getExistApi,
   getModelByQuery,
 }
@@ -28,9 +29,9 @@ async function getApiById (id) {
 }
 /**
  * 根据查询条件返回API列表
- * @param {*} query 
- * @param {*} param1 
- * @param {*} showModels 
+ * @param {*} query
+ * @param {*} param1
+ * @param {*} showModels
  */
 async function getApiByQuery (query, {pageSize, pageNo, order, sortBy}, showModels) {
   let size = ~~pageSize
@@ -65,10 +66,29 @@ async function getApiByQuery (query, {pageSize, pageNo, order, sortBy}, showMode
   }
 }
 /**
+ * 根据查询条件返回单个API
+ * @param {*} query
+ * @param {*} showModels
+ */
+async function getApiDetailByQuery (query, showModels) {
+  try {
+    let data = await ApiBase.cfindOne(query).exec()
+    if (!data) return
+    if (showModels) {
+      let id = data._id
+      let modelData = await ApiModel.cfind({ baseid: id }).sort({_mt: -1}).exec()
+      data = Object.assign({}, data, {model: modelData})
+    }
+    return data
+  } catch (e) {
+    throw e
+  }
+}
+/**
  * 根据查询条件返回API列表，暂未使用
- * @param {*} params 
+ * @param {*} params
  * @param {*} {pageSize, pageNo, order, sortBy}
- * @param {*} showModels 
+ * @param {*} showModels
  */
 async function getApiByCondition (params, {pageSize, pageNo, order, sortBy}, showModels) {
   const query = {

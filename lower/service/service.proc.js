@@ -41,26 +41,36 @@ var start = function () {
 
           case 2:
             if (option.force) {
-              _context.next = 6;
+              _context.next = 7;
               break;
             }
 
             info = getChangedConfig(proj);
 
             if (!info) {
-              _context.next = 6;
+              _context.next = 7;
               break;
             }
 
+            info.proc.proj = proj;
             return _context.abrupt('return', info.proc.reconfig(info.option));
 
-          case 6:
+          case 7:
+            if (!isStarted(proj)) {
+              _context.next = 10;
+              break;
+            }
+
+            _context.next = 10;
+            return stop(proj, option);
+
+          case 10:
             index = getProcIndex(state.proc, proj);
 
             if (~index) state.proc.splice(index, 1);
             return _context.abrupt('return', startMocker(proj, option));
 
-          case 9:
+          case 13:
           case 'end':
             return _context.stop();
         }
@@ -136,41 +146,31 @@ var restartExector = function () {
             });
             option = { force: force };
             _context3.prev = 4;
-
-            if (!isStarted(proj)) {
-              _context3.next = 8;
-              break;
-            }
-
-            _context3.next = 8;
-            return stop(proj, option).then();
-
-          case 8:
-            _context3.next = 10;
+            _context3.next = 7;
             return start(proj, option);
 
-          case 10:
+          case 7:
             execGulp(proj, option);
             list.forEach(function (item) {
               item.resolve(proj);
             });
-            _context3.next = 17;
+            _context3.next = 14;
             break;
 
-          case 14:
-            _context3.prev = 14;
+          case 11:
+            _context3.prev = 11;
             _context3.t0 = _context3['catch'](4);
 
             list.forEach(function (item) {
               item.reject(_context3.t0);
             });
 
-          case 17:
+          case 14:
           case 'end':
             return _context3.stop();
         }
       }
-    }, _callee3, this, [[4, 14]]);
+    }, _callee3, this, [[4, 11]]);
   }));
 
   return function restartExector() {
@@ -441,7 +441,7 @@ function getChangedConfig(proj) {
   var optKeys = [{ key: 'proxyTo', optKey: 'proxy404' }, { key: 'proxyMode', optKey: 'proxyType' }, { key: 'linkViews', optKey: 'urls' }, { key: 'inject', optKey: 'injectHtml' }, { key: 'proxyTable', optKey: 'proxyTable' }];
   var option = {};
   optKeys.forEach(function (op) {
-    if (!_.isEqual(proj[op.key], oldProj[op.key])) option[op.optKey] = proj[op.key];
+    if (!_.isEqual(proj[op.optKey], oldProj[op.optKey])) option[op.key] = proj[op.optKey];
   });
   return { proc: proc, option: option };
 }

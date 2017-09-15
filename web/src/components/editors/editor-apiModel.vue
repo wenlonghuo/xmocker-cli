@@ -104,7 +104,7 @@
           title: '是否删除该API？',
           content: '<p>删除后将相关的分支均会删除且无法恢复</p>',
           onOk: () => {
-            this.$emit('delete', {id: this.info._id})
+            this.$emit('delete', this.info)
           },
         })
       },

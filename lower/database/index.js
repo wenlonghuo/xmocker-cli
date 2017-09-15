@@ -36,14 +36,19 @@ function initDatabase() {
 
   var dynDB = createDb('/dynDB');
 
-  var proxyDB = createDb('/log/proxyDB');
-
   var collectorDB = createDb('/log/collectorDB');
 
   var recordDB = createDb('/log/recordDB');
 
   var td = +new Date() - 1000 * 60 * 60 * 24 * 5;
 
+  var proxyDB = createDb('/log/proxyDB', {
+    onload: function onload() {
+      proxyDB.remove({ time: { $lte: td } }, { multi: true }).catch(function (e) {
+        console.log(e);
+      });
+    }
+  });
   var errorDB = createDb('/log/error', {
     onload: function onload() {
       errorDB.remove({ time: { $lte: td } }, { multi: true }).catch(function (e) {

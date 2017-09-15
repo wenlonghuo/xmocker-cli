@@ -30,6 +30,20 @@ module.exports.get.apiModelList = {
       type: 'string',
       required: true,
       minLength: 1
+    },
+    pageSize: {
+      type: 'number',
+      default: 1000
+    },
+    pageNo: {
+      type: 'number',
+      default: 0
+    },
+    order: {
+      type: 'number'
+    },
+    sortBy: {
+      type: 'string'
     }
   }
 };

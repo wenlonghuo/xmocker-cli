@@ -41,11 +41,19 @@ export const deleteApi = params => axios.request({url: '/api', 'method': 'delete
 export const deleteApiModel = params => axios.request({url: '/apiModel', 'method': 'delete', params})
 
 // sync
+export const clientGetProjList = params => axios.request({url: '/clientGetProjList', params})
+export const clientGetApiListByProject = params => axios.request({url: '/clientGetApiListByProject', params})
+
 export const clientGetProjDiff = params => axios.request({url: '/clientGetProjDiff', params})
 export const clientGetApiDiff = params => axios.request({url: '/clientGetApiDiff', params})
 export const clientDownLoadProjBase = params => axios.put('/clientDownLoadProjBase', params)
 export const clientDownLoadProj = params => axios.put('/clientDownLoadProj', params)
 export const clientDownLoadApi = params => axios.put('/clientDownLoadApi', params)
+
+export const clientPushApiListById = params => axios.put('/clientPushApiListById', params)
+export const clientPushApiById = params => axios.put('/clientPushApiById', params)
+export const clientPushApiByData = params => axios.put('/clientPushApiByData', params)
+export const clientPushApiListByData = params => axios.put('/clientPushApiListByData', params)
 
 // set base
 export const setBase = params => axios.put('/appBase', params)

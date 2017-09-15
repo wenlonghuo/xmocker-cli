@@ -18,7 +18,7 @@ module.exports = {
 async function addProject (params) {
   let data
   try {
-    let exist = await projectGet.getExistProject(params)
+    let exist = await projectGet.getExistProject(params, {})
     if (exist.data && exist.data.length) return { code: 1, msg: '项目简称和当前项目冲突', data: exist }
     params._uid = uid()
     params._mt = +new Date()
@@ -40,7 +40,8 @@ async function editProject (id, params) {
   } catch (e) {
     throw e
   }
-  restart({type: 'project', id: data._id})
+
+  restart({type: 'project', id: id})
   return { code: 0, data }
 }
 

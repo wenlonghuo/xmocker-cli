@@ -13,6 +13,7 @@
     </template>
     
     <ul class="cus-list-db">
+
       <li>
         <span>URL</span>
         <div class="cus-list-right">
@@ -93,26 +94,18 @@
           </Poptip>
         </div>
       </li>
-      <!--<li>
-        <span>分页数</span>
-        <div class="cus-list-right">
-          <span class="cus-show-value">{{pageNo || '无分页'}}</span>
-          <Poptip placement="right" width="300">
-            <a href="javascript:void(0)">修改</a>
-            <div class="cus-tooltip" slot="content">
-              <p class="cus-tooltip-text">指定分页类型的接口返回的页面个数</p>
-              <div class="cus-tooltip-oneline">
-                <Input-number :min="0" placeholder="分页数目" size="small" v-model="modifyPageNo"></Input-number>
-                <Button type="primary" size="small" style="margin: 0" @click.native="submitItem({'pageNo': modifyPageNo})">提交</Button>
-              </div>
-            </div>
-          </Poptip>
-        </div>
-      </li>-->
       <li>
         <span>API描述</span>
         <span class="cus-description" :title="description">
           {{description}}
+        </span>
+      </li>
+      
+      <li>
+        <span></span>
+        <span class="cus-list-right cus-list-time">
+          修改于:{{timer(mt)}}
+          <a href="javascript:void(0)" @click="shareApi" v-if="!fromSearch" style="margin-left: .5em;">贡献此API</a>
         </span>
       </li>
     </ul>
@@ -167,6 +160,9 @@ export default {
     },
     id: {
       type: String,
+    },
+    mt: {
+      type: Number,
     },
     method: {
       type: String,
@@ -272,6 +268,9 @@ export default {
         }
       })
     },
+    shareApi () {
+      this.$emit('shareApi', this.id)
+    },
   },
   mounted () {
     this.setGData()
@@ -329,7 +328,7 @@ export default {
   position: relative;
   max-width: 224px;
   word-break: break-all;
-  height: 60px;
+  height: 20px;
   line-height: 20px;
   overflow: hidden;
 }
@@ -348,5 +347,8 @@ export default {
   display: block;
   margin: 3px 0;
   margin-left: 20px;
+}
+.cus-list-time {
+  font-size: 12px;
 }
 </style>

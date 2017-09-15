@@ -141,7 +141,7 @@ async function copyApi (ctx, next) {
   try {
     let result = await apiCopy.copyApi(apiIds, projList, finalParams)
     if (result.code) return ctx.respond.error(result)
-    return ctx.respond.success('复制API成功', { result: result.data })
+    return ctx.respond.success('复制API成功', result.data)
   } catch (e) {
     return ctx.respond.error('复制api出错', {e})
   }

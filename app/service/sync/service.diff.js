@@ -113,7 +113,7 @@ function diffTimeStamp (clientList, serverList, option = {}) {
     }
     if (option.isApi) {
       if (data.server) data.server = { base: Object.assign({}, data.server, { model: undefined }), model: data.server.model }
-      if (data.client) data.client = { base: Object.assign({}, data.server, { model: undefined }), model: data.server.model }
+      if (data.client) data.client = { base: Object.assign({}, data.client, { model: undefined }), model: data.client.model }
     }
 
     if (server && client) {

@@ -8,15 +8,25 @@ var _asyncToGenerator2 = require('babel-runtime/helpers/asyncToGenerator');
 
 var _asyncToGenerator3 = _interopRequireDefault(_asyncToGenerator2);
 
+var _assign = require('babel-runtime/core-js/object/assign');
+
+var _assign2 = _interopRequireDefault(_assign);
+
 var _typeof2 = require('babel-runtime/helpers/typeof');
 
 var _typeof3 = _interopRequireDefault(_typeof2);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+var version = 2;
+
 function logError(ctx, code, msg) {
   var option = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : {};
 
+  if ((typeof code === 'undefined' ? 'undefined' : (0, _typeof3.default)(code)) === 'object' && code.code != null) {
+    ctx.body = (0, _assign2.default)({}, code, { message: code.msg });
+    return;
+  }
   if ((typeof msg === 'undefined' ? 'undefined' : (0, _typeof3.default)(msg)) === 'object' || msg == null) {
     option = msg || {};
     msg = code;
@@ -25,7 +35,9 @@ function logError(ctx, code, msg) {
   ctx.info.e = option.e;
   ctx.body = {
     code: code,
-    message: msg
+    message: msg,
+    data: option.data,
+    version: version
   };
 }
 
@@ -34,7 +46,8 @@ function success(ctx, msg, data) {
   ctx.body = {
     code: 0,
     message: msg,
-    data: data
+    data: data,
+    version: version
   };
 }
 

@@ -26,6 +26,7 @@ async function start (proj, option = {}) {
   if (!option.force) {
     let info = getChangedConfig(proj)
     if (info) {
+      info.proc.proj = proj
       return info.proc.reconfig(info.option)
     }
   }
@@ -239,7 +240,7 @@ function getChangedConfig (proj) {
   ]
   let option = {}
   optKeys.forEach(op => {
-    if (!_.isEqual(proj[op.key], oldProj[op.key])) option[op.optKey] = proj[op.key] 
+    if (!_.isEqual(proj[op.optKey], oldProj[op.optKey])) option[op.key] = proj[op.optKey]
   })
   return { proc, option }
 }

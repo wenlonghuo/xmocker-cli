@@ -5,7 +5,7 @@ const Project = db.project
 const request = require('./service.request').request
 const projectGet = require('../project/service.get')
 const apiGet = require('../api/service.get')
-const apiCopy = require('../api/service.copy')
+const syncReceive = require('./service.receive')
 
 module.exports = {
   getProjectListDiff,
@@ -53,7 +53,7 @@ async function getApiListDiff (projectUid) {
 }
 /**
  * 从服务端下载或更新项目
- * @param {*} remoteUid 
+ * @param {*} remoteUid
  */
 async function downloadProject (remoteUid) {
   try {
@@ -82,7 +82,7 @@ async function downloadProject (remoteUid) {
     let newProj = Object.assign({}, serverProj, {parentId: undefined, _id: undefined})
     let projResult = await Project.insert(newProj)
 
-    let apiResult = await copyApiList(serverApi, projResult._id, {})
+    let apiResult = await syncReceive.copyApiList(serverApi, projResult._id, {})
 
     return {proj: projResult, api: apiResult}
   } catch (e) {
@@ -94,17 +94,17 @@ async function downloadProject (remoteUid) {
  * 从服务端下载API
  * @param {*} apiUids
  */
-async function downloadApi (apiUids, projectId, {force, forceRemove}) {
+async function downloadApi (apiUids, projectUid, projectId, {force, forceRemove}) {
   try {
     let url = '/mock/serverGetApi'
 
-    let res = await request.get(url, { ids: apiUids })
+    let res = await request.get(url, { ids: apiUids, project: projectUid })
 
     if (res.code) return res
 
     let serverApi = res.data.api
 
-    let apiResult = await copyApiList(serverApi, projectId, {})
+    let apiResult = await syncReceive.copyApiList(serverApi, projectId, { force, forceRemove })
 
     return { api: apiResult }
   } catch (e) {
@@ -112,22 +112,3 @@ async function downloadApi (apiUids, projectId, {force, forceRemove}) {
   }
 }
 
-/**
- * 复制API列表至指定项目
- * @param {*} list 
- * @param {*} projectId 
- * @param {*} param2 
- */
-async function copyApiList (list, projectId, { force, forceRemove }) {
-  try {
-    let pushedList = []
-    for (let i = 0; i < list.length; i++) {
-      let api = list[i]
-      let result = await apiCopy.copyApiToProjectByData(api.base, api.model, projectId, { force, forceRemove })
-      pushedList.push(result)
-    }
-    return pushedList
-  } catch (e) {
-    throw e
-  }
-}
