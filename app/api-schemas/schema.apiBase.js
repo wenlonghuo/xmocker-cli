@@ -21,11 +21,19 @@ module.exports.get.api = {
       type: 'string',
       required: true,
     },
+    order: {
+      type: 'number',
+    },
+    sortBy: {
+      type: 'string',
+    },
     pageSize: {
       type: 'number',
+      default: 20,
     },
     pageNo: {
       type: 'number',
+      default: 0,
     },
   },
 }
@@ -223,6 +231,12 @@ module.exports.put.copyApi = {
       type: 'string',
       required: true,
       minLength: 1,
+    },
+    force: {
+      type: 'number',
+    },
+    forceRemove: {
+      type: 'number',
     },
   },
 }

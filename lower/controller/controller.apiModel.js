@@ -1,9 +1,5 @@
 'use strict';
 
-var _stringify = require('babel-runtime/core-js/json/stringify');
-
-var _stringify2 = _interopRequireDefault(_stringify);
-
 var _regenerator = require('babel-runtime/regenerator');
 
 var _regenerator2 = _interopRequireDefault(_regenerator);
@@ -54,58 +50,31 @@ var getApiModel = function () {
 
 var getApiModelList = function () {
   var _ref2 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee2(ctx, next) {
-    var finalParams, size, no, skip, data, total, res;
+    var finalParams, data;
     return _regenerator2.default.wrap(function _callee2$(_context2) {
       while (1) {
         switch (_context2.prev = _context2.next) {
           case 0:
             finalParams = ctx.finalParams;
-            size = ~~finalParams.pageSize;
-            no = ~~finalParams.pageNo;
-            skip = ~~(size * no);
+            _context2.prev = 1;
+            _context2.next = 4;
+            return apiGet.getModelByQuery({ baseid: finalParams.baseid }, finalParams);
 
-
-            delete finalParams.pageSize;
-            delete finalParams.pageNo;
-
-            data = void 0, total = void 0;
-            _context2.prev = 7;
-            _context2.next = 10;
-            return ApiModel.count(finalParams);
-
-          case 10:
-            total = _context2.sent;
-            _context2.next = 13;
-            return ApiModel.cfind(finalParams).sort({ name: 1 }).skip(skip).limit(size).exec();
-
-          case 13:
+          case 4:
             data = _context2.sent;
-            _context2.next = 19;
-            break;
+            return _context2.abrupt('return', ctx.respond.success('获取分支列表成功', data));
 
-          case 16:
-            _context2.prev = 16;
-            _context2.t0 = _context2['catch'](7);
-            return _context2.abrupt('return', ctx.respond.error('查询api基础信息出错', { e: _context2.t0 }));
+          case 8:
+            _context2.prev = 8;
+            _context2.t0 = _context2['catch'](1);
+            return _context2.abrupt('return', ctx.respond.error('分支列表出错', { e: _context2.t0 }));
 
-          case 19:
-            res = {
-              list: data,
-              pagination: {
-                total: total,
-                pageCnt: Math.ceil(total / size),
-                pageNo: no
-              }
-            };
-
-            ctx.respond.success('获取分支列表成功', res);
-
-          case 21:
+          case 11:
           case 'end':
             return _context2.stop();
         }
       }
-    }, _callee2, this, [[7, 16]]);
+    }, _callee2, this, [[1, 8]]);
   }));
 
   return function getApiModelList(_x3, _x4) {
@@ -115,46 +84,40 @@ var getApiModelList = function () {
 
 var addApiModel = function () {
   var _ref3 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee3(ctx, next) {
-    var finalParams, result;
+    var finalParams, data;
     return _regenerator2.default.wrap(function _callee3$(_context3) {
       while (1) {
         switch (_context3.prev = _context3.next) {
           case 0:
             finalParams = ctx.finalParams;
-            result = void 0;
-            _context3.prev = 2;
+            _context3.prev = 1;
+            _context3.next = 4;
+            return apiEdit.addModel(finalParams, true);
 
-            finalParams._uid = uid();
-            finalParams._mt = +new Date();
-            if (finalParams.data) finalParams.data = (0, _stringify2.default)(finalParams.data);
-            _context3.next = 8;
-            return ApiBase.update({ _id: finalParams.baseid }, { $set: { _mt: +new Date() } });
+          case 4:
+            data = _context3.sent;
 
-          case 8:
-            _context3.next = 10;
-            return ApiModel.insert(finalParams);
+            if (!data.code) {
+              _context3.next = 7;
+              break;
+            }
+
+            return _context3.abrupt('return', ctx.respond.error(data));
+
+          case 7:
+            return _context3.abrupt('return', ctx.respond.success('添加API分支成功', { result: data.data }));
 
           case 10:
-            result = _context3.sent;
-            _context3.next = 16;
-            break;
-
-          case 13:
-            _context3.prev = 13;
-            _context3.t0 = _context3['catch'](2);
+            _context3.prev = 10;
+            _context3.t0 = _context3['catch'](1);
             return _context3.abrupt('return', ctx.respond.error('添加api分支信息出错', { e: _context3.t0 }));
 
-          case 16:
-            reloadDatabase({ type: 'apiModel', id: result._id });
-
-            ctx.respond.success('添加api分支成功', { result: result });
-
-          case 18:
+          case 13:
           case 'end':
             return _context3.stop();
         }
       }
-    }, _callee3, this, [[2, 13]]);
+    }, _callee3, this, [[1, 10]]);
   }));
 
   return function addApiModel(_x5, _x6) {
@@ -164,7 +127,7 @@ var addApiModel = function () {
 
 var editApiModel = function () {
   var _ref4 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee4(ctx, next) {
-    var finalParams, id, result;
+    var finalParams, id, data;
     return _regenerator2.default.wrap(function _callee4$(_context4) {
       while (1) {
         switch (_context4.prev = _context4.next) {
@@ -173,42 +136,35 @@ var editApiModel = function () {
             id = finalParams.id;
 
             delete finalParams.id;
-            result = void 0;
+            data = void 0;
             _context4.prev = 4;
+            _context4.next = 7;
+            return apiEdit.editModel(id, finalParams);
 
-            finalParams._mt = +new Date();
-            if (finalParams.data) finalParams.data = (0, _stringify2.default)(finalParams.data);
-            _context4.next = 9;
-            return ApiModel.update({ _id: id }, { $set: finalParams }, { returnUpdatedDocs: true });
+          case 7:
+            data = _context4.sent;
 
-          case 9:
-            result = _context4.sent;
+            if (!data.code) {
+              _context4.next = 10;
+              break;
+            }
 
+            return _context4.abrupt('return', ctx.respond.error(data));
 
-            result = result[1];
-            _context4.next = 13;
-            return ApiBase.update({ _id: result.baseid }, { $set: { _mt: +new Date() } });
+          case 10:
+            return _context4.abrupt('return', ctx.respond.success('编辑API分支成功', { result: data.data }));
 
           case 13:
-            _context4.next = 18;
-            break;
-
-          case 15:
-            _context4.prev = 15;
+            _context4.prev = 13;
             _context4.t0 = _context4['catch'](4);
             return _context4.abrupt('return', ctx.respond.error('编辑api分支信息出错', { e: _context4.t0 }));
 
-          case 18:
-            reloadDatabase({ type: 'apiModel', id: id });
-
-            ctx.respond.success('编辑api分支成功', { result: result });
-
-          case 20:
+          case 16:
           case 'end':
             return _context4.stop();
         }
       }
-    }, _callee4, this, [[4, 15]]);
+    }, _callee4, this, [[4, 13]]);
   }));
 
   return function editApiModel(_x7, _x8) {
@@ -218,37 +174,41 @@ var editApiModel = function () {
 
 var deleteApiModel = function () {
   var _ref5 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee5(ctx, next) {
-    var finalParams, result;
+    var finalParams, data;
     return _regenerator2.default.wrap(function _callee5$(_context5) {
       while (1) {
         switch (_context5.prev = _context5.next) {
           case 0:
             finalParams = ctx.finalParams;
-            result = void 0;
+            data = void 0;
             _context5.prev = 2;
             _context5.next = 5;
-            return ApiModel.remove({ _id: finalParams.id }, { multi: true });
+            return apiEdit.deleteModel(finalParams.id);
 
           case 5:
-            result = _context5.sent;
-            _context5.next = 11;
-            break;
+            data = _context5.sent;
+
+            if (!data.code) {
+              _context5.next = 8;
+              break;
+            }
+
+            return _context5.abrupt('return', ctx.respond.error(data));
 
           case 8:
-            _context5.prev = 8;
+            return _context5.abrupt('return', ctx.respond.success('删除API分支成功', { result: data.data }));
+
+          case 11:
+            _context5.prev = 11;
             _context5.t0 = _context5['catch'](2);
             return _context5.abrupt('return', ctx.respond.error('删除api分支信息出错', { e: _context5.t0 }));
 
-          case 11:
-
-            ctx.respond.success('编辑api分支成功', { result: result });
-
-          case 12:
+          case 14:
           case 'end':
             return _context5.stop();
         }
       }
-    }, _callee5, this, [[2, 8]]);
+    }, _callee5, this, [[2, 11]]);
   }));
 
   return function deleteApiModel(_x9, _x10) {
@@ -260,10 +220,9 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { de
 
 var db = require('../database');
 var ApiModel = db.apiModel;
-var ApiBase = db.apiBase;
 
-var uid = require('../util/common').uid();
-var reloadDatabase = require('../service/service.ctrlProc').reload.add;
+var apiGet = require('../service/api/service.get');
+var apiEdit = require('../service/api/service.edit');
 
 module.exports = {
   getApiModel: getApiModel,

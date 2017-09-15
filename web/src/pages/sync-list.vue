@@ -77,7 +77,7 @@ export default {
     },
     linkNext (item) {
       if (!item.client) return
-      this.$router.push({name: '同步API', query: {id: item.client._uid, name: item.client.name}})
+      this.$router.push({name: '同步API', query: {uid: item.client._uid, id: item.client._id, name: item.client.name}})
     },
   },
 }

@@ -1,9 +1,5 @@
 'use strict';
 
-var _stringify = require('babel-runtime/core-js/json/stringify');
-
-var _stringify2 = _interopRequireDefault(_stringify);
-
 var _regenerator = require('babel-runtime/regenerator');
 
 var _regenerator2 = _interopRequireDefault(_regenerator);
@@ -26,7 +22,7 @@ var _createClass3 = _interopRequireDefault(_createClass2);
 
 var getProject = function () {
   var _ref4 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee4(option) {
-    var quene, index, doc, id;
+    var quene, index, doc, id, info;
     return _regenerator2.default.wrap(function _callee4$(_context4) {
       while (1) {
         switch (_context4.prev = _context4.next) {
@@ -37,50 +33,62 @@ var getProject = function () {
             });
             doc = void 0;
             id = option.id;
+            _context4.prev = 4;
 
-          case 4:
+          case 5:
             if (!(index < quene.length && index >= 0 && id)) {
-              _context4.next = 14;
+              _context4.next = 16;
               break;
             }
 
-            _context4.next = 7;
-            return getDocById(quene[index].name, id).catch(function (e) {
+            info = quene[index];
+            _context4.next = 9;
+            return getDocById(info.name, id).catch(function (e) {
               throw e;
             });
 
-          case 7:
+          case 9:
             doc = _context4.sent;
 
             if (doc) {
-              _context4.next = 10;
+              _context4.next = 12;
               break;
             }
 
-            throw new Error('cannot find doc by id : ' + id);
+            throw new Error('cannot find doc by id : ' + id + ', type: ' + info.name);
 
-          case 10:
+          case 12:
             id = doc[quene[index].key];
             index++;
-            _context4.next = 4;
+            _context4.next = 5;
             break;
 
-          case 14:
+          case 16:
+            _context4.next = 21;
+            break;
+
+          case 18:
+            _context4.prev = 18;
+            _context4.t0 = _context4['catch'](4);
+
+            console.log(_context4.t0);
+
+          case 21:
             if (!procList.find(function (proc) {
-              return proc.id === doc._id;
+              return doc && proc.id === doc._id;
             })) {
-              _context4.next = 16;
+              _context4.next = 23;
               break;
             }
 
             return _context4.abrupt('return', doc);
 
-          case 16:
+          case 23:
           case 'end':
             return _context4.stop();
         }
       }
-    }, _callee4, this);
+    }, _callee4, this, [[4, 18]]);
   }));
 
   return function getProject(_x3) {
@@ -172,27 +180,26 @@ var reload = new ExecQuene(function () {
             info = _context2.sent;
 
             if (info) {
-              _context2.next = 7;
+              _context2.next = 6;
               break;
             }
 
-            console.error('[!!!!error] 获取信息信息失败，配置为:', (0, _stringify2.default)(option));
             return _context2.abrupt('return');
 
-          case 7:
+          case 6:
             proc = getProcById(info._id);
 
             if (proc) {
-              _context2.next = 10;
+              _context2.next = 9;
               break;
             }
 
             return _context2.abrupt('return');
 
-          case 10:
+          case 9:
             proc.reloadApis([type]);
 
-          case 11:
+          case 10:
           case 'end':
             return _context2.stop();
         }

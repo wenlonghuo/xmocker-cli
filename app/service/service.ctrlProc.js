@@ -24,7 +24,6 @@ const reload = new ExecQuene(async function (option) {
   let type = option.type
   let info = await getProject(option)
   if (!info) {
-    console.error('[!!!!error] 获取信息信息失败，配置为:', JSON.stringify(option))
     return
   }
   let proc = getProcById(info._id)
@@ -50,13 +49,20 @@ async function getProject (option) {
   let index = quene.findIndex(q => q.name === option.type)
   let doc
   let id = option.id
-  while (index < quene.length && index >= 0 && id) {
-    doc = await getDocById(quene[index].name, id).catch(e => { throw e })
-    if (!doc) throw new Error(`cannot find doc by id : ${id}`)
-    id = doc[quene[index].key]
-    index++
+
+  try {
+    while (index < quene.length && index >= 0 && id) {
+      let info = quene[index]
+      doc = await getDocById(info.name, id).catch(e => { throw e })
+      if (!doc) throw new Error(`cannot find doc by id : ${id}, type: ${info.name}`)
+      id = doc[quene[index].key]
+      index++
+    }
+  } catch (e) {
+    console.log(e)
   }
-  if (procList.find(proc => proc.id === doc._id)) return doc
+
+  if (procList.find(proc => doc && proc.id === doc._id)) return doc
 }
 
 async function getDocById (collection, id) {

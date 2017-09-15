@@ -33,7 +33,6 @@
   padding: 0;
 }
 .card-color {
-  background-color: ~color;
 }
 
 .cus-action-link {
@@ -55,6 +54,27 @@
 .list-card>div.ivu-card-body {
   height: 100%;
 }
+/* model */
+.cus-share-box .cus-info {
+  margin-top: 25px;
+  text-align: left;
+}
+
+.cus-share-box .cus-focus {
+  color: #2d8cf0;
+}
+
+.cus-share-box .cus-share-tip {
+  text-align: left;
+  color: #ff9900;
+}
+
+.cus-share-box .copy-api-conflict {
+  display: inline-block;
+  margin-right: 20px;
+}
+
+
 
 /*
   loading bar

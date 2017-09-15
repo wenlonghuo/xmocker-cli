@@ -5,13 +5,17 @@
       API{{title}} - 基本信息
     </p>
     <editorBase @submit="submitBase" @delete="deleteApi" :info="info"></editorBase>
+    <div class="tips" v-if="!info.model || !info.model.length">
+      <p>功能不够用？点击添加分支</p>
+      <Button type="primary" icon="add" @click="addNewBranch">添加分支</Button>
+    </div>
   </Card>
-  <Card :bordered="false" class="right-list-full right-container" style="height:calc(100vh - 112px)">
+  <Card :bordered="false" class="right-list-full right-container" style="height:calc(100vh - 112px)" v-show="info.model && info.model.length">
     <p slot="title">
         <Icon type="ios-film-outline"></Icon>
         API分支列表
     </p>
-    <editorModel @submit="submitModel" @delete="deleteApiModel" v-for="model in (info.model || [{}])" :info="model" :key="model._id" style="margin: 8px 0;"></editorModel>
+    <editorModel @submit="submitModel" @delete="deleteApiModel" v-for="model in info.model" :info="model" :key="model._id" style="margin: 8px 0;"></editorModel>
     <Button type="primary" icon="add" @click="addNewBranch">添加新分支</Button>
   </Card>
 </div>
@@ -26,7 +30,6 @@ export default {
     return {
       jsonData: '',
       info: {
-
       },
       baseid: '',
     }
@@ -45,7 +48,7 @@ export default {
   },
   mounted () {
     let query = this.$route.query
-    if (query.project) this.info = {project: query.project}
+    if (query.project) this.info = {project: query.project, model: []}
     if (query.id) {
       this.getApiDetail({id: query.id})
     }
@@ -85,7 +88,17 @@ export default {
       })
     },
     deleteApiModel (data) {
-      deleteApiModel(data).then((data) => {
+      if (!data.id) {
+        let index = this.info.model.indexOf(data)
+        if (~index) {
+          this.info.model.splice(index, 1)
+        }
+        return
+      }
+      let params = {
+        id: data._id
+      }
+      deleteApiModel(params).then((data) => {
         if (!data.code) {
           this.$Message.success(data.message)
           this.getApiDetail({id: this.$route.query.id})
@@ -121,6 +134,12 @@ export default {
 .editor-api .left-info {
   flex-basis: 600px;
   flex-grow: 1;
+}
+.editor-api .left-info .tips {
+  margin-left: 90px;
+}
+.editor-api .left-info .tips p {
+  font-size: 12px;
 }
 </style>
 <style>

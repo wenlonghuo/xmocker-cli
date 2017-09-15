@@ -26,8 +26,13 @@ async function start (proj, option = {}) {
   if (!option.force) {
     let info = getChangedConfig(proj)
     if (info) {
+      info.proc.proj = proj
       return info.proc.reconfig(info.option)
     }
+  }
+
+  if (isStarted(proj)) {
+    await stop(proj, option)
   }
 
   let index = getProcIndex(state.proc, proj)
@@ -93,9 +98,9 @@ async function restartExector () {
   let option = {force: force}
 
   try {
-    if (isStarted(proj)) {
-      await stop(proj, option).then()
-    }
+    // if (isStarted(proj)) {
+    //   await stop(proj, option)
+    // }
     await start(proj, option)
     execGulp(proj, option)
     list.forEach(item => {
@@ -235,7 +240,7 @@ function getChangedConfig (proj) {
   ]
   let option = {}
   optKeys.forEach(op => {
-    if (!_.isEqual(proj[op.key], oldProj[op.key])) option[op.optKey] = proj[op.key] 
+    if (!_.isEqual(proj[op.optKey], oldProj[op.optKey])) option[op.key] = proj[op.optKey]
   })
   return { proc, option }
 }

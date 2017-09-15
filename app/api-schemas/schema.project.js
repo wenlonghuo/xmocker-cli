@@ -11,6 +11,12 @@ module.exports.get.project = {
     id: {
       type: 'string',
     },
+    order: {
+      type: 'number',
+    },
+    sortBy: {
+      type: 'string',
+    },
     pageSize: {
       type: 'number',
       required: true,

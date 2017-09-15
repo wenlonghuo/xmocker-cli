@@ -3,6 +3,7 @@ import Vuex from 'vuex'
 import * as actions from './actions'
 import * as getters from './getters'
 import project from './modules/project.js'
+import api from './modules/api.js'
 import log from './modules/log.js'
 
 Vue.use(Vuex)
@@ -43,6 +44,7 @@ export default new Vuex.Store({
   modules: {
     project,
     log,
+    api,
   },
   strict: debug,
 })

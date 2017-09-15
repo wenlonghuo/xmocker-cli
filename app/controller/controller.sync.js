@@ -1,52 +1,109 @@
 'use strict'
-const db = require('../database')
-const Project = db.project
-const ApiModel = db.apiModel
-const ApiBase = db.apiBase
-const request = require('superagent')
+
+const projectGet = require('../service/project/service.get')
+
+const syncGet = require('../service/sync/service.get')
+const syncDiff = require('../service/sync/service.diff')
+const syncDownload = require('../service/sync/service.download')
+const syncReceive = require('../service/sync/service.receive')
+const syncPush = require('../service/sync/service.push')
 
 module.exports = {
-  clientGetProjDiff: clientGetProjDiff,
-  clientGetApiDiff: clientGetApiDiff,
-  clientDownLoadProj: clientDownLoadProj,
-  clientDownLoadProjBase: clientDownLoadProjBase,
-  clientDownLoadApi: clientDownLoadApi,
-  serverGetProj: serverGetProj,
-  serverGetApi: serverGetApi,
-  serverDiffProj: serverDiffProj,
-  serverDiffApi: serverDiffApi,
+  clientGetProjList,
+  clientGetProjDetail,
+  clientGetApiListByProject,
+  clientGetApiListByIds,
+
+  clientGetProjDiff,
+  clientGetApiDiff,
+
+  clientDownLoadProj,
+  clientDownLoadProjBase,
+  clientDownLoadApi,
+
+  clientPushApiListById,
+  clientPushApiById,
+  clientPushApiByData,
+  clientPushApiListByData,
+
+  serverGetProjList,
+  serverGetApiListByProject,
+  serverGetProj,
+  serverGetApi,
+
+  serverDiffProj,
+  serverDiffApi,
+  serverReceiveApi,
+  serverReceiveApiList,
 }
 
-function getServerInfo () {
-  return new Promise(function (resolve, reject) {
-    db.appBase.cfindOne({}).exec().then(function (doc) {
-      doc = doc || {}
-      let addr = doc.remoteAddress || 'http://localhost:6001'
-      // let host = addr.split(":")[0];
-      // let port = addr.split(":")[1];
-      resolve(addr)
-    }, function () { resolve('http://localhost:6001') })
-  })
-}
+/**
+ * 获取远程项目列表
+ */
+async function clientGetProjList (ctx, next) {
+  let finalParams = ctx.finalParams
 
+  try {
+    let data = await syncGet.getRemoteData('/mock/serverGetProjList', finalParams)
+    ctx.body = data
+    return
+  } catch (e) {
+    return ctx.respond.error('获取项目列表失败', { e })
+  }
+}
+/**
+ * 获取远程项目详情，通过UID
+ */
+async function clientGetProjDetail (ctx, next) {
+  let finalParams = ctx.finalParams
+
+  try {
+    let data = await syncGet.getRemoteData('/mock/serverGetProjDetail', finalParams)
+    ctx.body = data
+    return
+  } catch (e) {
+    return ctx.respond.error('获取项目列表失败', { e })
+  }
+}
+/**
+ * 获取远程API列表，通过项目
+ */
+async function clientGetApiListByProject (ctx, next) {
+  let finalParams = ctx.finalParams
+
+  try {
+    let data = await syncGet.getRemoteData('/mock/serverGetApiListByProject', finalParams)
+    ctx.body = data
+    return
+  } catch (e) {
+    return ctx.respond.error('获取项目列表失败', { e })
+  }
+}
+/**
+ * 获取远程API信息通过UID
+ */
+async function clientGetApiListByIds (ctx, next) {
+  let finalParams = ctx.finalParams
+
+  try {
+    let data = await syncGet.getRemoteData('/mock/serverGetApiListByIds', finalParams)
+    ctx.body = data
+    return
+  } catch (e) {
+    return ctx.respond.error('获取项目列表失败', { e })
+  }
+}
 /**
  * 获取与服务器之间项目基础信息差异
  */
 async function clientGetProjDiff (ctx, next) {
-  // let finalParams = ctx.finalParams
-  let projData
   try {
-    projData = await Project.cfind({}).exec()
+    let res = await syncDownload.getProjectListDiff()
+    ctx.body = res
+    return
   } catch (e) {
-    return ctx.respond.error({ctx: ctx, next: next, err: '获取项目信息出错', e: e})
+    return ctx.respond.error('获取项目差异出错', {e})
   }
-
-  let host = await getServerInfo()
-  let url = host + '/mock/serverDiffProj'
-  let req = request.put(url).send({data: projData})
-  let res = await req
-  ctx.body = res.body
-  return next()
 }
 
 /**
@@ -55,30 +112,15 @@ async function clientGetProjDiff (ctx, next) {
 async function clientGetApiDiff (ctx, next) {
   let finalParams = ctx.finalParams
   let projUid = finalParams.id
-  let toArr = []
   try {
-    let proj = await Project.cfindOne({_uid: projUid}).exec()
-
-    if (proj) {
-      let projId = proj._id
-      let toApi = await ApiBase.cfind({project: projId}).exec()
-      let aBids = toApi.map((api) => { return api._id })
-      let toApiModel = await ApiModel.cfind({baseid: {$in: aBids}}).exec()
-
-      toApi.forEach((api) => {
-        let model = toApiModel.filter((ms) => { return ms.baseid === api._id })
-        toArr.push({base: api, model: model})
-      })
-    }
+    if (!projUid) return ctx.respond.error('请提供项目UID')
+    let res = await syncDownload.getApiListDiff(projUid)
+    if (!res) return ctx.respond.error('项目不存在')
+    ctx.body = res
+    return
   } catch (e) {
-    return ctx.respond.error({ctx: ctx, next: next, err: '获取api信息出错', e: e})
+    return ctx.respond.error('获取API差异出错', { e })
   }
-  let host = await getServerInfo()
-  let url = host + '/mock/serverDiffApi'
-  let req = request.put(url).send({id: projUid, data: toArr})
-  let res = await req
-  ctx.body = res.body
-  return next()
 }
 
 /**
@@ -86,45 +128,18 @@ async function clientGetApiDiff (ctx, next) {
  */
 async function clientDownLoadProj (ctx, next) {
   let finalParams = ctx.finalParams
-  finalParams.type = 'detail'
-
-  let host = await getServerInfo()
-  let url = host + '/mock/serverGetProj'
-  let req = request.get(url).query(finalParams)
-  let res = await req
-  let data = res.body.data
-
-  if (!res.body || res.body.code) return ctx.respond.error('下载项目信息出错')
-
-  let proj = data.proj
-  let apis = data.api
-
-  delete proj._id
-  let newP = await Project.update({_uid: proj._uid}, {$set: proj}, {returnUpdatedDocs: true, upsert: true})
-
-  newP = newP[1] ? newP[1] : newP
-
-  let projectId = newP._id
-  // add to base
-
-  for (let i = 0; i < apis.length; i++) {
-    let api = apis[i]
-    let base = api.base
-    let model = api.model
-    delete base._id
-    base.project = projectId
-    let rApiB = await ApiBase.update({_uid: base._uid}, {$set: base}, {returnUpdatedDocs: true, upsert: true})
-    rApiB = rApiB[1] ? rApiB[1] : rApiB
-    if (rApiB && rApiB._id) {
-      for (let j = 0; j < model.length; j++) {
-        delete model[j]._id
-        model[j].baseid = rApiB._id
-        await ApiModel.update({_uid: model[j]._uid}, {$set: model[j]}, {upsert: true})
-      }
+  let projUid = finalParams.id
+  try {
+    if (!projUid) return ctx.respond.error('请提供项目UID')
+    let data = await syncDownload.downloadProject(projUid)
+    if (data.code) {
+      ctx.body = data
+      return
     }
+    return ctx.respond.success('下载项目成功', {})
+  } catch (e) {
+    return ctx.respond.error('下载项目出错', { e })
   }
-
-  ctx.respond.success('成功')
 }
 
 /**
@@ -132,25 +147,18 @@ async function clientDownLoadProj (ctx, next) {
  */
 async function clientDownLoadProjBase (ctx, next) {
   let finalParams = ctx.finalParams
-  finalParams.type = 'base'
-
-  let host = await getServerInfo()
-  let url = host + '/mock/serverGetProj'
-  let req = request.get(url).query(finalParams)
-  let res = await req
-  let data = res.body.data
-
-  if (!res.body || res.body.code) return ctx.respond.error('下载项目信息出错')
-
-  let proj = data.proj
-  delete proj._id
-  delete proj.path
-  delete proj.port
-  delete proj.member
-
-  await Project.update({_uid: proj._uid}, {$set: proj}, {returnUpdatedDocs: true, upsert: true})
-
-  ctx.respond.success('成功')
+  let projUid = finalParams.id
+  try {
+    if (!projUid) return ctx.respond.error('请提供项目UID')
+    let data = await syncDownload.downloadProject(projUid)
+    if (data.code) {
+      ctx.body = data
+      return
+    }
+    return ctx.respond.success('下载项目成功', {})
+  } catch (e) {
+    return ctx.respond.error('下载项目出错', { e })
+  }
 }
 
 /**
@@ -158,99 +166,143 @@ async function clientDownLoadProjBase (ctx, next) {
  */
 async function clientDownLoadApi (ctx, next) {
   let finalParams = ctx.finalParams
-
-  let host = await getServerInfo()
-  let url = host + '/mock/serverGetApi'
-  let req = request.get(url).query(finalParams)
-  let res = await req
-
-  let data = res.body.data
-  if (!res.body || res.body.code) return ctx.respond.error('下载api信息出错')
-
-  let apis = data.api
-
-  let proj = await Project.cfindOne({_uid: finalParams.project}).exec()
-
-  let projectId = proj._id
-  // add to base
-
-  for (let i = 0; i < apis.length; i++) {
-    let api = apis[i]
-    let base = api.base
-    base.project = projectId
-    let model = api.model
-
-    delete base._id
-    let rApiB = await ApiBase.update({_uid: base._uid}, {$set: base}, {returnUpdatedDocs: true, upsert: true})
-    rApiB = rApiB[1]
-    if (rApiB && rApiB._id) {
-      for (let j = 0; j < model.length; j++) {
-        delete model[j]._id
-        model[j].baseid = rApiB._id
-        await ApiModel.update({_uid: model[j]._uid}, {$set: model[j]}, {returnUpdatedDocs: true, upsert: true})
-      }
+  let ids = finalParams.ids
+  let projUid = finalParams.project
+  let localProject = finalParams.localProject
+  try {
+    if (!projUid) return ctx.respond.error('请提供本地项目UID')
+    if (!localProject) return ctx.respond.error('请提供本地项目ID')
+    if (!ids) return ctx.respond.error('请提供API的UID')
+    let data = await syncDownload.downloadApi(ids, projUid, localProject, finalParams)
+    if (data.code) {
+      ctx.body = data
+      return
     }
+    let message = `下载API成功 ${data.api.ok.length}, 失败 ${data.api.fail.length}`
+    return ctx.respond.success(message, data)
+  } catch (e) {
+    return ctx.respond.error('下载API出错', { e })
   }
-  ctx.respond.success('成功')
-  return next()
+}
+
+/**
+ * 发起PUSH系列
+ */
+async function clientPushApiListById (ctx, next) {
+  let finalParams = ctx.finalParams
+  let ids = finalParams.ids
+  let projUid = finalParams.project
+  try {
+    ids = ids.split(',')
+    if (!projUid) return ctx.respond.error('请提供项目UID')
+    if (!ids.length) return ctx.respond.error('请提供API的UID')
+    let data = await syncPush.pushApiToServerByIdList(ids, projUid, finalParams)
+    ctx.body = data
+    return
+  } catch (e) {
+    return ctx.respond.error('下载API出错', { e })
+  }
+}
+
+async function clientPushApiById (ctx, next) {
+  let finalParams = ctx.finalParams
+  let id = finalParams.id
+  let projUid = finalParams.project
+  try {
+    if (!projUid) return ctx.respond.error('请提供项目UID')
+    if (!id) return ctx.respond.error('请提供API的UID')
+    let data = await syncPush.pushApiToServerById(id, projUid, finalParams)
+    ctx.body = data
+    return
+  } catch (e) {
+    return ctx.respond.error('下载API出错', { e })
+  }
+}
+
+async function clientPushApiByData (ctx, next) {
+  let finalParams = ctx.finalParams
+  let apiData = finalParams.data
+  let projUid = finalParams.project
+  try {
+    if (!projUid) return ctx.respond.error('请提供项目UID')
+    if (!apiData) return ctx.respond.error('请提供API数据')
+    let data = await syncPush.pushApiToServerByData(apiData, projUid, finalParams)
+    ctx.body = data
+    return
+  } catch (e) {
+    return ctx.respond.error('下载API出错', { e })
+  }
+}
+
+async function clientPushApiListByData (ctx, next) {
+  let finalParams = ctx.finalParams
+  let apiData = finalParams.data
+  let projUid = finalParams.project
+  try {
+    if (!projUid) return ctx.respond.error('请提供项目UID')
+    if (!apiData) return ctx.respond.error('请提供API数据')
+    let data = await syncPush.pushApiListToServerByData(apiData, projUid, finalParams)
+    ctx.body = data
+    return
+  } catch (e) {
+    return ctx.respond.error('下载API出错', { e })
+  }
 }
 
 // 服务器端供查询及下载
-// 提供api信息下载
+// 获取项目列表
+async function serverGetProjList (ctx, next) {
+  let finalParams = ctx.finalParams
+
+  try {
+    let data = await projectGet.getProjectByQuery({}, finalParams)
+    return ctx.respond.success('获取项目列表成功', data)
+  } catch (e) {
+    return ctx.respond.error('获取项目列表失败', {e})
+  }
+}
+// 根据上传的项目UID获取项目详情，包括API信息
 async function serverGetProj (ctx, next) {
   let finalParams = ctx.finalParams
   let id = finalParams.id
   let type = finalParams.type || 'detail'
 
-  let projInfo
-  let apiArr = []
   try {
-    projInfo = await Project.cfindOne({_uid: id}).exec()
-    if (type === 'detail') {
-      let procId = projInfo._id
-      let apiBs = await ApiBase.cfind({project: procId}).exec()
-      let apiBIds = apiBs.map(function (api) { return api._id })
-
-      let apiMs = await ApiModel.cfind({ baseid: {$in: apiBIds} }).exec()
-
-      apiBs.forEach((api) => {
-        let model = apiMs.filter((ms) => { return ms.baseid === api._id })
-        apiArr.push({base: api, model: model})
-      })
-    }
+    let data = await syncGet.getProjectByUid(id, type === 'detail')
+    return ctx.respond.success('成功', data)
   } catch (e) {
     return ctx.respond.error('下载项目信息出错', {e})
   }
-  ctx.respond.success('成功', {
-    proj: projInfo,
-    api: apiArr,
-    version: '1.0',
-  })
 }
+// 根据项目UID获取项目下的API列表
+async function serverGetApiListByProject (ctx, next) {
+  let finalParams = ctx.finalParams
+  let id = finalParams.id
+  try {
+    if (!id) return ctx.respond.error('下载的API长度不能为空')
+    let data = await syncGet.getApiListByProjectUid(id, finalParams)
 
+    return ctx.respond.success('获取API列表成功', data)
+  } catch (e) {
+    return ctx.respond.error('下载api信息出错', { e })
+  }
+}
+// 根据上传的UID获取API列表
 async function serverGetApi (ctx, next) {
   let finalParams = ctx.finalParams
   let ids = finalParams.ids.split(',')
-  let apiArr = []
+  let project = finalParams.project
   try {
-    let apiBs = await ApiBase.cfind({ _uid: {$in: ids} }).exec()
+    if (!ids.length) return ctx.respond.error('下载的API长度不能为空')
+    if (!project) return ctx.respond.error('请提供项目的UID')
+    let data = await syncGet.getApiListByUid(ids, project)
 
-    let apiBIds = apiBs.map(function (api) { return api._id })
+    if (!data) return ctx.respond.error('项目不存在')
 
-    let apiMs = await ApiModel.cfind({ baseid: {$in: apiBIds} }).exec()
-
-    apiBs.forEach((api) => {
-      let model = apiMs.filter((ms) => { return ms.baseid === api._id })
-      apiArr.push({base: api, model: model})
-    })
+    return ctx.respond.success('获取API列表成功', {api: data})
   } catch (e) {
     return ctx.respond.error('下载api信息出错', {e})
   }
-
-  ctx.respond.success('成功', {
-    api: apiArr,
-    version: '1.0',
-  })
 }
 
 // 返回差值信息
@@ -260,105 +312,62 @@ async function serverDiffApi (ctx, next) {
   let projUid = finalParams.id
   let fromApi = finalParams.data
 
-  let result
-  let toArr = []
   try {
-    let proj = await Project.cfindOne({_uid: projUid}).exec()
-    if (proj) {
-      let projId = proj._id
-      let toApi = await ApiBase.cfind({project: projId}).exec()
-      let aBids = toApi.map((api) => { return api._id })
-      let toApiModel = await ApiModel.cfind({baseid: {$in: aBids}}).exec()
-
-      toApi.forEach((api) => {
-        let model = toApiModel.filter((ms) => { return ms.baseid === api._id })
-        toArr.push({base: api, model: model})
-      })
-    }
-    result = diffTimeStamp(fromApi, toArr, {idKeys: ['base', '_uid'], timeKeys: ['base', '_mt']})
+    if (!projUid) return ctx.respond.error('下载的项目UID不存在')
+    if (!fromApi) return ctx.respond.error('下载的API信息不存在')
+    let data = await syncDiff.diffApiListDataByTime({_uid: projUid}, fromApi)
+    if (!data) return ctx.respond.error('项目不存在')
+    return ctx.respond.success('获取API列表成功', data)
   } catch (e) {
-    return ctx.respond.error('下载api区别信息出错', {e})
+    return ctx.respond.error('获取API差异出错', { e })
   }
-
-  ctx.respond.success('成功', result)
 }
 
 // 返回差值信息
 async function serverDiffProj (ctx, next) {
   let finalParams = ctx.finalParams
-  let fromProj = finalParams.data
-
-  let result
+  let fromApi = finalParams.data
   try {
-    let toProj = await Project.cfind({}).exec()
-    // let tempObj = {}
-    // console.log(fromProj, toProj);
-    result = diffTimeStamp(fromProj, toProj)
+    if (!fromApi) return ctx.respond.error('下载的项目信息不存在')
+    let data = await syncDiff.diffProjectListDataByTime({}, fromApi)
+    return ctx.respond.success('获取项目列表成功', data)
   } catch (e) {
-    return ctx.respond.error('下载项目区别信息出错', {e})
+    return ctx.respond.error('获取项目差异出错', { e })
   }
-  ctx.respond.success('成功', result)
 }
 
-function diffTimeStamp (fromArr, toArr, option = {}) {
-  let idKeys = option.idKeys || ['_uid']
-  let timeKeys = option.timeKeys || ['_mt']
-
-  let tempObj = {}
-  let result = {unchanged: [], behind: [], ahead: [], serverSide: [], clientSide: [], unstaged: []}
-  // set all keys to an empty object;
-  toArr.forEach((p) => {
-    let tuid = getDeepValue(p, idKeys)
-    tempObj[tuid] = {to: p}
-  })
-
-  fromArr.forEach((p) => {
-    let tuid = getDeepValue(p, idKeys)
-    if (tempObj[tuid]) {
-      tempObj[tuid].from = p
-    } else {
-      tempObj[tuid] = {from: p}
-    }
-  })
-
-  Object.keys(tempObj).forEach(function (tuid) {
-    let obj = tempObj[tuid]
-    let to = obj.to
-    let from = obj.from
-    let info = {server: to, client: from}
-    if (to && from) {
-      let toTime = getDeepValue(to, timeKeys)
-      let fromTime = getDeepValue(from, timeKeys)
-
-      if (toTime === fromTime) {
-        result.unchanged.push(info)
-      } else if (toTime > fromTime) {
-        result.behind.push(info)
-      } else if (toTime < fromTime) {
-        result.ahead.push(info)
-      } else {
-        if (toTime) {
-          result.behind.push(info)
-        } else if (fromTime) {
-          result.ahead.push(info)
-        } else {
-          result.untaged.push(info)
-        }
-      }
-    } else if (to) {
-      result.serverSide.push(info)
-    } else if (from) {
-      result.clientSide.push(info)
-    }
-  })
-
-  return result
-
-  function getDeepValue (obj = {}, arr = []) {
-    let tmp = obj
-    arr.forEach((a) => {
-      tmp = tmp[a]
-    })
-    return tmp
+/**
+ * 接收APIpush系列
+ */
+// 接收单个API
+async function serverReceiveApi (ctx, next) {
+  let finalParams = ctx.finalParams
+  let apiData = finalParams.data
+  let projectUid = finalParams.project
+  try {
+    if (!apiData) return ctx.respond.error('请提供API')
+    if (!projectUid) return ctx.respond.error('请提供项目的UID')
+    let data = await syncReceive.saveDownloadApi(apiData, projectUid, finalParams)
+    if (!data) return ctx.respond.error('API或项目不存在')
+    if (data.code) return ctx.respond.error(data)
+    return ctx.respond.success('接收API成功', data)
+  } catch (e) {
+    return ctx.respond.error('接收API失败', { e })
+  }
+}
+// 接收API列表
+async function serverReceiveApiList (ctx, next) {
+  let finalParams = ctx.finalParams
+  let apiData = finalParams.data
+  let projectUid = finalParams.project
+  try {
+    if (!apiData) return ctx.respond.error('请提供API')
+    if (!projectUid) return ctx.respond.error('请提供项目的UID')
+    let data = await syncReceive.saveDownloadApiList(apiData, projectUid, finalParams)
+    if (!data) return ctx.respond.error('API或项目不存在')
+    if (data.code) return ctx.respond.error(data)
+    return ctx.respond.success('接收API成功', data)
+  } catch (e) {
+    return ctx.respond.error('接收API失败', { e })
   }
 }

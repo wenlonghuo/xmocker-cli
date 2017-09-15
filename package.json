@@ -1,6 +1,6 @@
 {
   "name": "xmocker-cli",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "description": "a server to provide api data for fe",
   "repository": "https://github.com/wenlonghuo/fe-mock-server",
   "main": "index.js",
@@ -19,6 +19,7 @@
   "author": "jsyaowenlong@126.com",
   "license": "MIT",
   "dependencies": {
+    "axios": "^0.16.2",
     "babel-runtime": "^6.25.0",
     "chalk": "^2.1.0",
     "commander": "^2.9.0",
@@ -36,7 +37,7 @@
     "through2": "^2.0.3",
     "ua-parser-js": "^0.7.12",
     "ws": "^1.1.1",
-    "xmocker": "^1.0.3"
+    "xmocker": "^1.0.4"
   },
   "devDependencies": {
     "babel-cli": "^6.24.1",

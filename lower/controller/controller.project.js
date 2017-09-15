@@ -14,41 +14,26 @@ var _asyncToGenerator3 = _interopRequireDefault(_asyncToGenerator2);
 
 var getProject = function () {
   var _ref = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee(ctx, next) {
-    var finalParams, size, no, skip, list, total, res;
+    var finalParams, pageSize, pageNo, query, data, list;
     return _regenerator2.default.wrap(function _callee$(_context) {
       while (1) {
         switch (_context.prev = _context.next) {
           case 0:
             finalParams = ctx.finalParams;
-            size = ~~finalParams.pageSize;
-            no = ~~finalParams.pageNo;
-            skip = ~~(size * no);
+            pageSize = finalParams.pageSize;
+            pageNo = finalParams.pageNo;
+            query = {};
 
+            if (finalParams.id) query._id = finalParams.id;
 
-            delete finalParams.pageSize;
-            delete finalParams.pageNo;
+            _context.prev = 5;
+            _context.next = 8;
+            return projectGet.getProjectByQuery(query, { pageNo: pageNo, pageSize: pageSize });
 
-            list = void 0, total = void 0;
-            _context.prev = 7;
-            _context.next = 10;
-            return Project.count(finalParams);
+          case 8:
+            data = _context.sent;
+            list = data.list;
 
-          case 10:
-            total = _context.sent;
-            _context.next = 13;
-            return Project.cfind(finalParams).sort({ name: 1 }).skip(skip).limit(size).exec();
-
-          case 13:
-            list = _context.sent;
-            _context.next = 19;
-            break;
-
-          case 16:
-            _context.prev = 16;
-            _context.t0 = _context['catch'](7);
-            return _context.abrupt('return', ctx.respond.error('查询项目信息出错', { e: _context.t0 }));
-
-          case 19:
 
             list.forEach(function (d) {
               var id = d._id;
@@ -60,23 +45,19 @@ var getProject = function () {
               }
             });
 
-            res = {
-              list: list,
-              pagination: {
-                total: total,
-                pageCnt: Math.ceil(total / size),
-                pageNo: no
-              }
-            };
+            return _context.abrupt('return', ctx.respond.success('获取项目信息成功', data));
 
-            ctx.respond.success('获取项目信息成功', res);
+          case 14:
+            _context.prev = 14;
+            _context.t0 = _context['catch'](5);
+            return _context.abrupt('return', ctx.respond.error('查询项目信息出错', { e: _context.t0 }));
 
-          case 22:
+          case 17:
           case 'end':
             return _context.stop();
         }
       }
-    }, _callee, this, [[7, 16]]);
+    }, _callee, this, [[5, 14]]);
   }));
 
   return function getProject(_x, _x2) {
@@ -121,40 +102,40 @@ var getRunningProject = function () {
 
 var addProject = function () {
   var _ref3 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee3(ctx, next) {
-    var finalParams, result;
+    var finalParams, data;
     return _regenerator2.default.wrap(function _callee3$(_context3) {
       while (1) {
         switch (_context3.prev = _context3.next) {
           case 0:
             finalParams = ctx.finalParams;
-            result = void 0;
-            _context3.prev = 2;
+            _context3.prev = 1;
+            _context3.next = 4;
+            return projectEdit.addProject(finalParams);
 
-            finalParams._uid = uid();
-            finalParams._mt = +new Date();
-            _context3.next = 7;
-            return Project.insert(finalParams);
+          case 4:
+            data = _context3.sent;
+
+            if (!data.code) {
+              _context3.next = 7;
+              break;
+            }
+
+            return _context3.abrupt('return', ctx.respond.error(data));
 
           case 7:
-            result = _context3.sent;
-            _context3.next = 13;
-            break;
+            return _context3.abrupt('return', ctx.respond.success('添加成功', { result: data.data }));
 
           case 10:
             _context3.prev = 10;
-            _context3.t0 = _context3['catch'](2);
+            _context3.t0 = _context3['catch'](1);
             return _context3.abrupt('return', ctx.respond.error('添加项目出错', { e: _context3.t0 }));
 
           case 13:
-
-            ctx.respond.success('添加成功', { result: result });
-
-          case 14:
           case 'end':
             return _context3.stop();
         }
       }
-    }, _callee3, this, [[2, 10]]);
+    }, _callee3, this, [[1, 10]]);
   }));
 
   return function addProject(_x5, _x6) {
@@ -164,8 +145,7 @@ var addProject = function () {
 
 var editProject = function () {
   var _ref4 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee4(ctx, next) {
-    var finalParams, id, option, result, info, _proc;
-
+    var finalParams, id, data;
     return _regenerator2.default.wrap(function _callee4$(_context4) {
       while (1) {
         switch (_context4.prev = _context4.next) {
@@ -174,51 +154,34 @@ var editProject = function () {
             id = finalParams.id;
 
             delete finalParams.id;
-            option = { type: 'project', id: id };
-            result = void 0;
-            _context4.prev = 5;
+            _context4.prev = 3;
+            _context4.next = 6;
+            return projectEdit.editProject(id, finalParams);
 
-            finalParams._mt = +new Date();
-            _context4.next = 9;
-            return Project.cfindOne({ _id: id }).exec();
+          case 6:
+            data = _context4.sent;
+
+            if (!data.code) {
+              _context4.next = 9;
+              break;
+            }
+
+            return _context4.abrupt('return', ctx.respond.error(data));
 
           case 9:
-            info = _context4.sent;
+            return _context4.abrupt('return', ctx.respond.success('编辑成功', { result: data.data }));
 
-            if (info && finalParams.gulp) {
-              if (!isEqual(info.gulp, finalParams.gulp)) option.force = true;
-            }
-            _context4.next = 13;
-            return Project.update({ _id: id }, { $set: finalParams });
-
-          case 13:
-            result = _context4.sent;
-            _context4.next = 19;
-            break;
-
-          case 16:
-            _context4.prev = 16;
-            _context4.t0 = _context4['catch'](5);
+          case 12:
+            _context4.prev = 12;
+            _context4.t0 = _context4['catch'](3);
             return _context4.abrupt('return', ctx.respond.error('编辑项目出错', { e: _context4.t0 }));
 
-          case 19:
-
-            if ((0, _keys2.default)(finalParams).length === 2 && finalParams.proxyType != null) {
-              _proc = getProcById(id);
-
-              if (_proc) _proc.setProxyMode(finalParams.proxyType);
-            } else {
-              restartBackground(option);
-            }
-
-            ctx.respond.success('编辑成功', { result: result });
-
-          case 21:
+          case 15:
           case 'end':
             return _context4.stop();
         }
       }
-    }, _callee4, this, [[5, 16]]);
+    }, _callee4, this, [[3, 12]]);
   }));
 
   return function editProject(_x7, _x8) {
@@ -228,7 +191,7 @@ var editProject = function () {
 
 var deleteProject = function () {
   var _ref5 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee5(ctx, next) {
-    var finalParams, ids, apis, aids;
+    var finalParams, ids, data;
     return _regenerator2.default.wrap(function _callee5$(_context5) {
       while (1) {
         switch (_context5.prev = _context5.next) {
@@ -237,42 +200,32 @@ var deleteProject = function () {
             ids = finalParams.id.split(',');
             _context5.prev = 2;
             _context5.next = 5;
-            return Project.remove({ _id: { $in: ids } }, { multi: true });
+            return projectEdit.deleteProject(ids, finalParams);
 
           case 5:
-            _context5.next = 7;
-            return ApiBase.cfind({ _id: { $in: ids } }).exec();
+            data = _context5.sent;
 
-          case 7:
-            apis = _context5.sent;
-            aids = apis.map(function (api) {
-              return api._id;
-            });
-            _context5.next = 11;
-            return ApiModel.remove({ baseid: { $in: aids } }, { multi: true });
+            if (!data.code) {
+              _context5.next = 8;
+              break;
+            }
+
+            return _context5.abrupt('return', ctx.respond.error(data));
+
+          case 8:
+            return _context5.abrupt('return', ctx.respond.success('删除成功', { result: data.data }));
 
           case 11:
-            _context5.next = 13;
-            return ApiBase.remove({ _id: { $in: ids } }, { multi: true });
-
-          case 13:
-            _context5.next = 18;
-            break;
-
-          case 15:
-            _context5.prev = 15;
+            _context5.prev = 11;
             _context5.t0 = _context5['catch'](2);
             return _context5.abrupt('return', ctx.respond.error('删除项目出错', { e: _context5.t0 }));
 
-          case 18:
-            ctx.respond.success('删除成功');
-
-          case 19:
+          case 14:
           case 'end':
             return _context5.stop();
         }
       }
-    }, _callee5, this, [[2, 15]]);
+    }, _callee5, this, [[2, 11]]);
   }));
 
   return function deleteProject(_x9, _x10) {
@@ -545,15 +498,15 @@ var Project = db.project;
 var ApiModel = db.apiModel;
 var ApiBase = db.apiBase;
 
-var uid = require('../util/common').uid();
 var service = require('../service');
-var getProcById = service.proc.getProcById;
 var proc = service.proc;
 var processList = service.proc.state.proc;
-var isEqual = require('lodash').isEqual;
 var restartBackground = service.ctrlProc.restart.add;
 var argv = require('minimist')(process.argv.slice(2));
 var isServer = argv.isServer;
+
+var projectGet = require('../service/project/service.get');
+var projectEdit = require('../service/project/service.edit');
 
 module.exports = {
   getProject: getProject,
