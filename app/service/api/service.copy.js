@@ -31,7 +31,7 @@ async function copyApi (apiIds, projList, { force, forceRemove }) {
           projInfo.apis.push(...result.data.data)
         }
       }
-      reloadDatabase({ type: 'project', id: projectId })
+      reloadDatabase({ type: 'project', id: projectId, dbs: ['project', 'apiBase', 'apiModel'] })
       conflictList.push(projInfo)
     }
     return { code: 0, data: { list: conflictList } }

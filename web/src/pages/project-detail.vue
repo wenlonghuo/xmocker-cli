@@ -1,7 +1,7 @@
 <template>
 <div class="project-detail">
   <detail-project :info="info" class="left-info"></detail-project>
-  <Card class="right-container" bordered="bordered" dis-hover="dis-hover">
+  <Card class="right-container" :bordered="false" dis-hover="dis-hover">
     <p slot="title">
         <Icon type="ios-film-outline"></Icon>
         API列表
@@ -23,12 +23,12 @@
         </a>
     </template>
     
-    <div class="right-list" style="position: relative;height: 100%;">
+    <div class="right-list flex-api-card-list" style="position: relative;height: 100%;">
       <Spin fix v-if="loading" style="background-color: rgba(255, 255, 255, .3)">
           <Icon type="load-c" size=18 class="spin-icon-load"></Icon>
           <div>Loading</div>
       </Spin>
-      <apiCard class="right-list-item card-color"
+      <apiCard class="card-color"
         v-for="item in apiList"
         :key="item._id"
         :name="item.name"
@@ -45,6 +45,7 @@
         :pageNo="item.pageNo"
         @delete="getApi"
         @shareApi="shareApi"
+        @setFix="setFix"
       ></apiCard>
       <div v-for="i in [1,2,3,4,5,6,7,8,9,10]" :key="i" class="flex-fill"></div>
     </div>
@@ -115,16 +116,63 @@
     </div>
   </Modal>
 
+  <Modal v-model="showFixData" width="360">
+    <p slot="header" style="text-align:center">
+      <span>固定数据</span>
+    </p>
+    <div style="text-align:center">      
+      <p class="cus-tooltip-text">选择要设置的固定数据</p>
+      <div class="cus-radio-group">
+        <Radio-group v-model="modifyFixedType" vertical>
+          <Radio label="1">错误</Radio>
+          <Radio label="2">异常</Radio>
+          <Radio label="3">分支</Radio>
+          <Radio label="0">无</Radio>
+        </Radio-group>
+        <div class="selection-list">
+          <Select v-model="modifyFixedWrong" placeholder="错误" class="radio-select" size="small">
+            <Option v-for="item in libList" :value="item._id" :key="item">{{ item.name }}</Option>
+          </Select>
+          <Select v-model="modifyFixedThrow" placeholder="异常" class="radio-select" size="small">
+            <Option v-for="item in throwList" :value="item.value" :key="item">{{ item.label }}</Option>
+          </Select>
+          <Select v-model="modifyFixedBranch" placeholder="分支" class="radio-select" size="small">
+            <Option v-for="item in ModelList" :value="item._id" :key="item">{{ item.name }}</Option>
+          </Select>
+        </div>
+      </div>
+    </div>
+    <div slot="footer">
+      <Button size="large"  :loading="modalLoading" @click="closeShareResult">关闭</Button>
+      <Button v-if="leftApis.length" type="primary" size="large"  :loading="modalLoading" @click="submitFixData">提交</Button>
+    </div>
+  </Modal>
+
 </div>
 </template>
 <script>
-import apiCard from '../components/card/api-card.vue'
+import apiCard from '../components/card/api-card-simple.vue'
 import detailProject from '../components/detail/detail-project.vue'
-import { getApi, searchApi, clientGetProjList, clientPushApiById, copyApi } from '@/api/api.js'
+import { getApi, searchApi, clientGetProjList, clientPushApiById, copyApi, getLib, getApiModel, setApiStatus } from '@/api/api.js'
 export default {
   name: 'projectDetail',
   data () {
     return {
+      methodList: [
+        { value: 'GET', label: 'GET' },
+        { value: 'POST', label: 'POST' },
+        { value: 'PUT', label: 'PUT' },
+        { value: 'DELETE', label: 'DELETE' },
+        { value: 'PATCH', label: 'PATCH' },
+      ],
+      libList: [],
+      ModelList: [],
+      throwList: [
+        { value: '304', label: '304' },
+        { value: '400', label: '400' },
+        { value: '404', label: '404' },
+        { value: '502', label: '502' },
+      ],
       jsonData: '',
       info: {
 
@@ -134,12 +182,19 @@ export default {
       leftApis: [],
       showShare: false,
       showShareResult: false,
+      showFixData: false,
       modalLoading: false,
       shareType: '本机',
       remoteTarget: '',
       remoteProjs: [],
       localTarget: '',
-
+      selectedApi: '',
+      modifyDelay: 0,
+      modifyFixedType: '',
+      modifyFixedOutput: '',
+      modifyFixedWrong: '',
+      modifyFixedBranch: '',
+      modifyFixedThrow: '',
       loading: true
     }
   },
@@ -228,6 +283,29 @@ export default {
         }
       })
     },
+    getLibList () {
+      let param = {
+        pageSize: 1000,
+        pageNo: 0,
+      }
+      getLib(param).then(res => {
+        if (!res.code) {
+          this.libList = res.data.list
+        }
+      })
+    },
+    getModelList (id) {
+      let param = {
+        pageSize: 1000,
+        pageNo: 0,
+        baseid: this.selectedApi,
+      }
+      getApiModel(param).then(res => {
+        if (!res.code) {
+          this.ModelList = [{ _id: '0', name: '基础数据' }, ...res.data.list]
+        }
+      })
+    },
     pageNext () {
       if (this.pageNo >= this.total - 1) return
       this.$store.commit('api/INCREMENT', 1)
@@ -246,15 +324,31 @@ export default {
     },
     setPageSize () {
       let rContainer = document.querySelector('.right-container').getBoundingClientRect()
-      let hVal = Math.floor((rContainer.width - 52) / 356)
-      let vVal = Math.floor((rContainer.height - 32) / 268)
+      let hVal = Math.floor((rContainer.width - 52) / 380)
+      let vVal = Math.floor((rContainer.height - 32) / 165)
       let val = vVal * hVal
-      val = val < 6 ? 6 : val
       this.$store.commit('api/SET_PAGE_SIZE', val)
     },
     sortList (val) {
       this.$store.commit('api/SET_SORT', val)
       this.getApi()
+    },
+    setFix ({id}) {
+      this.selectedApi = id
+      this.getModelList()
+      this.getModelList(id)
+      this.showFixData = true
+    },
+    submitFixData () {
+      let type = this.modifyFixedType
+      let param = {
+        type,
+        project: this.$route.query.id,
+        api: this.selectedApi,
+      }
+      param.id = type === '1' ? this.modifyFixedWrong : type === '3' ? this.modifyFixedBranch : undefined
+      param.data = type === '2' ? { code: ~~this.modifyFixedThrow } : undefined
+      setApiStatus(param).then(this.afterEdit)
     },
     shareApi (id) {
       let api = this.apiList.find(item => item._id === id)
@@ -356,5 +450,19 @@ export default {
 }
 .cus-share-tip {
   color: #ff9900;
+}
+
+.flex-api-card-list {
+  justify-content: flex-start;
+  flex-direction: column;
+}
+.flex-api-card-list>div {
+  margin-bottom: 5px;
+  margin-right: 30px;
+}
+</style>
+<style>
+.project-detail>.right-container>.ivu-card-body {
+  padding-bottom: 0;
 }
 </style>

@@ -88,7 +88,7 @@ export default {
       })
     },
     deleteApiModel (data) {
-      if (!data.id) {
+      if (!data._id) {
         let index = this.info.model.indexOf(data)
         if (~index) {
           this.info.model.splice(index, 1)
