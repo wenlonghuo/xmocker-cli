@@ -167,39 +167,40 @@ var ExecQuene = function () {
 
 var reload = new ExecQuene(function () {
   var _ref2 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee2(option) {
-    var type, info, proc;
+    var type, dbs, info, proc;
     return _regenerator2.default.wrap(function _callee2$(_context2) {
       while (1) {
         switch (_context2.prev = _context2.next) {
           case 0:
             type = option.type;
-            _context2.next = 3;
+            dbs = option.dbs ? option.dbs : [type];
+            _context2.next = 4;
             return getProject(option);
 
-          case 3:
+          case 4:
             info = _context2.sent;
 
             if (info) {
-              _context2.next = 6;
+              _context2.next = 7;
               break;
             }
 
             return _context2.abrupt('return');
 
-          case 6:
+          case 7:
             proc = getProcById(info._id);
 
             if (proc) {
-              _context2.next = 9;
+              _context2.next = 10;
               break;
             }
 
             return _context2.abrupt('return');
 
-          case 9:
-            proc.reloadApis([type]);
-
           case 10:
+            proc.reloadApis(dbs);
+
+          case 11:
           case 'end':
             return _context2.stop();
         }

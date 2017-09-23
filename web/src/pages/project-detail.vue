@@ -28,26 +28,27 @@
           <Icon type="load-c" size=18 class="spin-icon-load"></Icon>
           <div>Loading</div>
       </Spin>
-      <apiCard class="card-color"
-        v-for="item in apiList"
-        :key="item._id"
-        :name="item.name"
-        :id="item._id"
-        :mt="item._mt"
-        :method="item.method"
-        :project="item.project"
-        :url="item.url"
-        :path="item.path"
-        :pathEqual="item.pathEqual"
-        :delay="~~item.delay"
-        :fixedOutput="item.fixedOutput"
-        :description="item.description"
-        :pageNo="item.pageNo"
-        @delete="getApi"
-        @shareApi="shareApi"
-        @setFix="setFix"
-      ></apiCard>
-      <div v-for="i in [1,2,3,4,5,6,7,8,9,10]" :key="i" class="flex-fill"></div>
+      <div class="card-tab" v-for="(tab, index) in flowTabList" :key="index">
+        <apiCard class="card-color"
+          v-for="item in tab"
+          :key="item._id"
+          :name="item.name"
+          :id="item._id"
+          :mt="item._mt"
+          :method="item.method"
+          :project="item.project"
+          :url="item.url"
+          :path="item.path"
+          :pathEqual="item.pathEqual"
+          :delay="~~item.delay"
+          :fixedOutput="item.fixedOutput"
+          :description="item.description"
+          :pageNo="item.pageNo"
+          @delete="getApi"
+          @shareApi="shareApi"
+          @setFix="setFix"
+        ></apiCard>
+      </div>
     </div>
   </Card>
   
@@ -120,31 +121,37 @@
     <p slot="header" style="text-align:center">
       <span>固定数据</span>
     </p>
-    <div style="text-align:center">      
-      <p class="cus-tooltip-text">选择要设置的固定数据</p>
+    <div>      
+      <p style="margin-bottom: 10px;">选择要设置的固定数据类型和值</p>
       <div class="cus-radio-group">
-        <Radio-group v-model="modifyFixedType" vertical>
-          <Radio label="1">错误</Radio>
-          <Radio label="2">异常</Radio>
-          <Radio label="3">分支</Radio>
-          <Radio label="0">无</Radio>
-        </Radio-group>
-        <div class="selection-list">
-          <Select v-model="modifyFixedWrong" placeholder="错误" class="radio-select" size="small">
-            <Option v-for="item in libList" :value="item._id" :key="item">{{ item.name }}</Option>
-          </Select>
-          <Select v-model="modifyFixedThrow" placeholder="异常" class="radio-select" size="small">
-            <Option v-for="item in throwList" :value="item.value" :key="item">{{ item.label }}</Option>
-          </Select>
-          <Select v-model="modifyFixedBranch" placeholder="分支" class="radio-select" size="small">
-            <Option v-for="item in ModelList" :value="item._id" :key="item">{{ item.name }}</Option>
-          </Select>
+        <div class="label-data">
+          <div class="label">选择类型</div>
+          <Radio-group v-model="modifyFixedType" type="button" vertical>
+            <Radio label="1">错误</Radio>
+            <Radio label="2">异常</Radio>
+            <Radio label="3">分支</Radio>
+            <Radio label="0">无空</Radio>
+          </Radio-group>
+        </div>
+        <div class="label-data">
+          <div class="label">选择数值</div>
+          <div class="selection-list">
+            <Select v-show="modifyFixedType == 1" v-model="modifyFixedWrong" placeholder="错误" class="radio-select" size="small">
+              <Option v-for="item in libList" :value="item._id" :key="item">{{ item.name }}</Option>
+            </Select>
+            <Select v-show="modifyFixedType == 2" v-model="modifyFixedThrow" placeholder="异常" class="radio-select" size="small">
+              <Option v-for="item in throwList" :value="item.value" :key="item">{{ item.label }}</Option>
+            </Select>
+            <Select v-show="modifyFixedType == 3" v-model="modifyFixedBranch" placeholder="分支" class="radio-select" size="small">
+              <Option v-for="item in ModelList" :value="item._id" :key="item">{{ item.name }}</Option>
+            </Select>
+          </div>
         </div>
       </div>
     </div>
     <div slot="footer">
-      <Button size="large"  :loading="modalLoading" @click="closeShareResult">关闭</Button>
-      <Button v-if="leftApis.length" type="primary" size="large"  :loading="modalLoading" @click="submitFixData">提交</Button>
+      <Button size="large"  :loading="modalLoading" @click="closeFixModel">关闭</Button>
+      <Button type="primary" size="large"  :loading="modalLoading" @click="submitFixData">提交</Button>
     </div>
   </Modal>
 
@@ -158,6 +165,10 @@ export default {
   name: 'projectDetail',
   data () {
     return {
+      rehearse: {
+        hVal: 0,
+        vVal: 0,
+      },
       methodList: [
         { value: 'GET', label: 'GET' },
         { value: 'POST', label: 'POST' },
@@ -190,7 +201,7 @@ export default {
       localTarget: '',
       selectedApi: '',
       modifyDelay: 0,
-      modifyFixedType: '',
+      modifyFixedType: '3',
       modifyFixedOutput: '',
       modifyFixedWrong: '',
       modifyFixedBranch: '',
@@ -230,6 +241,18 @@ export default {
     leftApiData () {
       let serverData = (this.leftApis[0] || {}).api || {}
       return this.shareType === '本机' ? (this.leftApis[0] || {}) : (Object.assign({}, serverData.base, {model: serverData.model}))
+    },
+    flowTabList () {
+      let vVal = this.rehearse.vVal
+      let tabList = []
+      let tabIndex = -1
+      if (vVal === 0) return tabList
+      for (let i = 0; i < this.apiList.length; i++) {
+        if (i % vVal === 0) tabIndex++
+        if (!tabList[tabIndex]) tabList.push([])
+        tabList[tabIndex].push(this.apiList[i])
+      }
+      return tabList
     },
   },
   watch: {
@@ -324,8 +347,10 @@ export default {
     },
     setPageSize () {
       let rContainer = document.querySelector('.right-container').getBoundingClientRect()
-      let hVal = Math.floor((rContainer.width - 52) / 380)
+      let hVal = Math.floor((rContainer.width - 52) / 370)
       let vVal = Math.floor((rContainer.height - 32) / 165)
+      this.rehearse.hVal = hVal
+      this.rehearse.vVal = vVal
       let val = vVal * hVal
       this.$store.commit('api/SET_PAGE_SIZE', val)
     },
@@ -394,6 +419,9 @@ export default {
     closeShareResult () {
       this.showShareResult = false
     },
+    closeFixModel () {
+      this.showFixData = false
+    },
     postShare (force, forceRemove) {
       let params = {
         id: this.sharedApi._id,
@@ -456,9 +484,35 @@ export default {
   justify-content: flex-start;
   flex-direction: column;
 }
-.flex-api-card-list>div {
+.flex-api-card-list .card-tab>div {
   margin-bottom: 5px;
-  margin-right: 30px;
+  margin-right: 20px;
+}
+.flex-api-card-list .card-tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+/* 按钮组 */
+
+.cus-radio-group .label-data {
+  display: flex;
+  margin: 20px 0;
+}
+
+.cus-radio-group .label-data>.label {
+  display: block;
+  width: 6em;
+  height: 32px;
+  line-height: 30px;
+}
+.cus-radio-group .selection-list {
+  display: flex;
+  align-items: center;
+}
+
+.radio-select {
+  width: 228px;
 }
 </style>
 <style>

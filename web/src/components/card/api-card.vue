@@ -1,5 +1,5 @@
 <template>
-  <Card>
+  <Card class="api-card-first">
     <p slot="title" :title="name" style="max-width: 70%;">
       <Icon type="at"></Icon>
       {{name}}
@@ -279,44 +279,44 @@ export default {
 }
 </script>
 
-<style>
-.cus-dw-icon {
+<style scoped>
+.api-card-first .cus-dw-icon {
   margin-right: 5px!important;
 }
-.cus-list-db li {
+.api-card-first .cus-list-db li {
   display: flex;
   justify-content: space-between;
 }
-.cus-tooltip {
+.api-card-first .cus-tooltip {
   display: flex;
   flex-direction: column;
   align-items: flex-end;
 }
-.cus-tooltip .ivu-btn {
+.api-card-first .cus-tooltip .ivu-btn {
   margin-top: 10px;
 }
-.cus-tooltip-text {
+.api-card-first .cus-tooltip-text {
   width: 100%;
   margin-top: 10px;
   margin-bottom: 10px;
   word-break: break-word;
   white-space: normal;
 }
-.cus-tooltip-oneline {
+.api-card-first .cus-tooltip-oneline {
   width: 100%;
   display: flex;
   justify-content: space-between;
 }
-.cus-tooltip-list {
+.api-card-first .cus-tooltip-list {
   width: 100%;
 }
-.cus-tooltip-list li {
+.api-card-first .cus-tooltip-list li {
   display: flex;
 }
-.cus-list-right {
+.api-card-first .cus-list-right {
   display: flex;
 }
-.cus-list-right>span:first-child {
+.api-card-first .cus-list-right>span:first-child {
   max-width: 120px;
   overflow: hidden;
   height: 20px;
@@ -324,7 +324,7 @@ export default {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-.cus-description {
+.api-card-first .cus-description {
   position: relative;
   max-width: 224px;
   word-break: break-all;
@@ -332,23 +332,23 @@ export default {
   line-height: 20px;
   overflow: hidden;
 }
-.cus-card-tbar-btn {
+.api-card-first .cus-card-tbar-btn {
   margin-left: 10px;
 }
 .cus-radio-group {
   display: flex;
   width: 100%;
 }
-.cus-radio-group .selection-list{
+.api-card-first .cus-radio-group .selection-list{
   display: flex;
   flex-direction: column;
 }
-.cus-radio-group .radio-select{
+.api-card-first .cus-radio-group .radio-select{
   display: block;
   margin: 3px 0;
   margin-left: 20px;
 }
-.cus-list-time {
+.api-card-first .cus-list-time {
   font-size: 12px;
 }
 </style>

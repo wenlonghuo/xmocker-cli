@@ -8,14 +8,20 @@
         <span class="cus-small">{{url}}</span>
       </li>
       <li>
+        <span class="cus-small">
+          介绍
+        </span>
         <span class="cus-small cus-description" :title="description">
-          介绍: {{description}}
+          {{description}}
         </span>
       </li>
       
       <li>
         <span class="cus-small">
-          修改: {{timer(mt)}}
+          修改
+        </span>
+        <span class="cus-small">
+          {{timer(mt)}}
         </span>
       </li>
       <li style="margin-top: 10px;">
@@ -145,6 +151,20 @@ export default {
 <style>
 .api-card-simple .cus-list-db {
   margin-top: 8px;
+}
+.api-card-simple .cus-list-db li {
+  display: block;
+}
+.api-card-simple .cus-list-db li span {
+  display: inline-block;
+  vertical-align: middle;
+}
+.api-card-simple .cus-list-db li span:first-child {
+  margin-right: 1em;
+  width: 3em;
+}
+.api-card-simple .cus-list-db li span:last-child {
+  width: calc(100% - 5em)
 }
 .api-card-simple .cus-list-db .url-type{
   color: LightSeaGreen;

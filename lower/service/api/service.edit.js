@@ -254,29 +254,30 @@ var editModel = function () {
 
 
             result = result[1];
-            _context5.next = 12;
+            if (Array.isArray(result)) result = result[0];
+            _context5.next = 13;
             return ApiBase.update({ _id: result.baseid }, { $set: { _mt: +new Date() } }, { returnUpdatedDocs: true, multi: true, upsert: true });
 
-          case 12:
-            _context5.next = 17;
+          case 13:
+            _context5.next = 18;
             break;
 
-          case 14:
-            _context5.prev = 14;
+          case 15:
+            _context5.prev = 15;
             _context5.t0 = _context5['catch'](1);
             throw _context5.t0;
 
-          case 17:
+          case 18:
             reloadDatabase({ type: 'apiModel', id: id });
 
             return _context5.abrupt('return', { code: 0, data: result });
 
-          case 19:
+          case 20:
           case 'end':
             return _context5.stop();
         }
       }
-    }, _callee5, this, [[1, 14]]);
+    }, _callee5, this, [[1, 15]]);
   }));
 
   return function editModel(_x7, _x8) {
@@ -286,7 +287,7 @@ var editModel = function () {
 
 var deleteModel = function () {
   var _ref6 = (0, _asyncToGenerator3.default)(_regenerator2.default.mark(function _callee6(id) {
-    var result;
+    var result, oldData;
     return _regenerator2.default.wrap(function _callee6$(_context6) {
       while (1) {
         switch (_context6.prev = _context6.next) {
@@ -294,23 +295,32 @@ var deleteModel = function () {
             result = void 0;
             _context6.prev = 1;
             _context6.next = 4;
-            return ApiModel.remove({ _id: id }, { returnUpdatedDocs: true, multi: true, upsert: true });
+            return ApiModel.cfindOne({ _id: id }).exec();
 
           case 4:
+            oldData = _context6.sent;
+            _context6.next = 7;
+            return ApiModel.remove({ _id: id }, { returnUpdatedDocs: true, multi: true, upsert: true });
+
+          case 7:
             result = _context6.sent;
+            _context6.next = 10;
+            return ApiBase.update({ _id: oldData.baseid }, { $set: { _mt: +new Date() } }, { returnUpdatedDocs: true, multi: true, upsert: true });
+
+          case 10:
             return _context6.abrupt('return', result);
 
-          case 8:
-            _context6.prev = 8;
+          case 13:
+            _context6.prev = 13;
             _context6.t0 = _context6['catch'](1);
             throw _context6.t0;
 
-          case 11:
+          case 16:
           case 'end':
             return _context6.stop();
         }
       }
-    }, _callee6, this, [[1, 8]]);
+    }, _callee6, this, [[1, 13]]);
   }));
 
   return function deleteModel(_x9) {
