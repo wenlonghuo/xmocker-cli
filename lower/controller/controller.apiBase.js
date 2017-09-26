@@ -392,9 +392,7 @@ var setApiStatus = function () {
 
             ctx.body = {
               code: -1,
-              data: {
-                tip: '项目尚未启动'
-              }
+              message: '项目尚未启动'
             };
             return _context9.abrupt('return');
 

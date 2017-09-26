@@ -4,6 +4,7 @@ const projectGet = require('../project/service.get')
 const apiGet = require('../api/service.get')
 const apiCopy = require('../api/service.copy')
 const apiEdit = require('../api/service.edit')
+const reloadDatabase = require('../service.ctrlProc').reload.add
 
 module.exports = {
   saveDownloadApiList,
@@ -61,6 +62,8 @@ async function saveDownloadApiList (apiList, projectUid, { force, forceRemove })
     if (!proj) return
 
     let apiResult = await copyApiList(apiList, proj._id, { force, forceRemove })
+
+    reloadDatabase({ type: 'project', id: proj._id, dbs: ['project', 'apiBase', 'apiModel'] })
 
     return { api: apiResult }
   } catch (e) {

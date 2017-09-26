@@ -233,19 +233,23 @@ var downloadApi = function () {
 
                     case 10:
                         apiResult = _context4.sent;
+
+
+                        reloadDatabase({ type: 'project', id: projectId, dbs: ['project', 'apiBase', 'apiModel'] });
+
                         return _context4.abrupt('return', { api: apiResult });
 
-                    case 14:
-                        _context4.prev = 14;
+                    case 15:
+                        _context4.prev = 15;
                         _context4.t0 = _context4['catch'](0);
                         throw _context4.t0;
 
-                    case 17:
+                    case 18:
                     case 'end':
                         return _context4.stop();
                 }
             }
-        }, _callee4, this, [[0, 14]]);
+        }, _callee4, this, [[0, 15]]);
     }));
 
     return function downloadApi(_x3, _x4, _x5, _x6) {
@@ -262,6 +266,7 @@ var request = require('./service.request').request;
 var projectGet = require('../project/service.get');
 var apiGet = require('../api/service.get');
 var syncReceive = require('./service.receive');
+var reloadDatabase = require('../service.ctrlProc').reload.add;
 
 module.exports = {
     getProjectListDiff: getProjectListDiff,

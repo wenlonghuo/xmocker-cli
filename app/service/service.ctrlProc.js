@@ -22,13 +22,15 @@ class ExecQuene {
 
 const reload = new ExecQuene(async function (option) {
   let type = option.type
+  let dbs = option.dbs ? option.dbs : [type]
   let info = await getProject(option)
+
   if (!info) {
     return
   }
   let proc = getProcById(info._id)
   if (!proc) return
-  proc.reloadApis([type])
+  proc.reloadApis(dbs)
 })
 
 const restart = new ExecQuene(async function (option) {

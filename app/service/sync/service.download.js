@@ -6,6 +6,7 @@ const request = require('./service.request').request
 const projectGet = require('../project/service.get')
 const apiGet = require('../api/service.get')
 const syncReceive = require('./service.receive')
+const reloadDatabase = require('../service.ctrlProc').reload.add
 
 module.exports = {
   getProjectListDiff,
@@ -105,6 +106,8 @@ async function downloadApi (apiUids, projectUid, projectId, {force, forceRemove}
     let serverApi = res.data.api
 
     let apiResult = await syncReceive.copyApiList(serverApi, projectId, { force, forceRemove })
+
+    reloadDatabase({ type: 'project', id: projectId, dbs: ['project', 'apiBase', 'apiModel'] })
 
     return { api: apiResult }
   } catch (e) {

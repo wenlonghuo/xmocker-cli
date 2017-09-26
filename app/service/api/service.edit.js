@@ -90,6 +90,7 @@ async function editModel (id, params) {
     result = await ApiModel.update({ _id: id }, { $set: params }, { returnUpdatedDocs: true, multi: true, upsert: true })
 
     result = result[1]
+    if (Array.isArray(result)) result = result[0]
     await ApiBase.update({ _id: result.baseid }, { $set: { _mt: +new Date() } }, { returnUpdatedDocs: true, multi: true, upsert: true })
   } catch (e) {
     throw e
@@ -102,7 +103,9 @@ async function editModel (id, params) {
 async function deleteModel (id) {
   let result
   try {
+    let oldData = await ApiModel.cfindOne({_id: id}).exec()
     result = await ApiModel.remove({ _id: id }, { returnUpdatedDocs: true, multi: true, upsert: true })
+    await ApiBase.update({ _id: oldData.baseid }, { $set: { _mt: +new Date() } }, { returnUpdatedDocs: true, multi: true, upsert: true })
     return result
   } catch (e) {
     throw e

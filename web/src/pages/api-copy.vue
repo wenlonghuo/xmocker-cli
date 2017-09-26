@@ -120,12 +120,13 @@ export default {
       let func = this.shareType === '本机' ? this.getLocalApiList : this.getRemoteApiList
       return func.call(this).then((data) => {
         if (!data || data.code) return
-        this.data = data.data.list.map(item => {
+        let list = data.data.list.map(item => {
           if (item.base) {
-            return Object.assign({}, item.base, { time: this.timer(item._mt), model: item.model })
+            return Object.assign({}, item.base, { time: this.timer(item.base._mt), model: item.model })
           }
-          return Object.assign({}, item, {time: this.timer(item._mt)})
+          return Object.assign({}, item, { time: this.timer(item._mt) })
         })
+        this.data.splice(0, this.data.length, ...list)
       })
     },
     getLocalApiList () {

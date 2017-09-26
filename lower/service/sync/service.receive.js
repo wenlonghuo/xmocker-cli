@@ -167,19 +167,23 @@ var saveDownloadApiList = function () {
 
           case 8:
             apiResult = _context2.sent;
+
+
+            reloadDatabase({ type: 'project', id: proj._id, dbs: ['project', 'apiBase', 'apiModel'] });
+
             return _context2.abrupt('return', { api: apiResult });
 
-          case 12:
-            _context2.prev = 12;
+          case 13:
+            _context2.prev = 13;
             _context2.t0 = _context2['catch'](0);
             throw _context2.t0;
 
-          case 15:
+          case 16:
           case 'end':
             return _context2.stop();
         }
       }
-    }, _callee2, this, [[0, 12]]);
+    }, _callee2, this, [[0, 13]]);
   }));
 
   return function saveDownloadApiList(_x4, _x5, _x6) {
@@ -253,6 +257,7 @@ var projectGet = require('../project/service.get');
 var apiGet = require('../api/service.get');
 var apiCopy = require('../api/service.copy');
 var apiEdit = require('../api/service.edit');
+var reloadDatabase = require('../service.ctrlProc').reload.add;
 
 module.exports = {
   saveDownloadApiList: saveDownloadApiList,

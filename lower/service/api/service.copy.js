@@ -64,7 +64,7 @@ var copyApi = function () {
             break;
 
           case 16:
-            reloadDatabase({ type: 'project', id: projectId });
+            reloadDatabase({ type: 'project', id: projectId, dbs: ['project', 'apiBase', 'apiModel'] });
             conflictList.push(projInfo);
 
           case 18:
