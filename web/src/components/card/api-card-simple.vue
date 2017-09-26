@@ -152,18 +152,18 @@ export default {
 .api-card-simple .cus-list-db {
   margin-top: 8px;
 }
-.api-card-simple .cus-list-db li {
+.api-card-simple .cus-list-db>li {
   display: block;
 }
-.api-card-simple .cus-list-db li span {
+.api-card-simple .cus-list-db>li>span {
   display: inline-block;
   vertical-align: middle;
 }
-.api-card-simple .cus-list-db li span:first-child {
+.api-card-simple .cus-list-db>li>span:first-child {
   margin-right: 1em;
   width: 3em;
 }
-.api-card-simple .cus-list-db li span:last-child {
+.api-card-simple .cus-list-db>li>span:last-child {
   width: calc(100% - 5em)
 }
 .api-card-simple .cus-list-db .url-type{
@@ -196,7 +196,7 @@ export default {
 .api-card-simple {
   height: 160px;
   width: 350px;
-  background-color: AliceBlue;
+  background-color:AliceBlue;
 }
 .api-card-simple h3{
   position: relative;

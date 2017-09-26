@@ -4,7 +4,7 @@
       {{info.name}}
     </p>
     <template slot="extra">
-      <a href="javascript:void(0)" v-for="item in topBarItems" class="cus-card-tbar-btn">
+      <a href="javascript:void(0)" v-for="item in topBarItems" class="cus-card-tbar-btn" style="margin-left: 10px;">
         <Icon :type="item.type" color="#9ea7b4" @click.native="btnAction(item.action)"></Icon>
       </a>
       <Dropdown trigger="click" placement="bottom-end" style="margin-left: 10px;">

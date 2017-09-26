@@ -373,7 +373,12 @@ export default {
       }
       param.id = type === '1' ? this.modifyFixedWrong : type === '3' ? this.modifyFixedBranch : undefined
       param.data = type === '2' ? { code: ~~this.modifyFixedThrow } : undefined
-      setApiStatus(param).then(this.afterEdit)
+      setApiStatus(param)
+        .then(res => {
+          if (res.code) return
+          this.$Message.success(res.message)
+          this.showFixData = false
+        })
     },
     shareApi (id) {
       let api = this.apiList.find(item => item._id === id)
