@@ -18,12 +18,8 @@
 </Card>
 </template>
 <script>
-function timer (date) {
-  if (typeof date !== 'object') date = date == null ? new Date() : new Date(date)
-  date.setMinutes(date.getMinutes() - date.getTimezoneOffset())
-  let str = date.toISOString()
-  return str.slice(0, 10) + ' ' + str.slice(11, 23)
-}
+import mixin from '../mixin'
+const timer = mixin.methods.timer
 export default {
   name: 'log-item',
   data () {

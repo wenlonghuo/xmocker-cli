@@ -37,6 +37,13 @@ export default {
       }
     },
     timer: function timer (date) {
+      if (typeof date === 'string') {
+        let arr = date.split('.')
+        if (arr[1]) {
+          date = new Date(arr[0]).getTime()
+          date += (Number(arr[1]) || 0)
+        }
+      }
       if (typeof date !== 'object') date = date == null ? new Date() : new Date(date)
       date.setMinutes(date.getMinutes() - date.getTimezoneOffset())
       let str = date.toISOString()
