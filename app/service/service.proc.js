@@ -232,7 +232,7 @@ function getChangedConfig (proj) {
   if (needRestart) return
 
   let optKeys = [
-    {key: 'proxyTo', optKey: 'proxy404'},
+    {key: 'proxy404', optKey: 'proxyTo'},
     {key: 'proxyMode', optKey: 'proxyType'},
     {key: 'linkViews', optKey: 'urls'},
     {key: 'inject', optKey: 'injectHtml'},
