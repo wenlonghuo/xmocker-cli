@@ -12,6 +12,9 @@ let errStream = through2(function (chunk, enc, cb) {
 // 日志记录函数
 function mocker (data) {
   if (typeof data === 'object') {
+    if (data.res && typeof data.res === 'object') {
+      data.res = JSON.stringify(data.res)
+    }
     broadcast({type: 'log', action: 'ADD_LOGS', logType: data.type, data: data})
 
     let type = data.type === 'his' ? 'info' : data.type
