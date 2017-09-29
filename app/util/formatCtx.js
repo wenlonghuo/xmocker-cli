@@ -41,7 +41,7 @@ module.exports = function formatCtx (ctx, message, option = {}) {
     })
   }
   if (!isDev && option.forbidRes) {
-    delete msg.res
+    msg = Object.assign({}, msg, {req: undefined})
   }
   return msg
 }

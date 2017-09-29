@@ -1,7 +1,7 @@
 <template>
 <Card class="log-detail">
   <h3>日志详情</h3>
-  <span style="font-size: 12px;">{{info.time | timeDate}} {{info.time | timeCount}}</span>
+  <span style="font-size: 12px;">{{info.time | timeDate}}</span>
   <div class="log-detail-block">
     <h4>基本信息</h4>
     <div>
@@ -43,9 +43,11 @@
 </Card>
 </template>
 <script>
+import mixin from '../../mixin'
 import hljs from 'highlight.js/lib/highlight.js'
 hljs.registerLanguage('json', require('highlight.js/lib/languages/json'))
 import 'highlight.js/styles/xcode.css'
+const timer = mixin.methods.timer
 
 export default {
   name: 'log-item',
@@ -62,13 +64,7 @@ export default {
   },
   filters: {
     timeDate (val) {
-      val = val || 0
-      return new Date(val).toLocaleDateString()
-    },
-    timeCount (val) {
-      val = val || 0
-      let point = val % 1000
-      return new Date(val).toLocaleTimeString() + '.' + point
+      return timer(val)
     },
     ip (item = {}) {
       return item.ip || (item.client && item.client.ip)
@@ -93,7 +89,18 @@ export default {
       return this.lightCode(JSON.stringify(this.info.req || '', null, 2))
     },
     res () {
-      return this.lightCode(JSON.stringify(this.info.res || '', null, 2))
+      var str = this.info.res
+      if (typeof this.info.res === 'string') {
+        try {
+          str = JSON.parse(this.info.res || '')
+          str = JSON.stringify(str, null, 2)
+        } catch (e) {
+        }
+      } else {
+        str = JSON.stringify(this.info.res || '', null, 2)
+      }
+
+      return this.lightCode(str)
     },
     err () {
       return this.lightCode(JSON.stringify(this.info.err || '', null, 2))
