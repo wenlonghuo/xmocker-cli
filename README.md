@@ -1,3 +1,4 @@
+[![Build Status](https://www.travis-ci.org/wenlonghuo/xmocker-cli.svg?branch=master)](https://www.travis-ci.org/wenlonghuo/xmocker-cli)
 ### 前端mock用工具
 #### 介绍
 本工具是定制的mock服务工具，主要针对的是特殊API进行的设置。特色：
