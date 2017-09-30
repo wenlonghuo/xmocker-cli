@@ -438,7 +438,7 @@ function getChangedConfig(proj) {
   });
   if (needRestart) return;
 
-  var optKeys = [{ key: 'proxyTo', optKey: 'proxy404' }, { key: 'proxyMode', optKey: 'proxyType' }, { key: 'linkViews', optKey: 'urls' }, { key: 'inject', optKey: 'injectHtml' }, { key: 'proxyTable', optKey: 'proxyTable' }];
+  var optKeys = [{ key: 'proxy404', optKey: 'proxyTo' }, { key: 'proxyMode', optKey: 'proxyType' }, { key: 'linkViews', optKey: 'urls' }, { key: 'inject', optKey: 'injectHtml' }, { key: 'proxyTable', optKey: 'proxyTable' }];
   var option = {};
   optKeys.forEach(function (op) {
     if (!_.isEqual(proj[op.optKey], oldProj[op.optKey])) option[op.key] = proj[op.optKey];

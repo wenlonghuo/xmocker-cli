@@ -45,7 +45,7 @@ const httpServer = http.createServer(app.callback())
 ws(httpServer)
 
 // 查询appbase
-db.appBase.cfindOne({}).exec().then(function (doc) {
+const proc = db.appBase.cfindOne({}).exec().then(function (doc) {
   doc = doc || {}
   appPORT = doc.managePort || 6001
   // 去除原占用的端口
@@ -81,3 +81,5 @@ db.appBase.cfindOne({}).exec().then(function (doc) {
 process.on('unhandledRejection', function (e) {
   throw e
 })
+
+module.exports = proc
