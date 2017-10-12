@@ -53,7 +53,7 @@ module.exports = function formatCtx(ctx, message) {
     });
   }
   if (!isDev && option.forbidRes) {
-    delete msg.res;
+    msg = (0, _assign2.default)({}, msg, { req: undefined });
   }
   return msg;
 };
