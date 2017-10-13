@@ -37,7 +37,7 @@
     "through2": "^2.0.3",
     "ua-parser-js": "^0.7.12",
     "ws": "^1.1.1",
-    "xmocker": "^1.0.12"
+    "xmocker": "^1.0.13"
   },
   "devDependencies": {
     "babel-cli": "^6.24.1",
