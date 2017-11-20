@@ -72,7 +72,7 @@ const logQueue = {
   },
   async delay (time) {
     return new Promise((resolve) => {
-      setTimeout(resolve, ~~time)
+      setTimeout(() => { resolve() }, ~~time)
     })
   },
   async saveLogs () {
@@ -96,9 +96,17 @@ const logQueue = {
     const time = new Date()
     let data
     try {
-      data = await DbName.insert(list)
+      let p = Promise.race([
+        DbName.insert(list),
+        this.delay(60 * 1000),
+      ])
+      data = await p
     } catch (e) {
       throw e
+    }
+    if (!data) {
+      console.error('保存数据库超时:' + DbName.filename)
+      return
     }
     return { len: data.length, left: queue.length, time: new Date() - time }
   },
