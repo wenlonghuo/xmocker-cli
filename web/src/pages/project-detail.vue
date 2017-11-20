@@ -360,7 +360,7 @@ export default {
     },
     setFix ({id}) {
       this.selectedApi = id
-      this.getModelList()
+      this.getLibList()
       this.getModelList(id)
       this.showFixData = true
     },

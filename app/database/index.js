@@ -1,6 +1,7 @@
 'use strict'
 const Datastore = require('nedb-promise')
 const join = require('path').join
+const timer = require('../util/timer')
 const userDirectory = join(process.env[(process.platform === 'win32') ? 'USERPROFILE' : 'HOME'], '.mocker/v1/db')
 
 function createDatabase (dir, name, option) {
@@ -36,20 +37,24 @@ function initDatabase (option = {}) {
   const recordDB = createDb('/log/recordDB')
 
   let td = +new Date() - 1000 * 60 * 60 * 24 * 5
+  let tdStr = timer(td)
 
   const proxyDB = createDb('/log/proxyDB', {
     onload: function () {
       proxyDB.remove({ time: { $lte: td } }, { multi: true }).catch(function (e) { console.log(e) })
+      proxyDB.remove({ time: { $lte: tdStr } }, { multi: true }).catch(function (e) { console.log(e) })
     },
   })
   const errorDB = createDb('/log/error', {
     onload: function () {
       errorDB.remove({ time: { $lte: td } }, { multi: true }).catch(function (e) { console.log(e) })
+      errorDB.remove({ time: { $lte: tdStr } }, { multi: true }).catch(function (e) { console.log(e) })
     },
   })
   const hisDB = createDb('/log/his', {
     onload: function () {
       hisDB.remove({ time: { $lte: td } }, { multi: true }).catch(function (e) { console.log(e) })
+      hisDB.remove({ time: { $lte: tdStr } }, { multi: true }).catch(function (e) { console.log(e) })
     },
   })
 
