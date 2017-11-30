@@ -23,6 +23,22 @@ var args = minimist(process.argv.slice(2))
 var initOption = decodeURIComponent(args.option) || '{}'
 initOption = JSON.parse(initOption)
 
+var pipeOption = {}
+var workRoot = initOption.path
+var option
+process.chdir(workRoot)
+
+if (initOption.gulp.middleware) {
+  const script = initOption.gulp.middleware
+  var func = require(path.join(workRoot, script))
+  let fromData = func.apply(null, initOption.gulp.args || [])
+  var customOption = fromData.src
+  pipeOption = fromData.pipes
+  option = provide(initOption, customOption)
+} else {
+  option = provide(initOption)
+}
+
 var hdErr = function () {
   var args = Array.prototype.slice.call(arguments)
 
@@ -34,7 +50,6 @@ var hdErr = function () {
   this.emit()// 提交
 }
 
-var option = provide(initOption)
 // 清除打包目录
 gulp.task('clean-code', function () {
   return del(option.clean, { force: true })
@@ -50,7 +65,7 @@ gulp.task('image-copy', function () {
 // 压缩代码
 // 合并import
 gulp.task('css', function () {
-  return gulp.src(option.css, { base: option.root })
+  let pipeHd = gulp.src(option.css, { base: option.root })
     .pipe(option.cssPipe())
     .pipe(minify({
       'target': option.root, // 必加，否则会出现路径错误
@@ -62,7 +77,14 @@ gulp.task('css', function () {
       'browsers': ['iOS >= 7', 'Android >= 4.1'],
       ignoreError: true,
     }))
-    .pipe(rev())
+
+  if (pipeOption.css) {
+    var pipeList = pipeOption.css()
+    pipeList.forEach(item => {
+      pipeHd = pipeHd.pipe(item)
+    })
+  }
+  return pipeHd.pipe(rev())
       .pipe(gulp.dest(option.buildPath))
     .pipe(rev.manifest({
       path: option.buildPath + '/rev/css/rev-manifest.json',
@@ -76,35 +98,50 @@ gulp.task('css', function () {
 // 压缩html
 gulp.task('rev-html', function (cb) {
   htmlList = []
-  return gulp.src(option.html, { base: option.root })
+  let pipeHd = gulp.src(option.html, { base: option.root })
     .pipe(option.htmlPipe())
-    .pipe(revCollector({
-      replaceReved: true,
-    }))
-    .pipe(tap(function (file) {
-      var str = '/' + path.relative(option.root, file.path)
-      str = str.replace(/\\/g, '/')
-      htmlList.push(str)
-    }))
-    .pipe(gulp.dest(option.buildPath))
+
+  if (pipeOption.html) {
+    var pipeList = pipeOption.html()
+    pipeList.forEach(item => {
+      pipeHd = pipeHd.pipe(item)
+    })
+  }
+  return pipeHd.pipe(revCollector({
+    replaceReved: true,
+  }))
+  .pipe(tap(function (file) {
+    var str = '/' + path.relative(option.root, file.path)
+    str = str.replace(/\\/g, '/')
+    htmlList.push(str)
+  }))
+  .pipe(gulp.dest(option.buildPath))
 })
 
 // js压缩任务
 gulp.task('scripts', function () {
   // gulp.src(option.js, {read: false,base: option.root}), // 不需要读取文件内容，browserify 会处理这个问题
-  return gulp.src(option.js, { read: false, base: option.root }) // 不需要读取文件内容，browserify 会处理这个问题
-  // .pipe(plumber())
-  // 使用 gulp-tap 转换文件内容
-  // .pipe(tap(function (file) {
-  //   // if (!cacheFiles.inited) readRelation(file.path)
-  //   file.contents = browserify(file.path, { debug: true }).bundle()
-  // }))
-  .pipe(option.jsPipe())
-  .on('error', hdErr)
+  let pipeHd = gulp.src(option.js, { read: false, base: option.root }) // 不需要读取文件内容，browserify 会处理这个问题
+    // .pipe(plumber())
+    // 使用 gulp-tap 转换文件内容
+    // .pipe(tap(function (file) {
+    //   // if (!cacheFiles.inited) readRelation(file.path)
+    //   file.contents = browserify(file.path, { debug: true }).bundle()
+    // }))
+    .pipe(option.jsPipe())
+    .on('error', hdErr)
+    .pipe(buffer())
 
-  // 转换 stram 内容为 buff 内容（因为 gulp-sourcemaps 不支持 stream 形式的内容）
-  .pipe(buffer())
-    .pipe(rev())
+    // 转换 stram 内容为 buff 内容（因为 gulp-sourcemaps 不支持 stream 形式的内容）
+
+  if (pipeOption.js) {
+    var pipeList = pipeOption.js()
+    pipeList.forEach(item => {
+      pipeHd = pipeHd.pipe(item)
+    })
+  }
+
+  return pipeHd.pipe(rev())
     .pipe(gulp.dest(option.buildPath))
 
   .pipe(rev.manifest({

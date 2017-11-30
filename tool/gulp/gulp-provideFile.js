@@ -43,8 +43,8 @@ cachedData.types.forEach(key => {
 
 let sourceOption, lineOption
 
-function provide (option) {
-  sourceOption = dealOption(option)
+function provide (option, customOption) {
+  sourceOption = customOption || dealOption(option)
   lineOption = option
   const source = {
     clean: [sourceOption.buildPath + '/**/*'],
@@ -57,6 +57,9 @@ function provide (option) {
     jsPipe () {
       return tap((file) => {
         let filename = file.path
+        if (!path.isAbsolute(filename)) {
+          filename = path.resolve(sourceOption.root, filename)
+        }
         if (!state.inited) {
           let data = getFileInfoSync(filename, { type: 'js', root: sourceOption.root })
           addRelation(cachedData.js, filename, data)
@@ -71,6 +74,9 @@ function provide (option) {
     cssPipe () {
       return tap(function (file) {
         let filename = file.path
+        if (!path.isAbsolute(filename)) {
+          filename = path.resolve(sourceOption.root, filename)
+        }
         if (!state.inited) {
           let data = getFileInfoSync(filename, { type: 'css', root: sourceOption.root })
           addRelation(cachedData.css, filename, data)
@@ -136,6 +142,7 @@ function fileChange (e) {
 // 执行器
 function exector () {
   if (state.running) return
+  state.running = true // 我了个乖乖，居然一直没有加，也没发现，太低级了
   const root = sourceOption.root
   const pList = []
   cachedData.types.forEach(type => {
@@ -250,6 +257,9 @@ function getTodoFiles (info, {type, root}) {
 
 // 获取引用了当前文件的文件
 function setAffectedFile (file, {type, root}) {
+  if (!path.isAbsolute(file)) {
+    file = path.resolve(root, file)
+  }
   // 添加本文件
   cachedData[type].result.push(file)
 
@@ -336,7 +346,6 @@ function getChildFile (filePath, data, {type, root}) {
     }
     result = reg.exec(data)
   }
-  // if (type === 'html') console.log('html:', list, 'filePath', filePath)
   return list
 }
 // 填充文件名称
