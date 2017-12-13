@@ -179,9 +179,13 @@ export default {
       libList: [],
       ModelList: [],
       throwList: [
+        { value: '302', label: '302' },
         { value: '304', label: '304' },
         { value: '400', label: '400' },
+        { value: '401', label: '401' },
+        { value: '403', label: '403' },
         { value: '404', label: '404' },
+        { value: '500', label: '500' },
         { value: '502', label: '502' },
       ],
       jsonData: '',

@@ -52,12 +52,6 @@ export default {
       ],
       libList: [],
       ModelList: [],
-      throwList: [
-        {value: '304', label: '304'},
-        {value: '400', label: '400'},
-        {value: '404', label: '404'},
-        {value: '502', label: '502'},
-      ],
       modifyPort: 8080,
       modifyDelay: 0,
       modifyPageNo: 0,
