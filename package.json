@@ -1,6 +1,6 @@
 {
   "name": "xmocker-cli",
-  "version": "1.1.7",
+  "version": "1.1.8",
   "description": "a server to provide api data for fe",
   "repository": "https://github.com/wenlonghuo/fe-mock-server",
   "main": "index.js",
