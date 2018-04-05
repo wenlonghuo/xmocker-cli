@@ -12,7 +12,7 @@
         </a>
       </header>
       <main class="search-card-list">
-        <projectCard v-for="(item, index) in project.list" :key="index"
+        <projectCard v-for="(item, index) in project.list" :key="'c' + index"
           :name="item.name"
           :status="item.status"
           :shortcut="item.shortcut"
@@ -40,7 +40,7 @@
         </a>
       </header>
       <main class="search-card-list">
-        <apiCard v-for="(item, index) in api.list" :key="index"
+        <apiCard v-for="(item, index) in api.list" :key="'d' + index"
           :name="item.name"
           :id="item._id"
           :method="item.method"
@@ -54,7 +54,7 @@
           :pageNo="item.pageNo"
           :fromSearch="true"
         ></apiCard>
-        <div v-for="i in [1,2,3,4,5,6,7,8,9, 10]" :key="i" style="height: 0;margin: 0;"></div>
+        <div v-for="i in [1,2,3,4,5,6,7,8,9, 10]" :key="'e' + i" style="height: 0;margin: 0;"></div>
       </main>
     </section>
     <!-- <section class="search-result" v-if="lib.total">

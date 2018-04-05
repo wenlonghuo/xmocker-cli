@@ -183,7 +183,7 @@ export default {
       type: String,
     },
     delay: {
-      type: Number,
+      type: [Number, String],
       default: 0,
     },
     fixedOutput: {

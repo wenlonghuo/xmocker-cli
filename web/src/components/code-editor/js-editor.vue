@@ -54,8 +54,8 @@ export default {
   computed: {
     editorSize () {
       const unit = 22
-      let height = document.documentElement.clientHeight * 0.94
-      let width = document.documentElement.clientWidth * 0.9 - 250
+      let height = document.documentElement.clientHeight * 0.94 - 20
+      let width = document.documentElement.clientWidth * 0.9 - 250 - 20
       const status = this.status
       if (status === 'normal' || status === 'focus') {
         height = status === 'normal' ? this.normalLine * unit : this.focusLine * unit
@@ -171,8 +171,10 @@ export default {
     width: 90%;
     height: 94%;
     border-radius: 2px;
+    padding: 10px;
     overflow hidden
     position relative
+    background-color: #fff;
     .js-editor-container {
       margin-left: 250px;
     }

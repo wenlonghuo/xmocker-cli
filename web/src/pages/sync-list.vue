@@ -1,9 +1,9 @@
 <template>
 <div class="sync-list">
-  <Card v-for="tp in typeList" v-if="list[tp.key] && list[tp.key].length" :key="tp">
+  <Card v-for="(tp, index1) in typeList" v-if="list[tp.key] && list[tp.key].length" :key="index1">
     <p slot="title">{{tp.name}}</p>
     <div class="sync-body-list">
-      <Card border="false" v-for="item in list[tp.key]" :key="item">
+      <Card border="false" v-for="(item, index) in list[tp.key]" :key="index">
         <div>{{item | projName}}</div>
         <div>
           <a href="javascript:void(0)" @click="clientDownLoadProjBase(item)" v-if="tp.download === 'base'" style="margin-right: 10px;">
@@ -17,10 +17,10 @@
           </a>
         </div>
       </Card>
-      <div v-for="i in [1,2,3,4,5,6,7,8,9,10]" :key="i"></div>
+      <div v-for="i in [1,2,3,4,5,6,7,8,9,10]" :key="'s' + i"></div>
     </div>
   </Card>
-  <div v-for="i in [1,2,3,4,5,6,7,8,9, 10]" :key="i"></div>
+  <div v-for="i in [1,2,3,4,5,6,7,8,9, 10]" :key="'i' + i"></div>
 </div>
 </template>
 

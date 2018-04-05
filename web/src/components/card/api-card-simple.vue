@@ -93,7 +93,7 @@ export default {
       type: String,
     },
     delay: {
-      type: Number,
+      type: [Number, String],
       default: 0,
     },
     fixedOutput: {
@@ -142,7 +142,7 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .api-card-simple .cus-list-db {
   margin-top: 8px;
 }
