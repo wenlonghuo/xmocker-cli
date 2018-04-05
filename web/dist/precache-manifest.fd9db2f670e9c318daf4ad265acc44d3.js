@@ -8,12 +8,12 @@ self.__precacheManifest = [
     "url": "/monaco-editor/min/vs/editor/editor.main.js"
   },
   {
-    "revision": "c7bc81dc57b869549fe99c51ac47ac36",
-    "url": "/monaco-editor/min/vs/language/typescript/lib/typescriptServices.js"
-  },
-  {
     "revision": "a6e279e68f5a25a559228079e02ecaae",
     "url": "/monaco-editor/min/vs/language/typescript/tsWorker.js"
+  },
+  {
+    "revision": "c7bc81dc57b869549fe99c51ac47ac36",
+    "url": "/monaco-editor/min/vs/language/typescript/lib/typescriptServices.js"
   },
   {
     "revision": "69902502a3c9529fcc466c47af66e0b3",
@@ -76,12 +76,12 @@ self.__precacheManifest = [
     "url": "/monaco-editor/min/vs/editor/editor.main.nls.ja.js"
   },
   {
-    "revision": "21cac552097a1809c8283c07d4f10334",
-    "url": "/monaco-editor/min/vs/editor/editor.main.nls.fr.js"
-  },
-  {
     "revision": "49060bedbb3405872b841c03321d6790",
     "url": "/monaco-editor/min/vs/editor/editor.main.nls.it.js"
+  },
+  {
+    "revision": "21cac552097a1809c8283c07d4f10334",
+    "url": "/monaco-editor/min/vs/editor/editor.main.nls.fr.js"
   },
   {
     "revision": "ed018c1b1003045774228240a506e8fd",
@@ -216,36 +216,52 @@ self.__precacheManifest = [
     "url": "/monaco-editor/min/vs/basic-languages/bat/bat.js"
   },
   {
+    "revision": "453cbc1424289b17eed7e3a2c62ead88",
+    "url": "/monaco-editor/min/vs/basic-languages/go/go.js"
+  },
+  {
     "revision": "2b9659508d961b7a9cfc9f5822482e79",
     "url": "/monaco-editor/min/vs/basic-languages/handlebars/handlebars.js"
   },
   {
-    "revision": "7afc18f632a4744b5ea662755a434d2d",
-    "url": "/index.html"
+    "revision": "621bd386841f74e0053cb8e67f8a0604",
+    "url": "/img/ionicons.621bd386.svg"
   },
   {
-    "revision": "7dcac105b6db94f71d00",
-    "url": "/js/1.7dcac105.js"
+    "revision": "7bfd7233016533add922e3ed684a67a8",
+    "url": "/monaco-editor/min/vs/basic-languages/fsharp/fsharp.js"
   },
   {
-    "revision": "aa7a53a020954706023182593c57f1a7",
-    "url": "/monaco-editor/min/vs/basic-languages/dockerfile/dockerfile.js"
+    "revision": "2c2ae068be3b089e0a5b59abb1831550",
+    "url": "/fonts/ionicons.2c2ae068.eot"
   },
   {
     "revision": "d4d2f6159c2fd93b3138c91c794e46f4",
     "url": "/monaco-editor/min/vs/basic-languages/css/css.js"
   },
   {
-    "revision": "49b95f52c7f39aa4a7e219f72278e3a1",
-    "url": "/monaco-editor/min/vs/basic-languages/csp/csp.js"
+    "revision": "aa7a53a020954706023182593c57f1a7",
+    "url": "/monaco-editor/min/vs/basic-languages/dockerfile/dockerfile.js"
+  },
+  {
+    "revision": "24712f6c47821394fba7942fbb52c3b2",
+    "url": "/fonts/ionicons.24712f6c.ttf"
   },
   {
     "revision": "3fdb32294388fd00dc73d6e8def7e2d7",
     "url": "/monaco-editor/min/vs/basic-languages/csharp/csharp.js"
   },
   {
-    "revision": "8f8ca168e971061d5d4d36eed377e7e1",
-    "url": "/monaco-editor/min/vs/basic-languages/cpp/cpp.js"
+    "revision": "49b95f52c7f39aa4a7e219f72278e3a1",
+    "url": "/monaco-editor/min/vs/basic-languages/csp/csp.js"
+  },
+  {
+    "revision": "af21670a0f64912ee584",
+    "url": "/js/manifest.af21670a.js"
+  },
+  {
+    "revision": "7dcac105b6db94f71d00",
+    "url": "/js/1.7dcac105.js"
   },
   {
     "revision": "be593552702b42f9547598234c02edae",
@@ -256,12 +272,8 @@ self.__precacheManifest = [
     "url": "/monaco-editor/min/vs/basic-languages/coffee/coffee.js"
   },
   {
-    "revision": "453cbc1424289b17eed7e3a2c62ead88",
-    "url": "/monaco-editor/min/vs/basic-languages/go/go.js"
-  },
-  {
-    "revision": "7bfd7233016533add922e3ed684a67a8",
-    "url": "/monaco-editor/min/vs/basic-languages/fsharp/fsharp.js"
+    "revision": "8f8ca168e971061d5d4d36eed377e7e1",
+    "url": "/monaco-editor/min/vs/basic-languages/cpp/cpp.js"
   },
   {
     "revision": "40e934a42e5cbc2a7f68",
@@ -276,24 +288,12 @@ self.__precacheManifest = [
     "url": "/js/app.9dd97111.js"
   },
   {
-    "revision": "af21670a0f64912ee584",
-    "url": "/js/manifest.af21670a.js"
-  },
-  {
     "revision": "1013e8adbba442d50e02",
     "url": "/js/0.1013e8ad.js"
   },
   {
-    "revision": "621bd386841f74e0053cb8e67f8a0604",
-    "url": "/img/ionicons.621bd386.svg"
-  },
-  {
-    "revision": "2c2ae068be3b089e0a5b59abb1831550",
-    "url": "/fonts/ionicons.2c2ae068.eot"
-  },
-  {
-    "revision": "24712f6c47821394fba7942fbb52c3b2",
-    "url": "/fonts/ionicons.24712f6c.ttf"
+    "revision": "7afc18f632a4744b5ea662755a434d2d",
+    "url": "/index.html"
   },
   {
     "revision": "05acfdb568b3df49ad31355b19495d4a",
