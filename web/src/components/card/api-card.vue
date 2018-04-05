@@ -11,7 +11,7 @@
       <a v-if="fromSearch" href="javascript:void(0)" @click="btnAction('btnProject')">项目详情</a>
       <a v-if="fromSearch" href="javascript:void(0)" @click="btnAction('btnView')">详情</a>
     </template>
-    
+
     <ul class="cus-list-db">
 
       <li>
@@ -22,7 +22,7 @@
             <a href="javascript:void(0)">修改</a>
             <div class="cus-tooltip" slot="content">
               <p class="cus-tooltip-text">URL地址是访问请求的url地址，以 "/" 开头，修改实时生效</p>
-              <Input placeholder="请填写url" v-model="modifyUrl"></Input>
+              <Input placeholder="请填写url" v-model="modifyUrl"/>
               <Select v-model="modifyMethod" placeholder="请填写请求方法" style="margin-top: 5px;">
                 <Option v-for="item in methodList" :value="item.value" :key="item">{{ item.label }}</Option>
               </Select>
@@ -39,8 +39,8 @@
             <a href="javascript:void(0)">修改</a>
             <div class="cus-tooltip" slot="content">
               <p class="cus-tooltip-text">指定二级路径后，会先判断URL是否符合，然后判断请求传入的参数指定字段是否和预期值相等。</p>
-              <Input placeholder="请填写指定字段" v-model="modifyPath"></Input>
-              <Input placeholder="请填写字段预期值" v-model="modifyPathEqual" style="margin-top: 5px;"></Input>
+              <Input placeholder="请填写指定字段" v-model="modifyPath"/>
+              <Input placeholder="请填写字段预期值" v-model="modifyPathEqual" style="margin-top: 5px;"/>
               <Button type="primary" size="small" @click.native="submitItem({path: modifyPath, pathEqual: modifyPathEqual})">提交</Button>
             </div>
           </Poptip>
@@ -77,8 +77,8 @@
                   <Radio label="3">分支</Radio>
                   <Radio label="0">无</Radio>
                 </Radio-group>
-                <div class="selection-list"> 
-                  <Select v-model="modifyFixedWrong" placeholder="错误" class="radio-select"size="small">
+                <div class="selection-list">
+                  <Select v-model="modifyFixedWrong" placeholder="错误" class="radio-select" size="small">
                     <Option v-for="item in libList" :value="item._id" :key="item">{{ item.name }}</Option>
                   </Select>
                   <Select v-model="modifyFixedThrow" placeholder="异常" class="radio-select" size="small">
@@ -100,7 +100,7 @@
           {{description}}
         </span>
       </li>
-      
+
       <li>
         <span></span>
         <span class="cus-list-right cus-list-time">

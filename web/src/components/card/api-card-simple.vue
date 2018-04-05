@@ -15,7 +15,7 @@
           {{description}}
         </span>
       </li>
-      
+
       <li>
         <span class="cus-small">
           修改
@@ -29,7 +29,7 @@
             <Button type="ghost" size="small" @click.native="shareApi">上传</Button>
             <Button type="ghost" size="small" @click.native="getSelection">固定</Button>
             <Button type="ghost" size="small" @click.native="btnAction('btnEdit')">编辑</Button>
-           
+
           </ButtonGroup>
       </li>
     </ul>

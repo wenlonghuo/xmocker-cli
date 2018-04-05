@@ -1,8 +1,8 @@
 <template>
   <div class="search">
-    <Input type="text" v-model="keyword" size="large" @on-enter="inputChange" @on-blur="inputChange" @on-change="delayChange" placeholder="请输入需要搜索的关键词">
+    <i-input type="text" v-model="keyword" size="large" @on-enter="inputChange" @on-blur="inputChange" @on-change="delayChange" placeholder="请输入需要搜索的关键词">
       <Icon type="search" slot="prepend"></Icon>
-    </Input>
+    </i-input>
     <section class="search-result" v-if="project.total">
       <header>
         <h2>项目搜索结果</h2>
@@ -40,7 +40,7 @@
         </a>
       </header>
       <main class="search-card-list">
-        <apiCard v-for="(item, index) in api.list" :key="index" 
+        <apiCard v-for="(item, index) in api.list" :key="index"
           :name="item.name"
           :id="item._id"
           :method="item.method"

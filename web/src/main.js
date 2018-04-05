@@ -4,11 +4,11 @@ import Vue from 'vue'
 import App from './App'
 import router from './router'
 import store from './store'
-import iView from 'iView'
-import 'iView/dist/styles/iview.css'
+import iView from 'iview'
+import 'iview/dist/styles/iview.css'
 import mixins from './mixin.js'
-import '~assets/css/common.css'
-import '~components/page-action/index.js'
+import './assets/css/common.css'
+import './components/page-action/index.js'
 import Socket from './util/socket.js'
 
 Vue.use(iView)
@@ -23,9 +23,7 @@ Vue.mixin({
 
 /* eslint-disable no-new */
 new Vue({
-  el: '#app',
   router,
   store,
-  template: '<App/>',
-  components: { App }
-})
+  render: h => h(App)
+}).$mount('#app')

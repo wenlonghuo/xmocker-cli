@@ -47,6 +47,7 @@
 
 .cus-card-left-bar {
   position: absolute;
+  display: block;
   left: 110px;
   top: 10px;
 }

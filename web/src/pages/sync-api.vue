@@ -27,7 +27,6 @@
 </div>
 </template>
 
-
 <script>
 import { clientGetApiDiff, clientDownLoadApi } from '@/api/api.js'
 import syncCard from '~components/card/select-api-card.vue'

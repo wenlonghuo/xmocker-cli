@@ -1,6 +1,7 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import store from '../store/index.js'
+import Layout from '../layout/default.vue'
 
 Vue.use(Router)
 
@@ -41,7 +42,7 @@ const router = new Router({
   routes: [
     {
       path: '/',
-      component: require('../layout/default.vue'),
+      component: Layout,
       children: [
         {
           path: '/index',

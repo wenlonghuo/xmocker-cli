@@ -5,8 +5,8 @@
   <div class="log-detail-block">
     <h4>基本信息</h4>
     <div>
-      <span>{{info.project}}</span> → 
-      <span>{{info.api}}</span> → 
+      <span>{{info.project}}</span>
+      <span>{{info.api}}</span>
       <span>{{info.apiModel}}</span>
     </div>
   </div>
@@ -26,7 +26,7 @@
   <Collapse v-model="panel" class="log-detail-block">
     <Panel name="req">
       请求参数
-      <pre slot="content" class="code-area"v-html="req">
+      <pre slot="content" class="code-area" v-html="req">
       </pre>
     </Panel>
     <Panel name="res" v-show="info.res">
@@ -45,8 +45,9 @@
 <script>
 import mixin from '../../mixin'
 import hljs from 'highlight.js/lib/highlight.js'
-hljs.registerLanguage('json', require('highlight.js/lib/languages/json'))
 import 'highlight.js/styles/xcode.css'
+hljs.registerLanguage('json', require('highlight.js/lib/languages/json'))
+
 const timer = mixin.methods.timer
 
 export default {
@@ -138,4 +139,3 @@ export default {
 <style>
 
 </style>
-

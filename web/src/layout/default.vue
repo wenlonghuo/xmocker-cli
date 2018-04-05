@@ -116,14 +116,14 @@
     border: solid transparent;
   }
 
-  .help-box:after { 
-    right:10px;  
-    border-width: 10px;  
+  .help-box:after {
+    right:10px;
+    border-width: 10px;
     border-bottom: 10px solid  #fff;
   }
   .help-box:before {
-    right:9px;  
-    border-width: 11px;  
+    right:9px;
+    border-width: 11px;
     border-bottom: 11px solid #efefef;
   }
 
@@ -146,7 +146,6 @@
     -webkit-box-shadow: inset 0 0 6px rgba(0, 0, 0, 0.3);
     border-radius: 6px;
   }
-
 
   /*定义滑块 内阴影+圆角*/
 
@@ -182,8 +181,6 @@
   cursor: auto;
 }
 
-
-
 </style>
 
 <template>
@@ -217,7 +214,7 @@
            <Menu-item name="about" @click.native="selectMenu('关于')">
               <Icon type="information-circled" size="18"></Icon>
               <span class="layout-text">关于</span>
-          </Menu-item> 
+          </Menu-item>
         </Menu>
       </div>
       <div class="layout-right">

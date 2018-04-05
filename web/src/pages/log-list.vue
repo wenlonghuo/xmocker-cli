@@ -3,13 +3,13 @@
   <Card :bordered="false" class="log-search-bar" style="height:74px;">
     <h2 class="log-title">日志查询</h2>
     <div class="search-input-item">
-      <Input class="search-item" type="text" v-model="search.project"  placeholder="项目名称"></Input>
-      <Input class="search-item" type="text" v-model="search.api"  placeholder="API名称"></Input>
-      <Input class="search-item" type="text" v-model="search.apiModel"  placeholder="分支名称"></Input>
-      <Input class="search-item" type="text" v-model="search.client.browser"  placeholder="浏览器"></Input>
-      <Input class="search-item" type="text" v-model="search.client.device"  placeholder="设备"></Input>
-      <Input class="search-item" type="text" v-model="search.ip"  placeholder="IP地址"></Input>
-      <Input class="search-item" type="text" v-model="search.client.os"  placeholder="系统"></Input>
+      <Input class="search-item" type="text" v-model="search.project"  placeholder="项目名称"/>
+      <Input class="search-item" type="text" v-model="search.api"  placeholder="API名称"/>
+      <Input class="search-item" type="text" v-model="search.apiModel"  placeholder="分支名称"/>
+      <Input class="search-item" type="text" v-model="search.client.browser"  placeholder="浏览器"/>
+      <Input class="search-item" type="text" v-model="search.client.device"  placeholder="设备"/>
+      <Input class="search-item" type="text" v-model="search.ip"  placeholder="IP地址"/>
+      <Input class="search-item" type="text" v-model="search.client.os"  placeholder="系统"/>
     </div>
   </Card>
   <div class="tabs-bar">
@@ -207,4 +207,3 @@ export default {
 }
 
 </style>
-

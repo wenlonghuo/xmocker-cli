@@ -173,6 +173,7 @@ async function execGulp (proj, option = {}) {
 
   state.gulp.push({server: gulpServer, id: proj._id, proj: proj})
   gulpServer.on('error', e => {
+    console.log('xxxx')
     console.error(e)
   })
 

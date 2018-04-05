@@ -1,16 +1,9 @@
 module.exports = {
-  root: true,
-  parser: 'babel-eslint',
-  parserOptions: {
-    sourceType: 'module'
-  },
-  // https://github.com/feross/standard/blob/master/RULES.md#javascript-standard-style
-  extends: 'standard',
-  // required to lint *.vue files
-  plugins: [
-    'html'
+  "root": true,
+  "extends": [
+    "plugin:vue/essential",
+    "@vue/standard"
   ],
-  // add your custom rules here
   'rules': {
     "comma-dangle": [0, "always-multiline"],
     // allow paren-less arrow functions
@@ -22,7 +15,7 @@ module.exports = {
     // allow debugger during development
     'no-debugger': process.env.NODE_ENV === 'production' ? 2 : 0
   },
-  globals: {
+  "globals": {
     "WebSocket": true
   }
 }

@@ -6,7 +6,7 @@
       {{name}}
     </p>
     <template slot="extra">
-      <a href="javascript:void(0)" v-for="item in topBarItems" class="cus-card-tbar-btn" v-if="!fromSearch">
+      <a href="javascript:void(0)" v-for="item in topBarItems" :key="item.name" class="cus-card-tbar-btn" v-if="!fromSearch">
         <Icon :type="item.type" color="#9ea7b4" @click.native="btnAction(item.action)"></Icon>
       </a>
       <a v-if="fromSearch" href="javascript:void(0)" @click="btnAction('btnView')">详情</a>
@@ -21,7 +21,7 @@
         </Dropdown-menu>
       </Dropdown>
     </template>
-    
+
     <ul class="cus-list-db">
       <li>
           <span>项目路径</span>
@@ -31,7 +31,7 @@
               <a href="javascript:void(0)">修改</a>
               <div class="cus-tooltip" slot="content">
                 <p class="cus-tooltip-text">项目路径用于gulp或提供静态文件服务器，修改后项目会自动重启</p>
-                <Input placeholder="项目路径" v-model="ModifyPath"></Input>
+                <Input placeholder="项目路径" v-model="ModifyPath"/>
                 <Button type="primary" size="small" @click.native="submitItem('path', ModifyPath)">提交</Button>
               </div>
             </Poptip>
@@ -79,7 +79,7 @@
               <a href="javascript:void(0)" v-if="(urlList && urlList.length) || 0">查看</a>
               <div class="cus-tooltip" slot="content">
                 <ul class="cus-tooltip-list">
-                  <li v-for="url in urlList">
+                  <li v-for="url in urlList" :key="url.url">
                     <a href="javascript:;">{{url.name}}</a>
                     <a :href="getUrl(url)" target="_blank">{{url.url}}</a>
                   </li>

@@ -27,7 +27,7 @@
 
     </Form>
   </Card>
-  
+
   <Modal v-model="showShareResult" width="360">
     <p slot="header" style="text-align:center">
       <span>提交结果</span>

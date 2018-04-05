@@ -1,3 +1,4 @@
+/* eslint-disable */
 <template>
 <div class="project-detail">
   <detail-project :info="info" class="left-info"></detail-project>
@@ -5,13 +6,13 @@
     <p slot="title">
         <Icon type="ios-film-outline"></Icon>
         API列表
-        <div class="cus-card-left-bar">
-          <Input v-model="searchVal" icon="search" placeholder="输入API名进行检索" style="width: 150px;margin: 0 10px;"></Input>
+        <span class="cus-card-left-bar">
+          <Input v-model="searchVal" icon="search" placeholder="输入API名进行检索" style="width: 150px;margin: 0 10px;"/>
           <a href="javascript:;" v-if="sortBy" class="cus-action-link" @click="sortList('')" style="margin-right: 20px;"><Icon type="navicon"></Icon> 按名称排序</a>
           <a href="javascript:;" v-else class="cus-action-link" @click="sortList('_mt')" style="margin-right: 20px;"><Icon type="clock"></Icon> 按时间排序</a>
           <a href="javascript:;" class="cus-action-link" @click="addApi" style="margin-right: 10px;"><Icon type="plus-round"></Icon> 新建</a>
           <a href="javascript:;" class="cus-action-link" @click="copyApi" style="margin-right: 10px;"><Icon type="arrow-down-a"></Icon> 导入API</a>
-        </div>
+        </span>
     </p>
     <template slot="extra">
         <a href="javascript:;" class="cus-action-link" @click="pageBefore()">
@@ -22,7 +23,7 @@
           &nbsp;<Icon type="chevron-right"></Icon>&nbsp;
         </a>
     </template>
-    
+
     <div class="right-list flex-api-card-list" style="position: relative;height: 100%;">
       <Spin fix v-if="loading" style="background-color: rgba(255, 255, 255, .3)">
           <Icon type="load-c" size=18 class="spin-icon-load"></Icon>
@@ -51,7 +52,7 @@
       </div>
     </div>
   </Card>
-  
+
   <Modal v-model="showShare" width="360">
     <p slot="header" style="color:#f60;text-align:center">
       <Icon type="information-circled"></Icon>
@@ -75,7 +76,7 @@
       </div>
       <p class="cus-info">当前选中的项目为：
         <span class="cus-focus">{{selectedProject.name}}</span>
-        , 项目简称为: 
+        , 项目简称为:
         <span class="cus-focus">{{selectedProject.shortcut}}</span>
       </p>
       <p class="cus-share-tip">提示: 提交后如果API已存在则不会覆盖原API，需要再次确认才能强制覆盖</p>
@@ -92,7 +93,7 @@
     <div style="text-align:center" class="cus-share-box">
 
       <p class="cus-info">API冲突个数：
-        <span class="cus-focus">{{leftApis.length}}</span>个。 
+        <span class="cus-focus">{{leftApis.length}}</span>个。
       </p>
       <div v-if="leftApis.length" class="cus-info">
         <span style="font-size: 14px;">冲突的API信息: </span>
@@ -121,7 +122,7 @@
     <p slot="header" style="text-align:center">
       <span>固定数据</span>
     </p>
-    <div>      
+    <div>
       <p style="margin-bottom: 10px;">选择要设置的固定数据类型和值</p>
       <div class="cus-radio-group">
         <div class="label-data">
@@ -137,13 +138,13 @@
           <div class="label">选择数值</div>
           <div class="selection-list">
             <Select v-show="modifyFixedType == 1" v-model="modifyFixedWrong" placeholder="错误" class="radio-select" size="small">
-              <Option v-for="item in libList" :value="item._id" :key="item">{{ item.name }}</Option>
+              <Option v-for="item in libList" :value="item._id" :key="item.name">{{ item.name }}</Option>
             </Select>
             <Select v-show="modifyFixedType == 2" v-model="modifyFixedThrow" placeholder="异常" class="radio-select" size="small">
-              <Option v-for="item in throwList" :value="item.value" :key="item">{{ item.label }}</Option>
+              <Option v-for="item in throwList" :value="item.value" :key="item.label">{{ item.label }}</Option>
             </Select>
             <Select v-show="modifyFixedType == 3" v-model="modifyFixedBranch" placeholder="分支" class="radio-select" size="small">
-              <Option v-for="item in ModelList" :value="item._id" :key="item">{{ item.name }}</Option>
+              <Option v-for="item in ModelList" :value="item._id" :key="item.name">{{ item.name }}</Option>
             </Select>
           </div>
         </div>
@@ -397,9 +398,9 @@ export default {
         if (res.code) return
         this.remoteProjs.splice(0, this.remoteProjs.length, ...res.data.list)
       })
-      .catch(e => {
-        console.log(e)
-      })
+        .catch(e => {
+          console.log(e)
+        })
     },
     shareApiAction (force, forceRemove) {
       let p
@@ -421,9 +422,9 @@ export default {
         this.leftApis.splice(0, this.leftApis.length, ...data)
         this.$Message.success(res.message)
       })
-      .catch(e => {
-        this.modalLoading = false
-      })
+        .catch(e => {
+          this.modalLoading = false
+        })
     },
     closeShareResult () {
       this.showShareResult = false

@@ -57,17 +57,20 @@
  - 类型： String
  - 默认： ''
  - 示例：
+
 ```javascript
 paramsKey.type == 0
 
 或者
 paramsKey = JSON.parse(paramsKey)
 return paramsKey.type == 0
+
 ```
  - 说明： 根据输入参数进行判断，返回值为真类型时，认为当前条件符合，不在继续查找；返回假类型数据时认为条件不符合；未填写时，认为当前分支为默认分支，在遍历其他分支未找到时，认为本分支为目标分支。实际上填写的内容是处于一个function之内的内容，没有`return` 关键字则自动添加`return`。所有url中:id形式的参数，从url传过来的search，body中传过来的对象，合在一起形成的对象，将各key传入到入参中。调用为。：
  ```javascript
  function (...params)
 ```
+
  - 调用时`this`指向 koa中的`ctx`。
 
 

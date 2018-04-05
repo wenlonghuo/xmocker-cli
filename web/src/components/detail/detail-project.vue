@@ -4,7 +4,7 @@
       {{info.name}}
     </p>
     <template slot="extra">
-      <a href="javascript:void(0)" v-for="item in topBarItems" class="cus-card-tbar-btn" style="margin-left: 10px;">
+      <a href="javascript:void(0)" v-for="item in topBarItems" :key="item.name" class="cus-card-tbar-btn" style="margin-left: 10px;">
         <Icon :type="item.type" color="#9ea7b4" @click.native="btnAction(item.action)"></Icon>
       </a>
       <Dropdown trigger="click" placement="bottom-end" style="margin-left: 10px;">
@@ -19,7 +19,7 @@
       </Dropdown>
     </template>
 
-    <div class="cus-detail-list-simple" v-for="item in simpleItem">
+    <div class="cus-detail-list-simple" v-for="item in simpleItem" :key="item.label">
       <span>{{item.label}}: </span>
       <span>{{getItemVal(item)}}</span>
     </div>
@@ -27,27 +27,27 @@
       <span>静态资源</span>
       <div class="json-list">
         <span v-if="!projData.staticPath || !projData.staticPath.length">未配置</span>
-        <div v-for="item in projData.staticPath">{{item}}</div>
+        <div v-for="item in projData.staticPath" :key="item">{{item}}</div>
       </div>
     </div>
     <div class="cus-detail-list-json">
       <span>代理</span>
       <div class="json-list">
         <span v-if="!projData.proxyTable || !projData.proxyTable.length">未配置</span>
-        <div v-for="item in projData.proxyTable"><span>{{item.api}}</span><span>{{item.target}}</span></div>
+        <div v-for="item in projData.proxyTable" :key="item.api"><span>{{item.api}}</span><span>{{item.target}}</span></div>
       </div>
     </div>
     <div class="cus-detail-list-json">
       <span>常用URL列表</span>
       <div class="json-list">
         <span v-if="!projData.urls || !projData.urls.length">未配置</span>
-        <div v-for="item in projData.urls" class="json-list-folder" v-if="item.list">
-          <div v-for="iUrl in item.list" class="json-list-urls">
+        <div v-for="item in projData.urls" class="json-list-folder" v-if="item.list" :key="item.nam">
+          <div v-for="iUrl in item.list" class="json-list-urls" :key="iUrl.name">
             <span>{{iUrl.name}}</span>
             <a :href="getUrl(iUrl)">{{iUrl.url}}</a>
           </div>
         </div>
-        <div v-for="item in projData.urls" class="json-list-urls" v-if="!item.list">
+        <div v-for="item in projData.urls" class="json-list-urls" v-if="!item.list" :key="item.name">
           <span>{{item.name}}</span>
           <a :href="getUrl(item)" target="_blank" style="word-break: break-all;">{{item.url}}</a>
         </div>
@@ -57,7 +57,7 @@
       <span>GULP配置</span>
       <div class="json-list">
         <span v-if="!projData.gulp || !Object.keys(projData.gulp).length">未配置</span>
-        <div v-for="(val, key) in projData.gulp"><span>{{key}}</span> -> <span>{{val}}</span></div>
+        <div v-for="(val, key) in projData.gulp" :key="key"><span>{{key}}</span> -> <span>{{val}}</span></div>
       </div>
     </div>
   </Card>
