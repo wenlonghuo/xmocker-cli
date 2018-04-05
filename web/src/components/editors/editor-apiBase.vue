@@ -114,9 +114,9 @@ export default {
     return {
       formValidate: {
         name: '',
-        method: 'POST',
+        method: 'GET',
         url: '/api',
-        path: 'func',
+        path: '',
         pathEqual: '',
         delay: 0,
         description: '',

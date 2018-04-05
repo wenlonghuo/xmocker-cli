@@ -283,6 +283,7 @@ var execGulp = function () {
 
             state.gulp.push({ server: gulpServer, id: proj._id, proj: proj });
             gulpServer.on('error', function (e) {
+              console.log('xxxx');
               console.error(e);
             });
 
