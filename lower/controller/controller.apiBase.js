@@ -166,8 +166,13 @@ var searchApiBase = function () {
             project = finalParams.project;
             regex = new RegExp(words, 'i');
             query = {
-              project: project,
-              name: { $regex: regex }
+              $or: [{
+                project: project,
+                name: { $regex: regex }
+              }, {
+                project: project,
+                description: { $regex: regex }
+              }]
             };
             _context4.prev = 6;
             _context4.next = 9;

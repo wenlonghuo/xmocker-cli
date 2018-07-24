@@ -58,7 +58,8 @@ export default {
       let func = data.id ? editApiBase : addApiBase
       func(data).then((data) => {
         if (!data.code) {
-          this.baseid = data.data.result._id
+          const result = data.data.result
+          this.baseid = (result[0] || result)._id
           this.$Message.success(data.message)
         }
       })

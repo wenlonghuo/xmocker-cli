@@ -79,8 +79,16 @@ async function searchApiBase (ctx, next) {
   let regex = new RegExp(words, 'i')
 
   let query = {
-    project: project,
-    name: {$regex: regex},
+    $or: [
+      {
+        project: project,
+        name: {$regex: regex},
+      },
+      {
+        project: project,
+        description: {$regex: regex},
+      },
+    ],
   }
 
   try {
