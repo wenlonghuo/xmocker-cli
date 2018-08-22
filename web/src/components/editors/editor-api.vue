@@ -56,11 +56,13 @@ export default {
   methods: {
     submitBase (data) {
       let func = data.id ? editApiBase : addApiBase
-      func(data).then((data) => {
-        if (!data.code) {
-          const result = data.data.result
-          this.baseid = (result[0] || result)._id
-          this.$Message.success(data.message)
+      func(data).then((res) => {
+        if (!res.code) {
+          const result = res.data.result
+          const id = (result[0] || result)._id
+          this.baseid = id
+          data.id = id
+          this.$Message.success(res.message)
         }
       })
     },
