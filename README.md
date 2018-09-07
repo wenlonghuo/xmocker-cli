@@ -58,6 +58,13 @@ npm i -g xmocker-cli
     help [cmd]      display help for [cmd]
 ~~~
 
+代理转发：
+在输出处理函数中填入
+```
+const url = `${this.origin}${this.originalUrl.replace(this.path, '/url/new')}`
+return this.tool.axios.get(url).then(res => res.data)
+```
+
 schema 使用的是json-gate
 https://github.com/oferei/json-gate
 ##### 修改的项目
