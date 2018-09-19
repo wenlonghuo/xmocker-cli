@@ -74,7 +74,7 @@ module.exports.post.lib = {
       title: '说明',
     },
     model: {
-      type: 'object',
+      type: ['object', 'null'],
       title: '模板',
     },
     projs: {
@@ -108,7 +108,7 @@ module.exports.put.lib = {
       title: '说明',
     },
     model: {
-      type: 'object',
+      type: ['object', 'null'],
       title: '模板',
     },
     projs: {
