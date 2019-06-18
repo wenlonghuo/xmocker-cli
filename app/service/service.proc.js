@@ -169,6 +169,7 @@ async function execGulp (proj, option = {}) {
     stdio: 'inherit',
     shell: true,
     cwd: cwd,
+    env: process.env,
   })
 
   state.gulp.push({server: gulpServer, id: proj._id, proj: proj})
