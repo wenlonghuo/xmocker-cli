@@ -29,7 +29,7 @@
     "gulp-rev-collector": "^1.0.5",
     "gulp-tap": "^0.1.3",
     "gulp-util": "^3.0.7",
-    "minimist": "^1.2.0",
+    "minimist": "^1.2.2",
     "stream-combiner2": "^1.1.1",
     "superagent": "^3.5.2",
     "vinyl-buffer": "^1.0.0",
