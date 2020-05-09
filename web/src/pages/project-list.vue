@@ -10,11 +10,11 @@
   </p>
   <template slot="extra" v-if="!searchVal">
       <a href="javascript:;" class="cus-action-link" @click="projectNext($event, -1)">
-        &nbsp;<Icon type="chevron-left"/>&nbsp;
+        &nbsp;<Icon type="md-arrow-round-back"/>&nbsp;
       </a>
       <div class="cus-page-info"><span>{{pageNo}}</span>/<span>{{total}}</span></div>
       <a href="javascript:;" class="cus-action-link" @click="projectNext($event, 1)">
-        &nbsp;<Icon type="chevron-right"/>&nbsp;
+        &nbsp;<Icon type="md-arrow-round-forward"/>&nbsp;
       </a>
   </template>
   <div class="project-list">

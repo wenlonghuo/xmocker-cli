@@ -189,10 +189,10 @@
       <div :class="{shrink: shrink}" class="layout-menu-left">
         <Menu :active-name="actived" width="auto" class="layout-menu-list">
           <li class="toggle-button" @click="toggleClick" style="color: #3d3d3d">
-            <Icon type="navicon" size="24"></Icon>
+            <Icon type="md-navicon" size="24"></Icon>
           </li>
           <Menu-item name="search" @click.native="selectMenu('搜索')">
-            <Icon type="search" size="18"></Icon>
+            <Icon type="md-search" size="18"></Icon>
             <span class="layout-text">搜索</span>
           </Menu-item>
           <Menu-item name="projectList" @click.native="selectMenu('项目列表')">
@@ -200,26 +200,26 @@
             <span class="layout-text">项目列表</span>
           </Menu-item>
           <Menu-item name="config" @click.native="selectMenu('基础配置')">
-            <Icon type="gear-b" size="18"></Icon>
+            <Icon type="md-settings" size="18"></Icon>
             <span class="layout-text">配置</span>
           </Menu-item>
           <Menu-item name="syncList" @click.native="selectMenu('同步')">
-            <Icon type="arrow-swap" size="18"></Icon>
+            <Icon type="md-swap" size="18"></Icon>
             <span class="layout-text">同步</span>
           </Menu-item>
           <Menu-item name="log" @click.native="selectMenu('日志')">
-              <Icon type="bug" size="18"></Icon>
+              <Icon type="md-bug" size="18"></Icon>
               <span class="layout-text">日志</span>
           </Menu-item>
            <Menu-item name="about" @click.native="selectMenu('关于')">
-              <Icon type="information-circled" size="18"></Icon>
+              <Icon type="md-information-circle" size="18"></Icon>
               <span class="layout-text">关于</span>
           </Menu-item>
         </Menu>
       </div>
       <div class="layout-right">
         <div class="help-global" @click="helpClick" v-if="$route.meta.help">
-          <Icon type="help" size="14" color="#2d8cf0"></Icon>
+          <Icon type="md-help" size="14" color="#2d8cf0"></Icon>
         </div>
         <div class="layout-breadcrumb">
           <Breadcrumb>

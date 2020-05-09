@@ -47,8 +47,8 @@ export default {
   data () {
     return {
       topBarItems: [
-        {name: '编辑', type: 'edit', action: 'btnEdit'},
-        {name: '删除', type: 'android-remove-circle', action: 'btnDelete'},
+        {name: '编辑', type: 'md-settings', action: 'btnEdit'},
+        {name: '删除', type: 'md-remove-circle', action: 'btnDelete'},
       ],
       simpleItem: [
         {label: '名称', key: 'name'},

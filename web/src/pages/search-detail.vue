@@ -1,7 +1,7 @@
 <template>
   <div class="search">
     <i-input type="text" v-model="keyword" size="large" @on-enter="inputChange" @on-blur="inputChange" @on-change="delayChange" placeholder="请输入需要搜索的关键词">
-      <Icon type="search" slot="prepend"></Icon>
+      <Icon type="md-search" slot="prepend"></Icon>
     </i-input>
     <section class="search-result" v-if="type==='project'">
       <header>

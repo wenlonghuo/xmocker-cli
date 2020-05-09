@@ -9,7 +9,7 @@
       </a>
       <Dropdown trigger="click" placement="bottom-end" style="margin-left: 10px;">
         <a href="javascript:void(0)">
-          <Icon type="more" color="#9ea7b4"></Icon>
+          <Icon type="md-more" color="#9ea7b4"></Icon>
         </a>
         <Dropdown-menu slot="list">
           <Dropdown-item v-for="item in topDropdownItems" @click.native="btnAction(item.action)" :key="item.type">
@@ -72,13 +72,13 @@ export default {
   data () {
     return {
       topBarItems: [
-        {name: '启动', type: 'play', action: 'btnPlay'},
-        {name: '停止', type: 'stop', action: 'btnStop'},
-        {name: '刷新', type: 'refresh', action: 'btnRefresh'},
+        {name: '启动', type: 'md-play', action: 'btnPlay'},
+        {name: '停止', type: 'md-stop', action: 'btnStop'},
+        {name: '刷新', type: 'md-refresh', action: 'btnRefresh'},
       ],
       topDropdownItems: [
-        {name: '编辑', type: 'edit', action: 'btnEdit'},
-        {name: '删除', type: 'android-remove-circle', action: 'btnDelete'},
+        {name: '编辑', type: 'md-settings', action: 'btnEdit'},
+        {name: '删除', type: 'md-remove-circle', action: 'btnDelete'},
         // {name: '查看代理过的API', type: 'ios-cloud-download', action: 'btnViewProxy'},
       ],
       simpleItem: [

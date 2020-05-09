@@ -1,7 +1,7 @@
 <template>
   <Card class="api-card-first">
     <p slot="title" :title="name" style="max-width: 70%;">
-      <Icon type="at"></Icon>
+      <Icon type="md-at"></Icon>
       {{name}}
     </p>
     <template slot="extra">
@@ -120,9 +120,9 @@ export default {
   data () {
     return {
       topBarItems: [
-        {name: '编辑', type: 'edit', action: 'btnEdit'},
+        {name: '编辑', type: 'md-settings', action: 'btnEdit'},
         {name: '删除', type: 'android-remove-circle', action: 'btnDelete'},
-        {name: '查看详情', type: 'eye', action: 'btnView'},
+        {name: '查看详情', type: 'md-eye', action: 'btnView'},
       ],
       methodList: [
         {value: 'GET', label: 'GET'},

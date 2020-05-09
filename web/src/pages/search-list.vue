@@ -1,13 +1,13 @@
 <template>
   <div class="search">
     <i-input type="text" v-model="keyword" size="large" @on-enter="inputChange" @on-blur="inputChange" @on-change="delayChange" placeholder="请输入需要搜索的关键词">
-      <Icon type="search" slot="prepend"></Icon>
+      <Icon type="md-search" slot="prepend"></Icon>
     </i-input>
     <section class="search-result" v-if="project.total">
       <header>
         <h2>项目搜索结果</h2>
         <a @click="getMore('project')">
-          <Icon type="grid"></Icon>
+          <Icon type="md-grid"></Icon>
           查看全部
         </a>
       </header>
@@ -35,7 +35,7 @@
       <header>
         <h2>API搜索结果</h2>
         <a @click="getMore('api')">
-          <Icon type="grid"></Icon>
+          <Icon type="md-grid"></Icon>
           查看全部
         </a>
       </header>

@@ -3,7 +3,7 @@
     <section class="js-editor-body">
       <section class="js-editor-header-normal" v-if="status !== 'full'">
         <h4>{{ title }}</h4>
-        <Icon class="js-editor-icon" type="arrow-expand" size="20" @click.native="setFullScreen" v-if="status !== 'full'"></Icon>
+        <Icon class="js-editor-icon" type="md-resize" size="20" @click.native="setFullScreen" v-if="status !== 'full'"></Icon>
       </section>
       <section class="js-editor-header-full" v-else>
         <h2>{{ title }}编辑</h2>

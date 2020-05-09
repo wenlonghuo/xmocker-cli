@@ -7,13 +7,13 @@
         <div>{{item | projName}}</div>
         <div>
           <a href="javascript:void(0)" @click="clientDownLoadProjBase(item)" v-if="tp.download === 'base'" style="margin-right: 10px;">
-            <Icon type="arrow-down-a"></Icon>
+            <Icon type="md-arrow-down"></Icon>
           </a>
           <a href="javascript:void(0)" @click="clientDownLoadProj(item)" v-if="tp.download === 'all'" style="margin-right: 10px;">
-            <Icon type="arrow-down-a"></Icon>
+            <Icon type="md-arrow-down"></Icon>
           </a>
           <a href="javascript:void(0)" @click="linkNext(item)" v-if="item.client" style="margin-right: 10px;">
-            <Icon type="android-open"></Icon>
+            <Icon type="md-folder-open"></Icon>
           </a>
         </div>
       </Card>

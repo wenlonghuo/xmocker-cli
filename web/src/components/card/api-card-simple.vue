@@ -1,7 +1,7 @@
 <template>
   <Card class="api-card-simple" :bordered="false">
     <h3 :title="name">{{name}}</h3>
-    <Icon class="cus-close-icon" type="close-round" color="DarkGray" @click.native="btnAction('btnDelete')"></Icon>
+    <Icon class="cus-close-icon" type="md-close-circle" color="DarkGray" @click.native="btnAction('btnDelete')"></Icon>
     <ul class="cus-list-db">
       <li>
         <span class="cus-small url-type" :class="method">{{method}}</span>
@@ -26,9 +26,9 @@
       </li>
       <li style="margin-top: 10px;">
           <ButtonGroup>
-            <Button type="ghost" size="small" @click.native="shareApi">上传</Button>
-            <Button type="ghost" size="small" @click.native="getSelection">固定</Button>
-            <Button type="ghost" size="small" @click.native="btnAction('btnEdit')">编辑</Button>
+            <Button type="text" size="small" @click.native="shareApi">上传</Button>
+            <Button type="text" size="small" @click.native="getSelection">固定</Button>
+            <Button type="text" size="small" @click.native="btnAction('btnEdit')">编辑</Button>
 
           </ButtonGroup>
       </li>

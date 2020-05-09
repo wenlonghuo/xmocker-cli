@@ -33,7 +33,7 @@
                 </ul>
               </div>
             </jsonEditor>
-            <Button type="ghost" class="cus-form-json-editor-add" size="small" v-else @click.native="addBaseData('data')">添加 mock数据</Button>
+            <Button type="text" class="cus-form-json-editor-add" size="small" v-else @click.native="addBaseData('data')">添加 mock数据</Button>
           </section>
 
           <section class="cus-form-json-editor">
@@ -65,7 +65,7 @@
                 </ul>
               </div>
             </jsonEditor>
-            <Button type="ghost" class="cus-form-json-editor-add" size="small" v-else @click.native="addBaseData('inputParam')">添加 输入参数模板</Button>
+            <Button type="text" class="cus-form-json-editor-add" size="small" v-else @click.native="addBaseData('inputParam')">添加 输入参数模板</Button>
           </section>
 
           <section class="cus-form-json-editor">
@@ -79,7 +79,7 @@
                 </ul>
               </div>
             </jsonEditor>
-            <Button type="ghost" class="cus-form-json-editor-add" size="small" v-else @click.native="addBaseData('outputParam')">添加 输出参数模板</Button>
+            <Button type="text" class="cus-form-json-editor-add" size="small" v-else @click.native="addBaseData('outputParam')">添加 输出参数模板</Button>
           </section>
 
           <section class="cus-form-json-editor">
@@ -93,7 +93,7 @@
                 </ul>
               </div>
             </jsEditor>
-            <Button type="ghost" class="cus-form-json-editor-add" size="small" v-else @click.native="addBaseData('afterFunc', ' ')">添加 输出处理函数</Button>
+            <Button type="text" class="cus-form-json-editor-add" size="small" v-else @click.native="addBaseData('afterFunc', ' ')">添加 输出处理函数</Button>
           </section>
         </div>
 
