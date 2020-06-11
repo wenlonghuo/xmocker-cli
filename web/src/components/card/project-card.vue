@@ -115,7 +115,7 @@ export default {
     return {
       topBarItems: [
         {name: '启动', type: 'md-play', action: 'btnPlay'},
-        {name: '停止', type: 'md-stop', action: 'btnStop'},
+        {name: '停止', type: 'md-square', action: 'btnStop'},
         {name: '刷新', type: 'md-refresh', action: 'btnRefresh'},
       ],
       topDropdownItems: [
