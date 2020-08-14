@@ -36,7 +36,7 @@
     "superagent": "^3.5.2",
     "through2": "^2.0.3",
     "ua-parser-js": "^0.7.12",
-    "ws": "^1.1.1",
+    "ws": "^3.3.1",
     "xmocker": "^1.1.5"
   },
   "devDependencies": {
