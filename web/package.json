@@ -10,7 +10,7 @@
   "dependencies": {
     "axios": "^0.18.0",
     "hexo-front-matter": "^0.2.3",
-    "highlight.js": "^9.12.0",
+    "highlight.js": "^10.4.1",
     "iview": "^3.5.4",
     "marked": "^0.3.19",
     "monaco-editor": "^0.11.1",
