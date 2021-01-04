@@ -19,7 +19,7 @@
   "author": "jsyaowenlong@126.com",
   "license": "MIT",
   "dependencies": {
-    "axios": "^0.16.2",
+    "axios": "^0.21.1",
     "babel-runtime": "^6.25.0",
     "chalk": "^2.1.0",
     "commander": "^2.9.0",
