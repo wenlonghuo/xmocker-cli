@@ -23,7 +23,7 @@
     "babel-runtime": "^6.25.0",
     "chalk": "^2.1.0",
     "commander": "^2.9.0",
-    "debug": "^2.6.0",
+    "debug": "^3.1.0",
     "fkill": "^5.0.0",
     "koa": "^2.0.0",
     "koa-bodyparser": "^3.2.0",
