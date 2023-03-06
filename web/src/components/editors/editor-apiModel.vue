@@ -5,7 +5,7 @@
       <span v-if="shrink">分支：{{formValidate.name}}</span>
     </div>
     <div>
-      <i-switch v-model="shrink" size="large" class="editor-api-model-switch">
+      <i-switch v-model="open" size="large" class="editor-api-model-switch">
         <span slot="open">展开</span>
         <span slot="close">收起</span>
       </i-switch>
@@ -163,7 +163,14 @@ export default {
     }
   },
   computed: {
-
+    open: {
+      get () {
+        return !this.shrink
+      },
+      set (val) {
+        this.shrink = !val
+      }
+    }
   },
   components: {
     jsonEditor,
