@@ -1,7 +1,7 @@
 <template>
   <div class="about">
     <h1>XMOCKER</h1>
-      <a href="https://github.com/wenlonghuo/xmocker-cli" class="github"><Icon type="md-social-github" size="24"></Icon></a>
+      <a href="https://github.com/wenlonghuo/xmocker-cli" class="github" target="_blank"><Icon type="logo-github" size="24"></Icon></a>
     <section>
       <h2>介绍</h2>
       xmocker是一套提供mock数据的本地工具。通过图形化操作界面，为页面提供相应API，提高开发速度
