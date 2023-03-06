@@ -88,6 +88,10 @@ async function searchApiBase (ctx, next) {
         project: project,
         description: {$regex: regex},
       },
+      {
+        project: project,
+        url: {$regex: regex},
+      },
     ],
   }
 
