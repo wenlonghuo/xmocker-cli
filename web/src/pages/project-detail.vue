@@ -7,9 +7,11 @@
         <Icon type="ios-film-outline"></Icon>
         API列表
         <span class="cus-card-left-bar">
-          <Input v-model="searchVal" icon="search" placeholder="输入API名进行检索" style="width: 150px;margin: 0 10px;"/>
-          <a href="javascript:;" v-if="sortBy" class="cus-action-link" @click="sortList('')" style="margin-right: 20px;"><Icon type="md-navigate"></Icon> 按名称排序</a>
+          <Input v-model="searchVal" icon="search" placeholder="输入API名进行检索" style="width: 150px;margin: 0 10px;" clearable />
+          <a href="javascript:;" v-if="sortBy === '_mt'" class="cus-action-link" @click="sortList('name')" style="margin-right: 20px;"><Icon type="md-navigate"></Icon> 按名称排序</a>
           <a href="javascript:;" v-else class="cus-action-link" @click="sortList('_mt')" style="margin-right: 20px;"><Icon type="md-clock"></Icon> 按时间排序</a>
+          <a href="javascript:;" v-if="sortOrder === -1" class="cus-action-link" @click="setSortOrder(1)" style="margin-right: 20px;"><Icon type="md-arrow-up"></Icon></a>
+          <a href="javascript:;" v-else class="cus-action-link" @click="setSortOrder(-1)" style="margin-right: 20px;"><Icon type="md-arrow-down"></Icon></a>
           <a href="javascript:;" class="cus-action-link" @click="addApi" style="margin-right: 10px;"><Icon type="md-create"></Icon> 新建</a>
           <a href="javascript:;" class="cus-action-link" @click="copyApi" style="margin-right: 10px;"><Icon type="md-arrow-down"></Icon> 导入API</a>
         </span>
@@ -211,7 +213,8 @@ export default {
       modifyFixedWrong: '',
       modifyFixedBranch: '',
       modifyFixedThrow: '',
-      loading: true
+      loading: true,
+      sortOrder: 1
     }
   },
   components: {
@@ -300,7 +303,7 @@ export default {
         pageSize: this.pageSize,
         pageNo: this.pageNo,
         sortBy: this.sortBy,
-        order: this.sortBy ? -1 : 1,
+        order: this.sortOrder,
       }
       if (this.searchData) param.words = this.searchData
       return func(param).then((data) => {
@@ -361,6 +364,10 @@ export default {
     },
     sortList (val) {
       this.$store.commit('api/SET_SORT', val)
+      this.getApi()
+    },
+    setSortOrder (val) {
+      this.sortOrder = val
       this.getApi()
     },
     setFix ({id}) {

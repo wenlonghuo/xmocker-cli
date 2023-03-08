@@ -12,7 +12,7 @@ const state = {
   pageSize: 6,
   pageNo: 0,
   total: 0,
-  sortBy: '',
+  sortBy: 'name',
   searchVal: '',
 }
 
