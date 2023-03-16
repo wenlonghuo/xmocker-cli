@@ -1,5 +1,5 @@
 <template>
-  <Card bordered="bordered" dis-hover="dis-hover">
+  <Card bordered="bordered" dis-hover="dis-hover" :style="titleColor">
     <p slot="title" >
       {{info.name}}
     </p>
@@ -116,6 +116,11 @@ export default {
         }
       },
     },
+  },
+  computed: {
+    titleColor: function () {
+      return this.info.status ? {'background-color': '#CAE1FF'} : {}
+    }
   },
   watch: {
     'info' () {
