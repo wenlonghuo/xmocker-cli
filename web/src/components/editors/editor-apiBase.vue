@@ -118,7 +118,7 @@ export default {
         url: '/api',
         path: '',
         pathEqual: '',
-        delay: 0,
+        delay: 200,
         description: '',
         project: '',
         afterFunc: null,
