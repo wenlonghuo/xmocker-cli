@@ -5,3 +5,5 @@ debug.log
 db/
 xmocker/
 .DS_Store
+
+dist/
