@@ -205,6 +205,9 @@ module.exports.put.apiBase = {
       type: ['object', 'null'],
       title: '样板数据',
     },
+    disabled: {
+      type: 'boolean',
+    },
   },
 }
 

@@ -47,6 +47,8 @@
           :fixedOutput="item.fixedOutput"
           :description="item.description"
           :pageNo="item.pageNo"
+          :disabled="item.disabled"
+          @toggle="(e) => toggleApi(item, e)"
           @delete="getApi"
           @shareApi="shareApi"
           @setFix="setFix"
@@ -163,7 +165,7 @@
 <script>
 import apiCard from '../components/card/api-card-simple.vue'
 import detailProject from '../components/detail/detail-project.vue'
-import { getApi, searchApi, clientGetProjList, clientPushApiById, copyApi, getLib, getApiModel, setApiStatus } from '@/api/api.js'
+import { getApi, searchApi, clientGetProjList, clientPushApiById, copyApi, getLib, getApiModel, setApiStatus, editApiBase } from '@/api/api.js'
 export default {
   name: 'projectDetail',
   data () {
@@ -402,6 +404,19 @@ export default {
       param.id = type === '1' ? this.modifyFixedWrong : type === '3' ? this.modifyFixedBranch : undefined
       param.data = type === '2' ? { code: ~~this.modifyFixedThrow } : undefined
       setApiStatus(param)
+        .then(res => {
+          if (res.code) return
+          this.$Message.success(res.message)
+          this.showFixData = false
+        })
+    },
+    // toggle api
+    toggleApi (item, e) {
+      editApiBase({
+        ...item,
+        id: item._id,
+        disabled: !e
+      })
         .then(res => {
           if (res.code) return
           this.$Message.success(res.message)
