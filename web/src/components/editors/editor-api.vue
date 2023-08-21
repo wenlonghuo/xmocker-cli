@@ -10,10 +10,16 @@
       <Button type="primary" icon="add" @click="addNewBranch">添加分支</Button>
     </div>
   </Card>
-  <Card :bordered="false" class="right-list-full right-container" style="height:calc(100vh - 112px)" v-show="info.model && info.model.length">
-    <p slot="title">
+  <Card
+    v-show="info.model && info.model.length"
+    :bordered="false"
+    :class="['right-list-full', 'right-container', { 'is-shrink': shrink }]"
+    style="height:calc(100vh - 112px)"
+  >
+    <p slot="title" class="right-title">
         <Icon type="ios-film-outline"></Icon>
         API分支列表
+        <Icon class="toggle-icon" :type="shrink ? 'md-arrow-back' : 'md-arrow-forward'" @click="toggleShrink" />
     </p>
     <editorModel @submit="submitModel" @delete="deleteApiModel" v-for="model in info.model" :info="model" :key="model._id" style="margin: 8px 0;"></editorModel>
     <Button type="primary" icon="add" @click="addNewBranch">添加新分支</Button>
@@ -32,6 +38,7 @@ export default {
       info: {
       },
       baseid: '',
+      shrink: typeof window.localStorage.getItem('shrink') === 'undefined' ? true : JSON.parse(window.localStorage.getItem('shrink'))
     }
   },
   components: {
@@ -122,10 +129,14 @@ export default {
       if (!this.info.model) this.info.model = []
       this.info.model.push({})
     },
+    toggleShrink () {
+      this.shrink = !this.shrink
+      window.localStorage.setItem('shrink', this.shrink)
+    }
   },
 }
 </script>
-<style scoped>
+<style lang="scss" scoped>
 .editor-api {
   display: flex;
   min-width: 1000px;
@@ -133,6 +144,17 @@ export default {
 .editor-api .right-container {
   flex-basis: 600px;
   flex-grow: 1;
+  &.is-shrink {
+    flex-basis: 0;
+  }
+  .right-title{
+    display: flex;
+    align-items: center;
+    .toggle-icon {
+      cursor: pointer;
+      margin-left: auto;
+    }
+  }
 }
 .editor-api .left-info {
   flex-basis: 600px;

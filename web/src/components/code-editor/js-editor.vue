@@ -12,7 +12,7 @@
         <h3 style="margin: 10px 0;">状态：</h3>
         <slot name="errMsg" />
       </section>
-      <MonacoEditor class="js-editor-container" ref="editor" :style="editorSize" :language="type" v-model="editorValue" @blur="editorBlur" @focus="editorFocus" />
+      <MonacoEditor class="js-editor-container" ref="editor" :style="editorSize" :language="type" :options="options" v-model="editorValue" @blur="editorBlur" @focus="editorFocus" />
       <section class="js-editor-errMsg-c" v-if="status !== 'full'">
         <slot name="errMsg" />
       </section>
@@ -29,7 +29,11 @@ export default {
     return {
       editorValue: '',
       status: 'normal',
-      resize: 0
+      resize: 0,
+      options: {
+        // customize monaco
+        // fontSize: 16
+      }
     }
   },
   props: {
@@ -82,6 +86,13 @@ export default {
     'value': function (newval) {
       this.setEditorValue()
     },
+    status (newVal) {
+      if (newVal === 'full') {
+        window.addEventListener('keydown', this.handlePressEsc)
+      } else {
+        window.removeEventListener('keydown', this.handlePressEsc)
+      }
+    }
   },
   created () {
     this.resizeFunc = () => {
@@ -95,8 +106,14 @@ export default {
   },
   destroyed () {
     window.removeEventListener('resize', this.resizeFunc)
+    window.removeEventListener('keydown', this.handlePressEsc)
   },
   methods: {
+    handlePressEsc (e) {
+      if (e.keyCode === 27) {
+        this.status = 'normal'
+      }
+    },
     setFullScreen () {
       this.status = 'full'
     },

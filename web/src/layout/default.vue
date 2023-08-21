@@ -189,7 +189,7 @@
       <div :class="{shrink: shrink}" class="layout-menu-left">
         <Menu :active-name="actived" width="auto" class="layout-menu-list">
           <li class="toggle-button" @click="toggleClick" style="color: #3d3d3d">
-            <Icon type="md-navicon" size="24"></Icon>
+            <Icon type="md-menu" size="24"></Icon>
           </li>
           <Menu-item name="search" @click.native="selectMenu('搜索')">
             <Icon type="md-search" size="18"></Icon>
@@ -211,7 +211,7 @@
               <Icon type="md-bug" size="18"></Icon>
               <span class="layout-text">日志</span>
           </Menu-item>
-           <Menu-item name="about" @click.native="selectMenu('关于')">
+          <Menu-item name="about" @click.native="selectMenu('关于')">
               <Icon type="md-information-circle" size="18"></Icon>
               <span class="layout-text">关于</span>
           </Menu-item>
