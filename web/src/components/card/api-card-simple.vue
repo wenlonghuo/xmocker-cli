@@ -1,6 +1,6 @@
 <template>
   <Card class="api-card-simple" :bordered="false">
-    <h3 :title="name">{{name}}</h3>
+    <h3 class="title" :title="name" @click="btnAction('btnEdit')">{{name}}</h3>
     <Icon class="cus-close-icon" type="md-close-circle" color="DarkGray" @click.native="btnAction('btnDelete')"></Icon>
     <ul class="cus-list-db">
       <li>
@@ -24,15 +24,15 @@
           {{timer(mt)}}
         </span>
       </li>
-      <li style="margin-top: 10px;">
+    </ul>
+    <div class="api-card-simple__footer">
           <ButtonGroup>
             <Button type="text" size="small" @click.native="shareApi">上传</Button>
             <Button type="text" size="small" @click.native="getSelection">固定</Button>
             <Button type="text" size="small" @click.native="btnAction('btnEdit')">编辑</Button>
-
           </ButtonGroup>
-      </li>
-    </ul>
+          <i-switch size="small" :value="!disabled" @on-change="e => $emit('toggle', e)" />
+      </div>
   </Card>
 </template>
 <script>
@@ -108,6 +108,10 @@ export default {
     fromSearch: {
       type: Boolean,
     },
+    disabled: {
+      type: Boolean,
+      default: false
+    }
   },
   methods: {
     submitItem (item) {
@@ -142,7 +146,21 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="scss" scoped>
+.api-card-simple {
+  .title {
+    cursor: pointer;
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+  &__footer {
+    margin-top: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+}
 .api-card-simple .cus-list-db {
   margin-top: 8px;
 }

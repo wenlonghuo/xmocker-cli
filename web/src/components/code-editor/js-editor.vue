@@ -32,7 +32,7 @@ export default {
       resize: 0,
       options: {
         // customize monaco
-        // fontSize: 16
+        fontSize: 16
       }
     }
   },

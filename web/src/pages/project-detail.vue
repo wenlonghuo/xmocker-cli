@@ -7,7 +7,7 @@
         <Icon type="ios-film-outline"></Icon>
         API列表
         <span class="cus-card-left-bar">
-          <Input v-model="searchVal" icon="search" placeholder="输入API名进行检索" style="width: 150px;margin: 0 10px;" clearable />
+          <Input ref="searchInput" v-model="searchVal" icon="search" placeholder="输入API名进行检索" style="width: 150px;margin: 0 10px;" clearable @on-keydown="(e) => e.stopPropagation()"/>
           <a href="javascript:;" v-if="sortBy === '_mt'" class="cus-action-link" @click="sortList('name')" style="margin-right: 20px;"><Icon type="md-navigate"></Icon> 按名称排序</a>
           <a href="javascript:;" v-else class="cus-action-link" @click="sortList('_mt')" style="margin-right: 20px;"><Icon type="md-clock"></Icon> 按时间排序</a>
           <a href="javascript:;" v-if="sortOrder === -1" class="cus-action-link" @click="setSortOrder(1)" style="margin-right: 20px;"><Icon type="md-arrow-up"></Icon></a>
@@ -47,6 +47,8 @@
           :fixedOutput="item.fixedOutput"
           :description="item.description"
           :pageNo="item.pageNo"
+          :disabled="item.disabled"
+          @toggle="(e) => toggleApi(item, e)"
           @delete="getApi"
           @shareApi="shareApi"
           @setFix="setFix"
@@ -163,7 +165,7 @@
 <script>
 import apiCard from '../components/card/api-card-simple.vue'
 import detailProject from '../components/detail/detail-project.vue'
-import { getApi, searchApi, clientGetProjList, clientPushApiById, copyApi, getLib, getApiModel, setApiStatus } from '@/api/api.js'
+import { getApi, searchApi, clientGetProjList, clientPushApiById, copyApi, getLib, getApiModel, setApiStatus, editApiBase } from '@/api/api.js'
 export default {
   name: 'projectDetail',
   data () {
@@ -291,8 +293,24 @@ export default {
         this.$Message.error('抱歉，走错了呢')
       }
     })
+    window.addEventListener('keydown', this.handleFind)
+  },
+  beforeDestroy () {
+    window.removeEventListener('keydown', this.handleFind)
   },
   methods: {
+    handleFind (e) {
+      if (e.keyCode === 70 && e.metaKey) {
+        this.$refs.searchInput.focus()
+        e.preventDefault()
+      } else if ([37, 38].includes(e.keyCode)) {
+        // prev page
+        this.pageBefore()
+      } else if ([39, 40].includes(e.keyCode)) {
+        // next page
+        this.pageNext()
+      }
+    },
     getApi () {
       clearTimeout(this.delayHandle)
       this.callTime++
@@ -386,6 +404,19 @@ export default {
       param.id = type === '1' ? this.modifyFixedWrong : type === '3' ? this.modifyFixedBranch : undefined
       param.data = type === '2' ? { code: ~~this.modifyFixedThrow } : undefined
       setApiStatus(param)
+        .then(res => {
+          if (res.code) return
+          this.$Message.success(res.message)
+          this.showFixData = false
+        })
+    },
+    // toggle api
+    toggleApi (item, e) {
+      editApiBase({
+        ...item,
+        id: item._id,
+        disabled: !e
+      })
         .then(res => {
           if (res.code) return
           this.$Message.success(res.message)
